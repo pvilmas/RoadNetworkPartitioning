@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+      fx:controller="bp.roadnetworkpartitioning.MainController">
+    <top>
+    <MenuBar fx:id="menuBar">
+        <menus>
+            <Menu text="File">
+                <items>
+                    <MenuItem text="New"/>
+                    <MenuItem text="Open"/>
+                    <MenuItem text="Save"/>
+                    <MenuItem text="Save As"/>
+                    <SeparatorMenuItem  />
+                    <MenuItem text="Exit"/>
+                </items>
+            </Menu>
+            <Menu text="Edit">
+                <items>
+                    <MenuItem text="Copy"/>
+                    <MenuItem text="Cut"/>
+                    <MenuItem text="Paste"/>
+                </items>
+            </Menu>
+            <Menu text="Help">
+                <items>
+                    <MenuItem text="Search" disable="true"/>
+                    <MenuItem text="Online Manual" visible="false"/>
+                    <SeparatorMenuItem />
+                    <MenuItem text="About"/>
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
+    </top>
+    <center>
+        <VBox alignment="CENTER">
+            <BorderPane.margin>
+                <Insets left="15" right="15" top="15"/>
+            </BorderPane.margin>
+            <spacing>
+            5
+            </spacing>
+            <Label text="Upload file with node coordinates"/>
+            <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadCoordinatesButtonClick"/>
+            <Label text="Upload file with graph edges"/>
+            <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadEdgesButtonClick"/>
+            <Button styleClass="btn, btn-danger" text="Create JSON File!" onAction="#onCreateJSONButtonClick"/>
+        </VBox>
+    </center>
+
+</BorderPane>
