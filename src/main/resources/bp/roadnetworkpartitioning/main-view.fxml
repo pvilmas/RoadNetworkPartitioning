@@ -8,36 +8,33 @@
       fx:controller="bp.roadnetworkpartitioning.MainController">
     <top>
     <MenuBar fx:id="menuBar">
-        <menus>
             <Menu text="File">
-                <items>
-                    <MenuItem text="New"/>
-                    <MenuItem text="Open"/>
-                    <MenuItem text="Save"/>
-                    <MenuItem text="Save As"/>
-                    <SeparatorMenuItem  />
-                    <MenuItem text="Exit"/>
-                </items>
+                <MenuItem text="New"/>
+                <MenuItem text="Open"/>
+                <MenuItem text="Save"/>
+                <MenuItem text="Save As"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="Exit"/>
             </Menu>
             <Menu text="Edit">
-                <items>
-                    <MenuItem text="Copy"/>
-                    <MenuItem text="Cut"/>
-                    <MenuItem text="Paste"/>
-                </items>
+                <MenuItem text="Copy"/>
+                <MenuItem text="Cut"/>
+                <MenuItem text="Paste"/>
             </Menu>
             <Menu text="Help">
-                <items>
-                    <MenuItem text="Search" disable="true"/>
-                    <MenuItem text="Online Manual" visible="false"/>
-                    <SeparatorMenuItem />
-                    <MenuItem text="About"/>
-                </items>
+                <MenuItem text="Search" disable="true"/>
+                <MenuItem text="Online Manual" visible="false"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="About"/>
             </Menu>
-        </menus>
     </MenuBar>
     </top>
-    <center>
+    <left>
+        <ScrollPane fx:id="scrollPane">
+
+        </ScrollPane>
+    </left>
+    <right>
         <VBox alignment="CENTER">
             <BorderPane.margin>
                 <Insets left="15" right="15" top="15"/>
@@ -45,12 +42,44 @@
             <spacing>
             5
             </spacing>
+            <Label text="Number of first line with data in edge file"/>
+            <TextField fx:id="textFieldLineEdge"/>
+            <Label text="Delimiter of columns in edge file"/>
+            <TextField fx:id="textFieldDelimiterEdge"/>
+            <Label text="Column with start points in edge file"/>
+            <TextField fx:id="textFieldColStart"/>
+            <Label text="Column with endpoints in edge file"/>
+            <TextField fx:id="textFieldColEnd"/>
+            <Label text="Column with lengths in edge file"/>
+            <TextField fx:id="textFieldColLength"/>
+            <Label text="Number of first line with data in node file"/>
+            <TextField fx:id="textFieldLineVertex"/>
+            <Label text="Delimiter of columns in node file"/>
+            <TextField fx:id="textFieldDelimiterVertex"/>
+            <Label text="Column with IDs in node file"/>
+            <TextField fx:id="textFieldColID"/>
+            <Label text="Column with x-coordinates in node file"/>
+            <TextField fx:id="textFieldColX"/>
+            <Label text="Column with y-coordinates in node file"/>
+            <TextField fx:id="textFieldColY"/>
             <Label text="Upload file with node coordinates"/>
             <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadCoordinatesButtonClick"/>
             <Label text="Upload file with graph edges"/>
             <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadEdgesButtonClick"/>
             <Button styleClass="btn, btn-danger" text="Create JSON File!" onAction="#onCreateJSONButtonClick"/>
+            <Button styleClass="btn, btn-danger" text="Create graph from JSON File!" onAction="#onInsertGraphJSONButtonClick"/>
         </VBox>
-    </center>
+    </right>
+    <bottom>
+        <HBox spacing="10" alignment="bottom_right">
+        <Label text="Number of vertices horizontally"/>
+        <TextField fx:id="textFieldHorizontally"/>
+        <Label text="Number of vertices vertically"/>
+        <TextField fx:id="textFieldVertically"/>
+        <Label text="Length of graph edges"/>
+        <TextField fx:id="textFieldLength"/>
+        <Button styleClass="btn, btn-danger" text="Create graph!" onAction="#onCreateGraphButtonClick"/>
+        </HBox>
+    </bottom>
 
 </BorderPane>

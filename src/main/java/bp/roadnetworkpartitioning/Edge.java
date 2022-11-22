@@ -95,4 +95,9 @@ public class Edge {
     public int hashCode(){
         return this.id;
     }
+
+    @Override
+    public String toString(){
+        return "Edge " + id + " = " + endpoint.toString() + ", " + length;
+    }
 }

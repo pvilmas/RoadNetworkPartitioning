@@ -23,25 +23,106 @@ public class Graph {
 
     /**
      * Generates graph with given number of vertices horizontally and vertically.
-     * @param numVerticesHorizontally   Number of vertices horizontally ....
-     * @param numVerticesVertically     Number of vertices vertically .
-     *                                                                .
-     *                                                                .
+     * @param numVerticesHorizontally   Number of vertices horizontally.
+     * @param numVerticesVertically     Number of vertices vertically.
+     * @param length                    Length of each edge.
      * @return  generated graph.
      */
-    public static Graph generateGraph(int numVerticesHorizontally, int numVerticesVertically){
+    public static Graph generateGraph(int numVerticesHorizontally, int numVerticesVertically, double length){
         HashMap<Integer, Vertex> vertices = new HashMap<>();
         HashMap<Integer, Edge> edges = new HashMap<>();
+        int numVertices = numVerticesVertically * numVerticesHorizontally;
         int id = 1;
-        for(int i = 0; i < numVerticesVertically; i += 2){
-            for(int j = 0; j < numVerticesHorizontally; j += 2){
-                Vertex vertex = new Vertex(id, j, i);
-                id++;
+        double x = 0;
+        double y;
+        for(int i = 0; i < numVerticesVertically; i++){
+            y = i * length;
+            for(int j = 0; j < numVerticesHorizontally; j++){
+                Vertex vertex = new Vertex(id, x, y);
                 vertices.put(id, vertex);
-                //TODO edges
+                id++;
+                x += length;
             }
+            x = 0;
         }
-        Graph graph = new Graph(vertices, edges);
-        return graph;
+        id = 1;
+        for(int i = 1; i <= (numVertices); i++) {
+            id = addEdge(vertices.get(i), edges,
+                    (((i + 1) <= numVertices) && (i%numVerticesHorizontally != 0)), vertices.get(i + 1), id, length);
+            id = addEdge(vertices.get(i), edges,
+                    (((i - 1) > 0) && ((i - 1)%numVerticesHorizontally != 0)), vertices.get(i - 1), id, length);
+            id = addEdge(vertices.get(i), edges,
+                    (i + numVerticesHorizontally) <= numVertices, vertices.get(i + numVerticesHorizontally), id, length);
+            id = addEdge(vertices.get(i), edges,
+                    (i - numVerticesHorizontally) > 0, vertices.get(i - numVerticesHorizontally), id, length);
+        }
+        return new Graph(vertices, edges);
     }
+
+    /**
+     * Adds edge to vertex if it's possible.
+     * @param vertexStart   Vertex which should be new start of edge.
+     * @param edges         HashMap with all edges currently created.
+     * @param condition     Condition for adding edge to specific vertex.
+     * @param vertexEnd     End vertex of new edge.
+     * @param id            ID of new edge.
+     * @param length        Length of new edge.
+     * @return  ID of new edge if condition is true.
+     */
+    private static int addEdge(Vertex vertexStart, HashMap<Integer, Edge> edges,
+                               boolean condition, Vertex vertexEnd, int id, double length){
+        if(condition) {
+            Edge edge = new Edge(vertexEnd, length);
+            vertexStart.getEdges().add(edge);
+            edges.put(id, edge);
+            id++;
+        }
+        return id;
+    }
+
+    /**
+     * Getter of graph vertices.
+     * @return graph vertices.
+     */
+    public HashMap<Integer, Vertex> getVertices(){
+        return this.vertices;
+    }
+
+    /**
+     * Getter of graph edges.
+     * @return graph edges.
+     */
+    public HashMap<Integer, Edge> getEdges(){
+        return this.edges;
+    }
+
+    /**
+     * Setter of graph vertices.
+     * @param vertices  new graph vertices.
+     */
+    public void setVertices(HashMap<Integer, Vertex> vertices){
+        this.vertices = vertices;
+    }
+
+    /**
+     * Setter of graph edges.
+     * @param edges     new graph edges.
+     */
+    public void setEdges(HashMap<Integer, Edge> edges){
+        this.edges = edges;
+    }
+
+    @Override
+    public String toString(){
+        String s = "";
+        for (Vertex v: vertices.values()) {
+            s += v.toString() +"\n";
+        }
+
+        for (Edge e: edges.values()) {
+            s += e.toString() +"\n";
+        }
+        return s;
+    }
+
 }
