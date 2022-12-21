@@ -4,82 +4,66 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-      fx:controller="bp.roadnetworkpartitioning.MainController">
-    <top>
-    <MenuBar fx:id="menuBar">
-            <Menu text="File">
-                <MenuItem text="New"/>
-                <MenuItem text="Open"/>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="bp.roadnetworkpartitioning.MainController">
+        <MenuBar fx:id="menuBar" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <Menu text="Graph">
+                <Menu text="New">
+                    <MenuItem text="Generate Graph" onAction="#onCreateGraphMenuClick"/>
+                    <MenuItem text="Insert Graph" onAction="#onInsertGraphJSONMenuClick"/>
+                </Menu>
                 <MenuItem text="Save"/>
-                <MenuItem text="Save As"/>
                 <SeparatorMenuItem/>
                 <MenuItem text="Exit"/>
             </Menu>
-            <Menu text="Edit">
-                <MenuItem text="Copy"/>
-                <MenuItem text="Cut"/>
-                <MenuItem text="Paste"/>
+            <Menu text="Parser">
+                <MenuItem text="Create GeoJSON File" onAction="#onCreateJSONMenuClick"/>
             </Menu>
             <Menu text="Help">
-                <MenuItem text="Search" disable="true"/>
-                <MenuItem text="Online Manual" visible="false"/>
-                <SeparatorMenuItem/>
+                <MenuItem text="Manual"/>
                 <MenuItem text="About"/>
             </Menu>
-    </MenuBar>
-    </top>
-    <left>
-        <ScrollPane fx:id="scrollPane">
-
+        </MenuBar>
+        <ScrollPane fx:id="scrollPane" AnchorPane.topAnchor="30.0" AnchorPane.leftAnchor="10.0"
+                    AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="220.0">
         </ScrollPane>
-    </left>
-    <right>
-        <VBox alignment="CENTER">
-            <BorderPane.margin>
-                <Insets left="15" right="15" top="15"/>
-            </BorderPane.margin>
+        <VBox alignment="CENTER" AnchorPane.topAnchor="30.0" AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="10.0">
             <spacing>
-            5
+             15
             </spacing>
-            <Label text="Number of first line with data in edge file"/>
-            <TextField fx:id="textFieldLineEdge"/>
-            <Label text="Delimiter of columns in edge file"/>
-            <TextField fx:id="textFieldDelimiterEdge"/>
-            <Label text="Column with start points in edge file"/>
-            <TextField fx:id="textFieldColStart"/>
-            <Label text="Column with endpoints in edge file"/>
-            <TextField fx:id="textFieldColEnd"/>
-            <Label text="Column with lengths in edge file"/>
-            <TextField fx:id="textFieldColLength"/>
-            <Label text="Number of first line with data in node file"/>
-            <TextField fx:id="textFieldLineVertex"/>
-            <Label text="Delimiter of columns in node file"/>
-            <TextField fx:id="textFieldDelimiterVertex"/>
-            <Label text="Column with IDs in node file"/>
-            <TextField fx:id="textFieldColID"/>
-            <Label text="Column with x-coordinates in node file"/>
-            <TextField fx:id="textFieldColX"/>
-            <Label text="Column with y-coordinates in node file"/>
-            <TextField fx:id="textFieldColY"/>
-            <Label text="Upload file with node coordinates"/>
-            <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadCoordinatesButtonClick"/>
-            <Label text="Upload file with graph edges"/>
-            <Button styleClass="btn, btn-danger" text="Upload file!" onAction="#onUploadEdgesButtonClick"/>
-            <Button styleClass="btn, btn-danger" text="Create JSON File!" onAction="#onCreateJSONButtonClick"/>
-            <Button styleClass="btn, btn-danger" text="Create graph from JSON File!" onAction="#onInsertGraphJSONButtonClick"/>
-        </VBox>
-    </right>
-    <bottom>
-        <HBox spacing="10" alignment="bottom_right">
-        <Label text="Number of vertices horizontally"/>
-        <TextField fx:id="textFieldHorizontally"/>
-        <Label text="Number of vertices vertically"/>
-        <TextField fx:id="textFieldVertically"/>
-        <Label text="Length of graph edges"/>
-        <TextField fx:id="textFieldLength"/>
-        <Button styleClass="btn, btn-danger" text="Create graph!" onAction="#onCreateGraphButtonClick"/>
-        </HBox>
-    </bottom>
+            <HBox spacing="10" alignment="CENTER">
+                <Button styleClass="btn, btn-warning" text="-5" prefHeight="50" prefWidth="30" onAction="#onDecreaseButtonClick"/>
+                <Label fx:id="labelZoom" text="10"/>
+                <Button styleClass="btn, btn-warning" text="+5" prefHeight="50" prefWidth="30" onAction="#onIncreaseButtonClick"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER">
+                <TextField fx:id="textZoom" prefHeight="50" prefWidth="80"/>
+                <Button styleClass="btn, btn-warning" text="Zoom" prefHeight="50" prefWidth="40" onAction="#onZoomButtonClick"/>
+            </HBox>
+            <VBox alignment="CENTER">
+                <spacing>
+                    5
+                </spacing>
+                    <fx:define>
+                <ToggleGroup fx:id="group" />
+            </fx:define>
 
-</BorderPane>
+            <RadioButton fx:id="method1" text="Method 1" toggleGroup="$group">
+                <VBox.margin>
+                    <Insets right="30.0" bottom="10.0"/>
+                </VBox.margin>
+            </RadioButton>
+
+            <RadioButton fx:id="method2" text="Method 2" toggleGroup="$group">
+                <VBox.margin>
+                    <Insets right="30.0" bottom="10.0"/>
+                </VBox.margin>
+            </RadioButton>
+
+            <RadioButton fx:id="method3" text="Method 3" toggleGroup="$group">
+                <VBox.margin>
+                    <Insets right="30.0" bottom="10.0"/>
+                </VBox.margin>
+            </RadioButton>
+            </VBox>
+        </VBox>
+</AnchorPane>
