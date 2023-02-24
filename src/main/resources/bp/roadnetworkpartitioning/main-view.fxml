@@ -23,47 +23,46 @@
                 <MenuItem text="About"/>
             </Menu>
         </MenuBar>
-        <ScrollPane fx:id="scrollPane" AnchorPane.topAnchor="30.0" AnchorPane.leftAnchor="10.0"
-                    AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="220.0">
-        </ScrollPane>
-        <VBox alignment="CENTER" AnchorPane.topAnchor="30.0" AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="10.0">
-            <spacing>
-             15
-            </spacing>
-            <HBox spacing="10" alignment="CENTER">
-                <Button styleClass="btn, btn-warning" text="-5" prefHeight="50" prefWidth="30" onAction="#onDecreaseButtonClick"/>
-                <Label fx:id="labelZoom" text="10"/>
-                <Button styleClass="btn, btn-warning" text="+5" prefHeight="50" prefWidth="30" onAction="#onIncreaseButtonClick"/>
-            </HBox>
-            <HBox spacing="10" alignment="CENTER">
-                <TextField fx:id="textZoom" prefHeight="50" prefWidth="80"/>
-                <Button styleClass="btn, btn-warning" text="Zoom" prefHeight="50" prefWidth="40" onAction="#onZoomButtonClick"/>
-            </HBox>
+    <SplitPane AnchorPane.topAnchor="30.0" AnchorPane.leftAnchor="10.0"
+               AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" dividerPositions="0.3492462311557789" focusTraversable="true" prefHeight="160.0" prefWidth="200.0">
+        <items>
+            <ScrollPane fx:id="scrollPane"/>
             <VBox alignment="CENTER">
-                <spacing>
-                    5
-                </spacing>
+                <spacing>15</spacing>
+                <HBox spacing="10" alignment="CENTER">
+                    <Button styleClass="btn, btn-warning" text="-5" prefHeight="50" prefWidth="30" onAction="#onDecreaseButtonClick"/>
+                    <Label fx:id="labelZoom" text="10"/>
+                    <Button styleClass="btn, btn-warning" text="+5" prefHeight="50" prefWidth="30" onAction="#onIncreaseButtonClick"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER">
+                    <TextField fx:id="textZoom" prefHeight="50" prefWidth="80"/>
+                    <Button styleClass="btn, btn-warning" text="Zoom" prefHeight="50" prefWidth="40" onAction="#onZoomButtonClick"/>
+                </HBox>
+                <VBox alignment="CENTER">
+                    <spacing>5</spacing>
                     <fx:define>
-                <ToggleGroup fx:id="group" />
-            </fx:define>
+                    <ToggleGroup fx:id="group" />
+                </fx:define>
 
-            <RadioButton fx:id="method1" text="Method 1" toggleGroup="$group">
-                <VBox.margin>
-                    <Insets right="30.0" bottom="10.0"/>
-                </VBox.margin>
-            </RadioButton>
+                <RadioButton fx:id="method1" text="Method 1" toggleGroup="$group">
+                    <VBox.margin>
+                        <Insets right="30.0" bottom="10.0"/>
+                    </VBox.margin>
+                </RadioButton>
 
-            <RadioButton fx:id="method2" text="Method 2" toggleGroup="$group">
-                <VBox.margin>
-                    <Insets right="30.0" bottom="10.0"/>
-                </VBox.margin>
-            </RadioButton>
+                <RadioButton fx:id="method2" text="Method 2" toggleGroup="$group">
+                    <VBox.margin>
+                        <Insets right="30.0" bottom="10.0"/>
+                    </VBox.margin>
+                </RadioButton>
 
-            <RadioButton fx:id="method3" text="Method 3" toggleGroup="$group">
-                <VBox.margin>
-                    <Insets right="30.0" bottom="10.0"/>
-                </VBox.margin>
-            </RadioButton>
+                <RadioButton fx:id="method3" text="Method 3" toggleGroup="$group">
+                    <VBox.margin>
+                        <Insets right="30.0" bottom="10.0"/>
+                    </VBox.margin>
+                </RadioButton>
+                </VBox>
             </VBox>
-        </VBox>
+        </items>
+    </SplitPane>
 </AnchorPane>

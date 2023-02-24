@@ -10,6 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="demo" target="11" />
       <module name="RoadNetworkPartitioning" target="11" />
     </bytecodeTargetLevel>
   </component>

@@ -1,4 +1,4 @@
-module com.example.roadnetworkpartitioning {
+module bp.roadnetworkpartitioning {
     requires javafx.controls;
     requires javafx.fxml;
 

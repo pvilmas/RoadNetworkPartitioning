@@ -1,15 +1,20 @@
 package bp.roadnetworkpartitioning;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 /**
  * Controller of main window of the app.
@@ -31,33 +36,35 @@ public class MainController {
     @FXML
     private Label labelZoom;
     /** TextField with number of line where data starts in edge file. */
-    private TextField textFieldLineEdge;
+    private final TextField textFieldLineEdge = new TextField();
     /** TextField with number of column where is delimiter of edge in edge file. */
-    private TextField textFieldDelimiterEdge;
+    private final TextField textFieldDelimiterEdge = new TextField();
     /** TextField with number of column where is delimiter of node in node file. */
-    private TextField textFieldDelimiterVertex;
+    private final TextField textFieldDelimiterVertex = new TextField();
     /** TextField with number of column where is start point of edge in edge file. */
-    private TextField textFieldColStart;
+    private final TextField textFieldColStart = new TextField();
     /** TextField with number of column where is endpoint of edge in edge file. */
-    private TextField textFieldColEnd;
+    private final TextField textFieldColEnd = new TextField();
     /** TextField with number of column where is length of edge in edge file. */
-    private TextField textFieldColLength;
+    private final TextField textFieldColLength = new TextField();
     /** TextField with number of line where data starts in node file. */
-    private TextField textFieldLineVertex;
+    private final TextField textFieldLineVertex = new TextField();
     /** TextField with number of column where is ID of node in node file. */
-    private TextField textFieldColID;
+    private final TextField textFieldColID = new TextField();
     /** TextField with number of column where is x-coordinate of node in node file. */
-    private TextField textFieldColX;
+    private final TextField textFieldColX = new TextField();
     /** TextField with number of column where is y-coordinate of node in node file. */
-    private TextField textFieldColY;
+    private final TextField textFieldColY = new TextField();
     /** TextField with number of vertices vertically in generated graph. */
-    private TextField textFieldHorizontally;
+    private TextField textFieldHorizontally = new TextField();
     /** TextField with number of vertices horizontally in generated graph. */
-    private TextField textFieldVertically;
+    private TextField textFieldVertically = new TextField();
     /** TextField with length of graph edges that will be generated. */
-    private TextField textFieldLength;
+    private TextField textFieldLength = new TextField();
     private static int zoom = 10;
     private static final int size = 5;
+    private final ScrollPane scrollPaneNode = new ScrollPane();
+    private final ScrollPane scrollPaneEdge = new ScrollPane();
 
 
     /**
@@ -69,28 +76,38 @@ public class MainController {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
         this.graph = JSONParser.readFile(selectedFile);
-        visualizeGraph(zoom, size);
+        visualizeGraph(zoom);
     }
 
+    /**
+     *
+     */
     @FXML
     protected  void onIncreaseButtonClick(){
         zoom += 5;
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom, size);
+        visualizeGraph(zoom);
     }
 
+    /**
+     *
+     */
     @FXML
     protected  void onDecreaseButtonClick(){
         zoom -= 5;
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom, size);
+        visualizeGraph(zoom);
     }
 
+    /**
+     * Method called when zoom button clicked.
+     * This method zooms graph.
+     */
     @FXML
     protected  void onZoomButtonClick(){
         zoom = getNumberFromString(textZoom.getText());
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom, size);
+        visualizeGraph(zoom);
     }
 
     /**
@@ -133,10 +150,14 @@ public class MainController {
         int verticesVertically = getNumberFromString(textFieldVertically.getText());
         int edgeLength = getNumberFromString(textFieldLength.getText());
         this.graph = Graph.generateGraph(verticesHorizontally, verticesVertically, edgeLength);
-        visualizeGraph(zoom, size);
+        visualizeGraph(zoom);
     }
 
-    private void visualizeGraph(int zoom, int size){
+    /**
+     * Visualizes attribute graph.
+     * @param zoom  how much bigger the graph should be.
+     */
+    private void visualizeGraph(int zoom){
         Group group = new Group();
         for(Vertex vertex: this.graph.getVertices().values()){
             group.getChildren().add(new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size));
@@ -158,8 +179,9 @@ public class MainController {
     private void onUploadCoordinatesButtonClick() {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
-        if(true) { //TODO add any condition?
+        if(selectedFile != null) {
             coordinatesFile = selectedFile;
+            showFirstTwentyLinesOfFile(edgesFile, scrollPaneNode);
         }
     }
 
@@ -171,8 +193,25 @@ public class MainController {
     private void onUploadEdgesButtonClick() {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
-        if(true) { //TODO add any condition?
+        if(selectedFile != null) {
             edgesFile = selectedFile;
+            showFirstTwentyLinesOfFile(edgesFile, scrollPaneEdge);
+        }
+    }
+
+    private void showFirstTwentyLinesOfFile(File selectedFile, ScrollPane sp){
+        final int LINES = 20;
+        VBox vbox = new VBox();
+        int i = 0;
+        try (Scanner sc = new Scanner(selectedFile)){
+            while(sc.hasNextLine() && i < LINES) {
+                String line = sc.nextLine();
+                vbox.getChildren().add(new Text(line));
+                i++;
+            }
+            sp.setContent(vbox);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -205,27 +244,24 @@ public class MainController {
     @FXML
     protected void onCreateJSONMenuClick(){
         Dialog dialog = new Dialog();
+        HBox hbox = new HBox(5.0);
         VBox vbox = new VBox(5.0);
+        VBox vbox1 = new VBox(5.0);
+        VBox vbox2 = new VBox(5.0);
+        hbox.setAlignment(Pos.CENTER);
+        vbox.setAlignment(Pos.CENTER);
+        vbox1.setAlignment(Pos.CENTER);
+        vbox2.setAlignment(Pos.CENTER);
         Label lblFirstLineEdge = new Label("Number of first line with data in edge file");
-        textFieldLineEdge = new TextField();
         Label lblDelColEdge = new Label("Delimiter of columns in edge file");
-        textFieldDelimiterEdge = new TextField();
         Label lblColStartPointsEdge = new Label("Column with start points in edge file");
-        textFieldColStart = new TextField();
         Label lblColEndpointsEdge = new Label("Column with endpoints in edge file");
-        textFieldColEnd = new TextField();
         Label lblColLengthEdge = new Label("Column with lengths in edge file");
-        textFieldColLength = new TextField();
         Label lblFirstLineNode = new Label("Number of first line with data in node file");
-        textFieldLineVertex = new TextField();
         Label lblDelColNode = new Label("Delimiter of columns in node file");
-        textFieldDelimiterVertex = new TextField();
         Label lblColIDNode = new Label("Column with IDs in node file");
-        textFieldColID = new TextField();
         Label lblColXNode = new Label("Column with x-coordinates in node file");
-        textFieldColX = new TextField();
         Label lblColYNode = new Label("Column with y-coordinates in node file");
-        textFieldColY = new TextField();
         Label lblFileNode = new Label("Upload file with node coordinates");
         Button btnFileNode = new Button("Upload file!");
         btnFileNode.setOnAction(e -> onUploadCoordinatesButtonClick());
@@ -234,13 +270,18 @@ public class MainController {
         btnFileEdge.setOnAction(e -> onUploadEdgesButtonClick());
         ButtonType btnCreateJSONFile = new ButtonType("Create JSON File!", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().add(btnCreateJSONFile);
-        vbox.getChildren().addAll(lblFirstLineEdge, textFieldLineEdge, lblDelColEdge, textFieldDelimiterEdge, lblColStartPointsEdge,
-                textFieldColStart, lblColEndpointsEdge, textFieldColEnd, lblColLengthEdge, textFieldColLength, lblFirstLineNode,
-                textFieldLineVertex, lblDelColNode, textFieldDelimiterVertex, lblColIDNode, textFieldColID, lblColXNode,
-                textFieldColX, lblColYNode, textFieldColY, lblFileNode, btnFileNode, lblFileEdge, btnFileEdge);
+        vbox1.getChildren().addAll(lblFileEdge, btnFileEdge, scrollPaneEdge, lblFirstLineEdge,
+                textFieldLineEdge,lblDelColEdge, textFieldDelimiterEdge, lblColStartPointsEdge,
+                textFieldColStart, lblColEndpointsEdge, textFieldColEnd, lblColLengthEdge, textFieldColLength);
+        vbox2.getChildren().addAll(lblFileNode, btnFileNode, scrollPaneNode, lblFirstLineNode, textFieldLineVertex,
+                lblDelColNode, textFieldDelimiterVertex, lblColIDNode, textFieldColID, lblColXNode, textFieldColX,
+                lblColYNode, textFieldColY);
+        hbox.getChildren().addAll(vbox1, vbox2);
+        vbox.getChildren().addAll(hbox);
         dialog.setTitle("Graph Generation");
         dialog.setHeaderText("Insert parameters of new graph:");
         dialog.getDialogPane().setContent(vbox);
+        dialog.setResizable(true);
         dialog.setResultConverter(b -> {
             if (b == btnCreateJSONFile) {
                 onCreateJSONButtonClick();
@@ -251,16 +292,16 @@ public class MainController {
     }
 
     /**
-     * Gets integer from string.
+     * Gets positive integer from string.
      * @param text      String to convert to integer.
      * @return  integer made from string.
      */
     private int getNumberFromString(String text){
-        //TODO security
-        if(true){
+        if(text.trim().matches("\\d+")){
             return Integer.parseInt(text.trim());
+        }else {
+            return -1;
         }
-        return -1;
     }
 
     /**
