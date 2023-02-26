@@ -10,6 +10,8 @@ import java.util.List;
 
 public class SpartsimAlgorithm implements IPartitioning {
 
+    private Graph graph = null;
+
     @Override
     public GraphPartition divide() {
         List<Integer> verticesParts = new ArrayList<>();
@@ -20,5 +22,20 @@ public class SpartsimAlgorithm implements IPartitioning {
     @Override
     public void setParameters(HashMap<String, String> parameters) {
 
+    }
+
+    @Override
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
+
+    @Override
+    public String getName() {
+        return "SParTSim";
+    }
+
+    @Override
+    public String getDescription() {
+        return "SParTSim";
     }
 }

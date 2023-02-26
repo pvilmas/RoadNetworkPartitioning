@@ -1,8 +1,6 @@
 package alg.metisPart;
 
-import bp.roadnetworkpartitioning.Graph;
-import bp.roadnetworkpartitioning.GraphPartition;
-import bp.roadnetworkpartitioning.IPartitioning;
+import bp.roadnetworkpartitioning.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +8,8 @@ import java.util.List;
 
 public class MetisAlgorithm implements IPartitioning {
 
-    private final Graph graph;
+    private Graph graph = null;
 
-    public MetisAlgorithm(Graph graph){
-        this.graph = graph;
-    }
 
     @Override
     public GraphPartition divide() {
@@ -27,8 +22,26 @@ public class MetisAlgorithm implements IPartitioning {
     public void setParameters(HashMap<String, String> parameters) {
     }
 
+    @Override
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
+
+    @Override
+    public String getName() {
+        return "METIS";
+    }
+
+    @Override
+    public String getDescription() {
+        return "METIS";
+    }
+
     private Graph coarsenGraph(){
-        return null;
+        HashMap<Integer, Vertex> vertices = new HashMap<>();
+        HashMap<Integer, Edge> edges = new HashMap<>();
+
+        return new Graph(vertices, edges);
     }
 
     private  GraphPartition partitionGraph(Graph graph){

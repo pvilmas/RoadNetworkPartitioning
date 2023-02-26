@@ -10,15 +10,32 @@ import java.util.List;
 
 public class PunchAlgorithm implements IPartitioning {
 
-        @Override
-        public GraphPartition divide() {
-            List<Integer> verticesParts = new ArrayList<>();
-            List<Integer> edgesParts = new ArrayList<>();
-            return new GraphPartition(verticesParts, edgesParts);
-        }
+    private Graph graph = null;
 
-        @Override
-        public void setParameters(HashMap<String, String> parameters) {
+    @Override
+    public GraphPartition divide() {
+        List<Integer> verticesParts = new ArrayList<>();
+        List<Integer> edgesParts = new ArrayList<>();
+        return new GraphPartition(verticesParts, edgesParts);
+    }
 
-        }
+    @Override
+    public void setParameters(HashMap<String, String> parameters) {
+
+    }
+
+    @Override
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
+    }
 }

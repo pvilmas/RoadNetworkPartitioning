@@ -221,6 +221,7 @@ public class MainController {
      * This method uses method createJSONFile from JSONParser class for creating JSON file.
      * And gets details from textFields for correct parsing of files.
      */
+    @FXML
     protected void onCreateJSONButtonClick(){
         int[] details = new int[8];
         details[0] = getNumberFromString(textFieldLineVertex.getText());
