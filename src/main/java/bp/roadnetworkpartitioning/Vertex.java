@@ -3,21 +3,30 @@ package bp.roadnetworkpartitioning;
 import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
- * Instance of this class represents vertex (of a graph), inherits Point2D.
+ * Instance of this class represents vertex (of a graph), extends Point2D.
+ * @author Lucie Roy
+ * @version 27-03-2023
  */
 public class Vertex extends Point2D {
     /** ID of vertex. */
     private int id = 0;
     /** Value of vertex. */
-    private double value = 0.0;
+    private double value = 1.0;
     /**
      * List of edges starting from this vertex.
      * It is expected not more than 6 edges (2 is initial capacity).
      */
-    private List<Edge> edges = new ArrayList<>(2);
+    private List<Edge> startingEdges = new ArrayList<>(2);
+
+    /**
+     * List of edges ending in this vertex.
+     * It is expected not more than 6 edges (2 is initial capacity).
+     */
+    private List<Edge> endingEdges = new ArrayList<>(2);
 
     /**
      * Constructor of vertex with given ID and coordinates x and y.
@@ -69,16 +78,24 @@ public class Vertex extends Point2D {
      * Gets edges starting from vertex.
      * @return edges starting from vertex.
      */
-    public List<Edge> getEdges(){
-        return edges;
+    public List<Edge> getStartingEdges(){
+        return startingEdges;
+    }
+
+    /**
+     * Gets edges ending in vertex.
+     * @return edges ending in vertex.
+     */
+    public List<Edge> getEndingEdges(){
+        return endingEdges;
     }
 
     /**
      * Sets edges starting from vertex.
-     * @param edges Edges starting from vertex.
+     * @param startingEdges Edges starting from vertex.
      */
-    public void setEdges(List<Edge> edges){
-        this.edges = edges;
+    public void setStartingEdges(List<Edge> startingEdges){
+        this.startingEdges = startingEdges;
     }
 
     @Override
@@ -98,4 +115,21 @@ public class Vertex extends Point2D {
     public String toString(){
         return this.id + " = " + getX() + ", " + getY();
     }
+
+    /**
+     * Gets X coordinate.
+     * @return x coordinate.
+     */
+    public double getXCoordinate() {
+        return this.getX();
+    }
+
+    /**
+     * Gets Y coordinate.
+     * @return y coordinate.
+     */
+    public double getYCoordinate() {
+        return this.getY();
+    }
+
 }

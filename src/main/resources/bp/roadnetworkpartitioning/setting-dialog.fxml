@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="400.0" prefWidth="600.0">
+    <content>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5" alignment="CENTER">
+
+            </HBox>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="settingButtonType" text="Apply and close" buttonData="OK_DONE"/>
+
+</DialogPane>

@@ -1,22 +1,26 @@
 package bp.roadnetworkpartitioning;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Instance of this class represents graph.
+ * @author Lucie Roy
+ * @version 27-03-2023
  */
 public class Graph {
+
     /** HashMap with all vertices of the graph. */
-    private HashMap<Integer, Vertex> vertices;
+    private Map<Integer, Vertex> vertices;
     /** HashMap with all edges of the graph. */
-    private HashMap<Integer, Edge> edges;
+    private Map<Integer, Edge> edges;
 
     /**
      * Constructor of graph.
      * @param vertices      HashMap with all vertices of the graph.
      * @param edges         HashMap with all edges of the graph.
      */
-    public Graph(HashMap<Integer, Vertex> vertices, HashMap<Integer, Edge> edges){
+    public Graph(Map<Integer, Vertex> vertices, Map<Integer, Edge> edges){
         this.vertices = vertices;
         this.edges = edges;
     }
@@ -32,6 +36,9 @@ public class Graph {
         HashMap<Integer, Vertex> vertices = new HashMap<>();
         HashMap<Integer, Edge> edges = new HashMap<>();
         int numVertices = numVerticesVertically * numVerticesHorizontally;
+        if((numVerticesVertically < 1) || (numVerticesHorizontally < 1)){
+            numVertices = 0;
+        }
         int id = 1;
         double x = 0;
         double y;
@@ -72,8 +79,9 @@ public class Graph {
     private static int addEdge(Vertex vertexStart, HashMap<Integer, Edge> edges,
                                boolean condition, Vertex vertexEnd, int id, double length){
         if(condition) {
-            Edge edge = new Edge(vertexEnd, length);
-            vertexStart.getEdges().add(edge);
+            Edge edge = new Edge(vertexStart, vertexEnd, length);
+            vertexStart.getStartingEdges().add(edge);
+            vertexEnd.getEndingEdges().add(edge);
             edges.put(id, edge);
             id++;
         }
@@ -84,7 +92,7 @@ public class Graph {
      * Getter of graph vertices.
      * @return graph vertices.
      */
-    public HashMap<Integer, Vertex> getVertices(){
+    public Map<Integer, Vertex> getVertices(){
         return this.vertices;
     }
 
@@ -92,7 +100,7 @@ public class Graph {
      * Getter of graph edges.
      * @return graph edges.
      */
-    public HashMap<Integer, Edge> getEdges(){
+    public Map<Integer, Edge> getEdges(){
         return this.edges;
     }
 
@@ -100,7 +108,7 @@ public class Graph {
      * Setter of graph vertices.
      * @param vertices  new graph vertices.
      */
-    public void setVertices(HashMap<Integer, Vertex> vertices){
+    public void setVertices(Map<Integer, Vertex> vertices){
         this.vertices = vertices;
     }
 
@@ -108,7 +116,7 @@ public class Graph {
      * Setter of graph edges.
      * @param edges     new graph edges.
      */
-    public void setEdges(HashMap<Integer, Edge> edges){
+    public void setEdges(Map<Integer, Edge> edges){
         this.edges = edges;
     }
 

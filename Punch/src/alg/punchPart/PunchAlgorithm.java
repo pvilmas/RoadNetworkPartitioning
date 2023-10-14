@@ -3,24 +3,82 @@ package alg.punchPart;
 import bp.roadnetworkpartitioning.Graph;
 import bp.roadnetworkpartitioning.GraphPartition;
 import bp.roadnetworkpartitioning.IPartitioning;
+import bp.roadnetworkpartitioning.Vertex;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
+/**
+ * Class with PUNCH algorithm implementation.
+ * @author Lucie Roy
+ * @version 27-03-2023
+ */
 public class PunchAlgorithm implements IPartitioning {
 
+    /** Graph to be divided. */
     private Graph graph = null;
 
     @Override
     public GraphPartition divide() {
-        List<Integer> verticesParts = new ArrayList<>();
-        List<Integer> edgesParts = new ArrayList<>();
-        return new GraphPartition(verticesParts, edgesParts);
+        Map<Integer, Integer> verticesParts = new HashMap<>();
+        filter();
+        assembly();
+        return new GraphPartition(verticesParts);
+    }
+
+    private void filter(){
+        detectTinyCuts();
+        detectNaturalCuts();
+    }
+
+    private void detectTinyCuts(){
+
+    }
+
+    private void detectNaturalCuts(){
+
+    }
+
+    private void assembly(){
+        findGreedyPartition();
+        doLocalSearch();
+        runMultistart();
+        combine();
+    }
+
+    private void findGreedyPartition(){
+
+    }
+
+    private void doLocalSearch(){
+
+    }
+
+    private void runMultistart(){
+
+    }
+
+    private void combine(){
+
     }
 
     @Override
-    public void setParameters(HashMap<String, String> parameters) {
+    public void setParameters(Map<String, String> parameters) {
+
+    }
+
+    @Override
+    public Map<String, String> getParameters() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getParametersDescription() {
+        return null;
+    }
+
+    @Override
+    public void setParametersDescription(Map<String, String> parametersDescription) {
 
     }
 
@@ -30,12 +88,17 @@ public class PunchAlgorithm implements IPartitioning {
     }
 
     @Override
+    public void setPartsCount(int partsCount) {
+
+    }
+
+    @Override
     public String getName() {
-        return null;
+        return "PUNCH";
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "PUNCH";
     }
 }

@@ -11,6 +11,8 @@ import java.util.Scanner;
 
 /**
  * Class with methods for creating and reading JSON files.
+ * @author Lucie Roy
+ * @version 27-03-2023
  */
 public class JSONParser {
     /** File extension */
@@ -18,14 +20,14 @@ public class JSONParser {
 
     /**
      * Creates one file out of two given files.
-     * @param details           Array with number of line where data starts in node file
-     *                          number of line where data starts in edge file,
-     *                          number of column where is start point of edge in edge file,
-     *                          number of column where is endpoint of edge in edge file,
-     *                          number of column where is length of edge in edge file,
-     *                          number of column where is ID of node in node file,
-     *                          number of column where is x-coordinate of node in node file,
-     *                          number of column where is y-coordinate of node in node file.
+     * @param details           Array with index 0 - number of line where data starts in node file
+     *                          index 1 - number of line where data starts in edge file,
+     *                          index 2 - number of column where is start point of edge in edge file,
+     *                          index 3 - number of column where is endpoint of edge in edge file,
+     *                          index 4 - number of column where is length of edge in edge file,
+     *                          index 5 - number of column where is ID of node in node file,
+     *                          index 6 - number of column where is x-coordinate of node in node file,
+     *                          index 7 - number of column where is y-coordinate of node in node file.
      * @param delimiterEdge     Delimiter of columns in file with graph edges.
      * @param delimiterVertex   Delimiter of columns in file with vertices coordinates.
      * @param coordinatesFile   File with vertices coordinates,
@@ -52,8 +54,8 @@ public class JSONParser {
             bw.write("{\n \"type\": \"FeatureCollection\",\n \"features\": [\n");
             int k = 1;
             for (Vertex vertex : vertices) {
-                for (int j = 0; j < vertex.getEdges().size(); j++) {
-                    Edge edge = vertex.getEdges().get(j);
+                for (int j = 0; j < vertex.getStartingEdges().size(); j++) {
+                    Edge edge = vertex.getStartingEdges().get(j);
                     bw.write("{ \"type\": \"Feature\", \"properties\": { \"fid\": " + k +
                             ", \"cat\": " + k + ", \"init_node\": " + vertex.getId() + ", " +
                             "\"term_node\": " + edge.getEndpoint().getId() +
@@ -130,8 +132,9 @@ public class JSONParser {
                         Vertex vertex2 = new Vertex(vertexId2, vertexX2, vertexY2);
                         vertices.put(vertexId2, vertex2);
                     }
-                    Edge edge = new Edge(vertices.get(vertexId2), length);
-                    vertices.get(vertexId1).getEdges().add(edge);
+                    Edge edge = new Edge(vertices.get(vertexId1), vertices.get(vertexId2), length);
+                    vertices.get(vertexId1).getStartingEdges().add(edge);
+                    vertices.get(vertexId2).getEndingEdges().add(edge);
                     edges.put(edge.getId(), edge);
                 }
                 line = sc.nextLine();
@@ -173,9 +176,9 @@ public class JSONParser {
         double eps = 0.0000001;
         List<Edge> edges = new ArrayList<>();
         try (Scanner sc = new Scanner(edgesFile)){
-            String[] data = findFirstLine(sc);
-            Edge edge = new Edge(vertices.get(Integer.parseInt(data[1])-1),Double.parseDouble(data[3]));
-            vertices.get(Integer.parseInt(data[0])-1).getEdges().add(edge);
+            String[] data = findFirstLine(sc, details[1], delimiterEdge);
+            Edge edge = new Edge(vertices.get(Integer.parseInt(data[0])-1), vertices.get(Integer.parseInt(data[1])-1),Double.parseDouble(data[3]));
+            vertices.get(Integer.parseInt(data[0])-1).getStartingEdges().add(edge);
             edges.add(edge);
             while(sc.hasNextLine()){
                 String line = sc.nextLine();
@@ -186,8 +189,9 @@ public class JSONParser {
                 if((length - 0.0) < eps ){
                     length = vertices.get(startpoint-1).distance(vertices.get(endpoint-1));
                 }
-                edge = new Edge(vertices.get(endpoint-1), length);
-                vertices.get(startpoint-1).getEdges().add(edge);
+                edge = new Edge(vertices.get(startpoint-1), vertices.get(endpoint-1), length);
+                vertices.get(endpoint-1).getEndingEdges().add(edge);
+                vertices.get(startpoint-1).getStartingEdges().add(edge);
                 edges.add(edge);
             }
             return edges;
@@ -247,6 +251,7 @@ public class JSONParser {
         }
         return line.trim().split("\\s+");
     }
+
     /**
      * Finds first useful line in file.
      * @param sc            Instance of Scanner.

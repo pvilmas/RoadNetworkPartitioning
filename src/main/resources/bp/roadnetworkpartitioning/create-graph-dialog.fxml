@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="300.0" prefWidth="500.0">
+    <content>
+        <VBox spacing="10.0" alignment="CENTER">
+            <Label text="Number of vertices horizontally:"/>
+            <TextField fx:id="textFieldHorizontally"/>
+            <Label text="Number of vertices vertically:"/>
+            <TextField fx:id="textFieldVertically"/>
+            <Label text="Length of graph edges:"/>
+            <TextField fx:id="textFieldLength"/>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="createButtonType" text="Create graph!" buttonData="OK_DONE"/>
+</DialogPane>

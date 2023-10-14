@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="400.0" prefWidth="600.0">
+    <content>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5" alignment="CENTER">
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Upload file with graph edges"/>
+                    <Button fx:id="btnFileEdge" styleClass="btn, btn-primary" text="Upload file!"/>
+                    <ScrollPane fx:id="scrollPaneEdge"/>
+                    <Label text="Number of first line with data in edge file:"/>
+                    <TextField fx:id="textFieldLineEdge"/>
+                    <Label text="Delimiter of columns in edge file:"/>
+                    <TextField fx:id="textFieldDelimiterEdge"/>
+                    <Label text="Column with start points in edge file:"/>
+                    <TextField fx:id="textFieldColStart"/>
+                    <Label text="Column with endpoints in edge file:"/>
+                    <TextField fx:id="textFieldColEnd"/>
+                    <Label text="Column with lengths in edge file:"/>
+                    <TextField fx:id="textFieldColLength"/>
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Upload file with node coordinates"/>
+                    <Button fx:id="btnFileNode" styleClass="btn, btn-primary" text="Upload file!"/>
+                    <ScrollPane fx:id="scrollPaneNode"/>
+                    <Label text="Number of first line with data in node file:"/>
+                    <TextField fx:id="textFieldLineVertex"/>
+                    <Label text="Delimiter of columns in node file:"/>
+                    <TextField fx:id="textFieldDelimiterVertex"/>
+                    <Label text="Column with IDs in node file:"/>
+                    <TextField fx:id="textFieldColID"/>
+                    <Label text="Column with x-coordinates in node file:"/>
+                    <TextField fx:id="textFieldColX"/>
+                    <Label text="Column with y-coordinates in node file:"/>
+                    <TextField fx:id="textFieldColY"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="btnCreateJSONFile" text="Create JSON File!" buttonData="OK_DONE"/>
+</DialogPane>

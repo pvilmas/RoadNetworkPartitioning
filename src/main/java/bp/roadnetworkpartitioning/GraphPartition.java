@@ -1,29 +1,36 @@
 package bp.roadnetworkpartitioning;
 
-import java.util.List;
+import java.util.Map;
 
+/**
+ * Instance of this class represents partition of a graph.
+ * @author Lucie Roy
+ * @version 27-03-2023
+ */
 public class GraphPartition {
-    private final List<Integer> vertices;
-    private final List<Integer> edges;
+    /**
+     * Map where key is a vertex ID and value is
+     * number of part of graph where this vertex belongs.
+     */
+    private final Map<Vertex, Integer> verticesPlacements;
 
-    public GraphPartition(List<Integer> vertices, List<Integer> edges){
-       this.vertices = vertices;
-       this.edges = edges;
+    /**
+     * Constructor with given mapping.
+     * @param verticesPlacements Map where key is a vertex ID and value is
+     *                           number of part of graph where this vertex belongs.
+     */
+    public GraphPartition(Map<Vertex, Integer> verticesPlacements){
+       this.verticesPlacements = verticesPlacements;
+
     }
 
-    public void addVertex(int id, int part){
-        vertices.add(id, part);
-    }
-
-    public void addEdge(int id, int part){
-        edges.add(id, part);
-    }
-
-    public List<Integer> getVertices(){
-        return  this.vertices;
-    }
-
-    public List<Integer> getEdges(){
-        return this.edges;
+    /**
+     * Gets map where key is a vertex ID and value is
+     * number of part of graph where this vertex belongs.
+     * @return map where key is a vertex ID and value is
+     * number of part of graph where this vertex belongs.
+     */
+    public Map<Vertex, Integer> getVerticesPlacements(){
+        return  this.verticesPlacements;
     }
 }
