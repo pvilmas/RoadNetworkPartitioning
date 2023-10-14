@@ -20,7 +20,7 @@ public class PunchAlgorithm implements IPartitioning {
 
     @Override
     public GraphPartition divide() {
-        Map<Integer, Integer> verticesParts = new HashMap<>();
+        Map<Vertex, Integer> verticesParts = new HashMap<>();
         filter();
         assembly();
         return new GraphPartition(verticesParts);

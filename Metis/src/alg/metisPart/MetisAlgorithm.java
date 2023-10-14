@@ -529,7 +529,7 @@ public class MetisAlgorithm implements IPartitioning {
         return borderDValues;
     }
 
-    private double[] getEdgesWeights(double[] edgesWeights, int partNumber,  Vertex vertex, Map<Vertex, Integer> verticesParts){
+    private void getEdgesWeights(double[] edgesWeights, int partNumber, Vertex vertex, Map<Vertex, Integer> verticesParts){
         List<Edge> startingEdges = vertex.getStartingEdges();
         List<Edge> endingEdges = vertex.getEndingEdges();
         for(Edge edge: startingEdges){
@@ -548,7 +548,6 @@ public class MetisAlgorithm implements IPartitioning {
                 edgesWeights[1] += edge.getWeight();
             }
         }
-        return edgesWeights;
     }
 
     private double getCValue(Vertex v1, Vertex v2){

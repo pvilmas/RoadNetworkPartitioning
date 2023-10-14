@@ -34,7 +34,7 @@ public class SpartsimAlgorithm implements IPartitioning {
 
     @Override
     public GraphPartition divide() {
-        Map<Integer, Integer> verticesParts = new HashMap<>();
+        Map<Vertex, Integer> verticesParts = new HashMap<>();
         // Initialisation
         List<Part> parts = new ArrayList<>(nparts);
         int[] stop = new int[nparts];
@@ -44,7 +44,7 @@ public class SpartsimAlgorithm implements IPartitioning {
             parts.get(i).vertexList.add(baseVertex);
             parts.get(i).value += baseVertex.getValue();
             graphValue += baseVertex.getValue();
-            verticesParts.put(baseVertex.getId(), i);
+            verticesParts.put(baseVertex, i);
             stop[i] = 1;
         }
         // Region growing
@@ -86,18 +86,17 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
 
-    private void attach(Map<Integer, Integer> verticesParts, List<Part> parts){
+    private void attach(Map<Vertex, Integer> verticesParts, List<Part> parts){
 
     }
 
     /**
-     *
-     * @param parts
+     *  @param parts
      * @param maxPart
      * @param minPart
      * @param verticesParts
      */
-    private void trade(List<Part> parts, int maxPart, int minPart, Map<Integer, Integer> verticesParts) {
+    private void trade(List<Part> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
         double difference = (parts.get(maxPart).value - parts.get(minPart).value)/2;
         findShortestPathBetweenParts(parts, maxPart, minPart, verticesParts);
         double moved = 0.0;
@@ -149,14 +148,14 @@ public class SpartsimAlgorithm implements IPartitioning {
         }
     }
 
-    private void moveVertexOut(Vertex vertex, List<Part> parts, int maxPart, Map<Integer, Integer> verticesParts, double moved) {
+    private void moveVertexOut(Vertex vertex, List<Part> parts, int maxPart, Map<Vertex, Integer> verticesParts, double moved) {
         int newPart = -1;
         for (Vertex v: minPath) {
             if(!isInMaxPart(v, parts, maxPart)){
-                newPart = verticesParts.get(v.getId());
+                newPart = verticesParts.get(v);
             }
         }
-        verticesParts.put(vertex.getId(), newPart);
+        verticesParts.put(vertex, newPart);
         parts.get(newPart).vertexList.add(vertex);
         parts.get(newPart).value += moved;
         parts.get(maxPart).vertexList.remove(vertex);
@@ -173,14 +172,14 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *
-     * @param vertex
+     *  @param vertex
      * @param parts
      * @param minPart
+     * @param verticesParts
      */
-    private void moveVertexIn(Vertex vertex, List<Part> parts, int minPart, double moved,  Map<Integer, Integer> verticesParts) {
-        int part = verticesParts.get(vertex.getId());
-        verticesParts.put(vertex.getId(), minPart);
+    private void moveVertexIn(Vertex vertex, List<Part> parts, int minPart, double moved, Map<Vertex, Integer> verticesParts) {
+        int part = verticesParts.get(vertex);
+        verticesParts.put(vertex, minPart);
         parts.get(minPart).vertexList.add(vertex);
         parts.get(minPart).value += moved;
         parts.get(part).vertexList.remove(vertex);
@@ -188,13 +187,12 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *
-     * @param parts
+     *  @param parts
      * @param maxPart
      * @param minPart
      * @param verticesParts
      */
-    private void findShortestPathBetweenParts(List<Part> parts, int maxPart, int minPart, Map<Integer, Integer> verticesParts) {
+    private void findShortestPathBetweenParts(List<Part> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
         List<Vertex> maxBorderPart = getBorderVertices(parts, maxPart, verticesParts);
         List<Vertex> minBorderPart = getBorderVertices(parts, minPart, verticesParts);
         for (Vertex maxVertex: maxBorderPart) {
@@ -294,23 +292,23 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param verticesParts vertices partition.
      * @return  border vertices.
      */
-    private List<Vertex> getBorderVertices(List<Part> parts, int partNumber, Map<Integer, Integer> verticesParts) {
+    private List<Vertex> getBorderVertices(List<Part> parts, int partNumber, Map<Vertex, Integer> verticesParts) {
         List<Vertex> borderPart = new ArrayList<>();
         Part part = parts.get(partNumber);
         for (Vertex vertex: part.vertexList) {
-            int index = verticesParts.get(vertex.getId());
+            int index = verticesParts.get(vertex);
             boolean included = false;
             for (Edge edge: vertex.getStartingEdges()) {
                 Vertex v = edge.getEndpoint();
-                if(verticesParts.get(v.getId()) != index){
+                if(verticesParts.get(v) != index){
                     borderPart.add(vertex);
                     included = true;
                 }
             }
             for(Edge edge: graph.getEdges().values()){
                 if(edge.getEndpoint().equals(vertex)){
-                    int neighbourID = edge.getStartpoint().getId();
-                    if((verticesParts.get(neighbourID) != index) && !included){
+                    Vertex neighbour = edge.getStartpoint();
+                    if((verticesParts.get(neighbour) != index) && !included){
                         borderPart.add(vertex);
                     }
                 }
@@ -359,7 +357,7 @@ public class SpartsimAlgorithm implements IPartitioning {
      * Computes connected subgraphs.
      * @param verticesParts  part to be computed.
      */
-    private List<Part> computeConnectedSubgraphs(Map<Integer, Integer> verticesParts, List<Part> parts) {
+    private List<Part> computeConnectedSubgraphs(Map<Vertex, Integer> verticesParts, List<Part> parts) {
         List<Part> subgraphs = new ArrayList<>();
         for (Part part: parts) {
             Map<Vertex, Boolean> isVisited = new HashMap<>();
@@ -397,7 +395,7 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param verticesParts     vertices partition
      * @return  true if success.
      */
-    private boolean grow(int i, Part part, Map<Integer, Integer> verticesParts) {
+    private boolean grow(int i, Part part, Map<Vertex, Integer> verticesParts) {
         int maxVertexID = -1;
         double maxValue = 0;
         boolean hasGrown = false;
@@ -419,7 +417,7 @@ public class SpartsimAlgorithm implements IPartitioning {
             part.value += maxValue;
             graphValue += maxVertex.getValue();
             graphValue += maxValue;
-            verticesParts.put(maxVertexID, i);
+            verticesParts.put(maxVertex, i);
         }
         return hasGrown;
     }
@@ -454,22 +452,22 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param verticesParts     vertices partition.
      * @return vertex's free neighbours.
      */
-    private Map<Integer, Double> getVertexFreeNeighbours(Vertex vertex, Map<Integer, Integer> verticesParts) {
+    private Map<Integer, Double> getVertexFreeNeighbours(Vertex vertex, Map<Vertex, Integer> verticesParts) {
         Map<Integer, Double> neighbours = new HashMap<>();
         for (Edge edge: vertex.getStartingEdges()) {
             Vertex v = edge.getEndpoint();
-            if(!verticesParts.containsKey(v.getId())){
+            if(!verticesParts.containsKey(v)){
                 neighbours.put(v.getId(), edge.getLength());
             }
         }
         for(Edge edge: graph.getEdges().values()){
             if(edge.getEndpoint().equals(vertex)){
-                int neighbourID = edge.getStartpoint().getId();
-                if(!verticesParts.containsKey(neighbourID)){
-                    if(neighbours.containsKey(neighbourID)){
-                        neighbours.put(neighbourID, neighbours.get(neighbourID) + edge.getLength());
+                Vertex neighbour = edge.getStartpoint();
+                if(!verticesParts.containsKey(neighbour)){
+                    if(neighbours.containsKey(neighbour.getId())){
+                        neighbours.put(neighbour.getId(), neighbours.get(neighbour.getId()) + edge.getLength());
                     }else{
-                        neighbours.put(neighbourID, edge.getLength());
+                        neighbours.put(neighbour.getId(), edge.getLength());
                     }
                 }
             }
@@ -482,7 +480,7 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param verticesParts     vertices partition.
      * @return  the best candidate for starting vertex.
      */
-    private Vertex getBestCandidateVertex(Map<Integer, Integer> verticesParts) {
+    private Vertex getBestCandidateVertex(Map<Vertex, Integer> verticesParts) {
         int maxDegree = 0;
         Vertex bestVertex = null;
         for(Vertex vertex: graph.getVertices().values()){
@@ -500,8 +498,8 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param vertex            the vertex.
      * @return  true if it is included.
      */
-    private boolean isIncluded(Map<Integer, Integer> verticesParts, Vertex vertex) {
-        return verticesParts.containsKey(vertex.getId());
+    private boolean isIncluded(Map<Vertex, Integer> verticesParts, Vertex vertex) {
+        return verticesParts.containsKey(vertex);
     }
 
     @Override

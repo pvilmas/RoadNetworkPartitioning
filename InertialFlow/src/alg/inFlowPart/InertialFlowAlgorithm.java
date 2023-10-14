@@ -49,7 +49,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
 
     @Override
     public GraphPartition divide() {
-        Map<Integer, Integer> verticesParts = new HashMap<>();
+        Map<Vertex, Integer> verticesParts = new HashMap<>();
         pickLine();
         projectAndSortVertices();
         computeMaxFlowBetweenST();
