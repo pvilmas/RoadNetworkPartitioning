@@ -43,9 +43,9 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private double By = 0.0;
     /** Balance parameter that determining number of sources and sinks vertices. */
     private double balance = 0.25;
-    //private int V;                // No. of vertex
-    private int[] level;        // Stores level of graph
-    //private List<Edge>[] adj;
+    private List<Vertex> vertexOrder;
+    private List<Point> pointOrder;
+    public List<IFVertex> graphVertices;
 
     @Override
     public GraphPartition divide() {
@@ -76,8 +76,8 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * Vertices are sorted by order of appearances on the line.
      */
     private void projectAndSortVertices(){
-        List<Vertex> vertexOrder = new ArrayList<>();
-        List<Point> pointOrder = new ArrayList<>();
+        vertexOrder = new ArrayList<>();
+        pointOrder = new ArrayList<>();
         double a = Ax - Bx;
         double b = Ay - By;
         double c = -Ay + By;
@@ -87,8 +87,9 @@ public class InertialFlowAlgorithm implements IPartitioning {
             double x = (-b*y + a*Ax + b*Ay)/(a);
             Point point = new Point(x, y);
             if(vertexOrder.size() > 0){
-                insertionSort(vertexOrder, v, point, pointOrder);
-            }else{
+                insertionSort(v, point);
+            }
+            else{
                 vertexOrder.add(v);
                 pointOrder.add(point);
             }
@@ -97,12 +98,10 @@ public class InertialFlowAlgorithm implements IPartitioning {
 
     /**
      * Sorts vertices and their points on the line by insertion sort.
-     * @param vertexOrder   list of sorted vertices.
      * @param v             current vertex.
      * @param point         vertex's point.
-     * @param pointOrder    list of sorted points.
      */
-    private void insertionSort(List<Vertex> vertexOrder, Vertex v, Point point, List<Point> pointOrder) {
+    private void insertionSort(Vertex v, Point point) {
         double epsilon = 0.00001;
         if(vertexOrder.size() == 1){
             if(abs(pointOrder.get(0).x - point.x) < epsilon){
@@ -143,36 +142,25 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * @param t     sink vertex.
      * @return  true if  flow can be sent from s to t.
      */
-    private boolean BFS(int s, int t) {
-        for (int i = 0; i < graph.getVertices().size(); i++) {
-            level[i] = -1;
+    private boolean BFS(IFVertex s, IFVertex t) {
+        for (IFVertex v : graphVertices) {
+            v.setLevel(-1);
         }
-/*
-        level[s] = 0;        // Level of source vertex
-
-        // Create a queue, enqueue source vertex
-        // and mark source vertex as visited here
-        // level[] array works as visited array also.
-        LinkedList<Integer> q = new LinkedList<>();
+        s.setLevel(0);
+        LinkedList<IFVertex> q = new LinkedList<>();
         q.add(s);
-
-        ListIterator<Edge> i;
+        ListIterator<IFEdge> i;
         while (q.size() != 0) {
-            int u = q.poll();
-
-            for (i = adj[u].listIterator(); i.hasNext();) {
-                Edge e = i.next();
-                if (level[e.v] < 0 && e.flow < e.C) {
-
-                    // Level of current vertex is -
-                    // Level of parent + 1
-                    level[e.v] = level[u] + 1;
-                    q.add(e.v);
+            IFVertex u = q.poll();
+            for (i = u.getAllStartingEdges(this).listIterator(); i.hasNext();) {
+                IFEdge e = i.next();
+                if (e.endpoint.getLevel() < 0 && e.getFlow() < e.getCapacity()) {
+                    e.endpoint.setLevel(u.getLevel() + 1);
+                    q.add(e.endpoint);
                 }
             }
         }
-*/
-        return level[t] >= 0;
+        return t.getLevel() >= 0;
     }
 
     /**
@@ -183,43 +171,29 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * @param u     current vertex.
      * @param flow  current flow send by parent function call.
      * @param t     sink.
-     * @param start  To keep track of next edge to be explored.
+     * @param startMap  To keep track of next edge to be explored.
      *               start[i] stores  count of edges explored
      *               from i.
      * @return
      */
-    private int sendFlow(int u, int flow, int t, int start[]) {
-/*
-        // Sink reached
+    private int sendFlow(IFVertex u, int flow, IFVertex t, Map<IFVertex, Integer> startMap) {
         if (u == t) {
             return flow;
         }
-
-        // Traverse all adjacent edges one -by - one.
-        for (; start[u] < adj[u].size(); start[u]++) {
-
-            // Pick next edge from adjacency list of u
-            Edge e = adj[u].get(start[u]);
-
-            if (level[e.v] == level[u] + 1 && e.flow < e.C) {
-                // find minimum flow from u to t
-                int curr_flow = Math.min(flow, e.C - e.flow);
-
-                int temp_flow = sendFlow(e.v, curr_flow, t, start);
-
-                // flow is greater than zero
+        //TODO
+        for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
+            IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
+            if (e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
+                int curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
+                int temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap);
                 if (temp_flow > 0) {
-                    // add flow  to current edge
-                    e.flow += temp_flow;
-
-                    // subtract flow from reverse edge
-                    // of current edge
-                    adj[e.v].get(e.rev).flow -= temp_flow;
+                    e.setFlow(e.getFlow() + temp_flow);
+                    int reverseFlow = e.endpoint.getAllStartingEdges(this).get(e.rev).getFlow();
+                    e.endpoint.getAllStartingEdges(this).get(e.rev).setFlow(reverseFlow - temp_flow);
                     return temp_flow;
                 }
             }
         }
-*/
         return 0;
     }
 
@@ -228,33 +202,46 @@ public class InertialFlowAlgorithm implements IPartitioning {
      */
     private void computeMaxFlowBetweenST(){
         int verticesCount = (int) (balance*graph.getVertices().size());
-        int s = 0;
-        int t = 0;
+        graphVertices = new ArrayList<>();
+        List<Vertex> sourceVertices = new ArrayList<>();
+        List<Vertex> sinkVertices = new ArrayList<>();
+        int i = 0;
+        for(; i < verticesCount; i++) {
+            sourceVertices.add(vertexOrder.get(i));
+        }
+        IFVertex s = new IFVertex(0, sourceVertices);
+        graphVertices.add(s);
+        int verticesSize = vertexOrder.size();
+        for(;i < verticesSize - verticesCount; i++) {
+            graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(i))));
+        }
+        for(; i < verticesSize; i++) {
+            sinkVertices.add(vertexOrder.get(i));
+        }
+        IFVertex t = new IFVertex(0, sinkVertices);
+        graphVertices.add(t);
         dinicMaxflow(s, t);
     }
 
     /**
      * Returns maximum flow in graph.
      */
-    private int dinicMaxflow(int s, int t) {
+    private int dinicMaxflow(IFVertex s, IFVertex t) {
         if (s == t) {
             return -1;
         }
+        int verticesSize = graphVertices.size();
         int total = 0;
+        int flow = 0;
         while (BFS(s, t)) {
-
-            // store how many edges are visited
-            // from V { 0 to V }
-            int[] start = new int[graph.getVertices().size() + 1];
-            // while flow is not zero in graph from S to D
-            while (true) {
-                int flow = sendFlow(s, Integer.MAX_VALUE, t, start);
-                if (flow == 0) {
-                    break;
-                }
-                // Add path flow to overall flow
-                total += flow;
+            Map<IFVertex, Integer> startMap = new HashMap<>();
+            for(int i  = 0; i <= verticesSize; i++){
+                startMap.put(graphVertices.get(i), 0);
             }
+            do {
+                total += flow;
+                flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
+            } while (flow != 0);
         }
         return total;
     }

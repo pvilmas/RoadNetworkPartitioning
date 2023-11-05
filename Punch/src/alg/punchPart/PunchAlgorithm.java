@@ -30,6 +30,13 @@ public class PunchAlgorithm implements IPartitioning {
     private void detectTinyCuts(){
 
     }
+
+    private Graph findEdgeConnectedComponents(){
+
+        return null;
+    }
+
+
     //TODO
     private void DFS(Vertex s) {
         List<Vertex> visited = new ArrayList<>();
