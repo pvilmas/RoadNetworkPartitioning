@@ -65,7 +65,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
     /**
      * Picks default or set line as a parameter.
      */
-    private void pickLine(){
+    private void pickLine() {
         if(parameters != null && parameters.containsKey("LineAX") && parameters.containsKey("LineAY")
             && parameters.containsKey("LineBX") && parameters.containsKey("LineBY")){
             Ax = Double.parseDouble(parameters.get("LineAX"));
