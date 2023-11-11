@@ -3,6 +3,7 @@ package alg.inFlowPart;
 import bp.roadnetworkpartitioning.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 
@@ -142,7 +143,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * @param t     sink vertex.
      * @return  true if  flow can be sent from s to t.
      */
-    private boolean BFS(IFVertex s, IFVertex t) {
+    private boolean bfs(IFVertex s, IFVertex t) {
         for (IFVertex v : graphVertices) {
             v.setLevel(-1);
         }
@@ -164,10 +165,10 @@ public class InertialFlowAlgorithm implements IPartitioning {
     }
 
     /**
-     * A DFS based function to send flow after BFS has
+     * A DFS based function to send flow after bfs has
      * figured out that there is a possible flow and
      * constructed levels. This function called multiple
-     * times for a single call of BFS.
+     * times for a single call of bfs.
      * @param u     current vertex.
      * @param flow  current flow send by parent function call.
      * @param t     sink.
@@ -180,7 +181,6 @@ public class InertialFlowAlgorithm implements IPartitioning {
         if (u == t) {
             return flow;
         }
-        //TODO
         for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
             IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
             if (e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
@@ -188,8 +188,9 @@ public class InertialFlowAlgorithm implements IPartitioning {
                 int temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap);
                 if (temp_flow > 0) {
                     e.setFlow(e.getFlow() + temp_flow);
-                    int reverseFlow = e.endpoint.getAllStartingEdges(this).get(e.rev).getFlow();
-                    e.endpoint.getAllStartingEdges(this).get(e.rev).setFlow(reverseFlow - temp_flow);
+                    IFEdge reverseEdge = e.endpoint.getReverseEdge(this, u);
+                    int reverseFlow = reverseEdge.getFlow();
+                    reverseEdge.setFlow(reverseFlow - temp_flow);
                     return temp_flow;
                 }
             }
@@ -233,7 +234,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
         int verticesSize = graphVertices.size();
         int total = 0;
         int flow = 0;
-        while (BFS(s, t)) {
+        while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
             for(int i  = 0; i <= verticesSize; i++){
                 startMap.put(graphVertices.get(i), 0);
@@ -250,7 +251,25 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * Finds minimal source and sink cut.
      */
     private void findMinSTCut(){
+        List<IFVertex> visitedVertices = new ArrayList<>();
+        dfs(graphVertices.get(0), visitedVertices);
 
+        for (IFVertex i: graphVertices) {
+            for (IFVertex j: graphVertices) {
+                if (i.getEdgeFlow(this, j) > 0 && visitedVertices.contains(i) && !visitedVertices.contains(j)) {
+
+                }
+            }
+        }
+    }
+
+    private void dfs(IFVertex s,  List<IFVertex> visitedVertices) {
+        visitedVertices.add(s);
+        for (IFVertex v: graphVertices) {
+            if (s.getEdgeFlow(this, v) > 0 && !visitedVertices.contains(v)) {
+                dfs(v, visitedVertices);
+            }
+        }
     }
 
     @Override

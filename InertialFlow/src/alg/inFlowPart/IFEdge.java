@@ -7,8 +7,7 @@ public class IFEdge {
     public final Edge edge;
     public final IFVertex endpoint;
     private int flow = 0;
-    private int capacity = 0;
-    public final int rev = 0;
+    private int capacity = 1;
 
     public IFEdge(Edge edge, IFVertex endpoint) {
         this.edge = edge;

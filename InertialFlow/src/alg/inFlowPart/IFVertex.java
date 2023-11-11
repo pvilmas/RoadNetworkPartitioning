@@ -55,4 +55,26 @@ public class IFVertex {
         }
         return allStartingEdges;
     }
+
+    public IFEdge getReverseEdge(InertialFlowAlgorithm iFA, IFVertex vertex) {
+        getAllStartingEdges(iFA);
+        for(IFEdge edge: allStartingEdges){
+            if(edge.endpoint == vertex){
+                return edge;
+            }
+        }
+        IFEdge edge = new IFEdge(null, vertex);
+        allStartingEdges.add(edge);
+        return edge;
+    }
+
+    public int getEdgeFlow(InertialFlowAlgorithm iFA, IFVertex vertex){
+        getAllStartingEdges(iFA);
+        for(IFEdge edge: allStartingEdges){
+            if(edge.endpoint == vertex){
+                return edge.getFlow();
+            }
+        }
+        return 0;
+    }
 }
