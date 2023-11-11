@@ -3,7 +3,6 @@ package alg.inFlowPart;
 import bp.roadnetworkpartitioning.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 
@@ -50,12 +49,17 @@ public class InertialFlowAlgorithm implements IPartitioning {
 
     @Override
     public GraphPartition divide() {
-        Map<Vertex, Integer> verticesParts = new HashMap<>();
         pickLine();
         projectAndSortVertices();
         computeMaxFlowBetweenST();
-        findMinSTCut();
+        Map<Vertex, Integer> verticesParts = getVerticesParts(findMinSTCut());
         return new GraphPartition(verticesParts);
+    }
+
+    private Map<Vertex, Integer> getVerticesParts(List<IFEdge> cutEdges) {
+        Map<Vertex, Integer> verticesParts = new HashMap<>();
+        //TODO
+        return verticesParts;
     }
 
     /**
@@ -227,12 +231,12 @@ public class InertialFlowAlgorithm implements IPartitioning {
     /**
      * Returns maximum flow in graph.
      */
-    private int dinicMaxflow(IFVertex s, IFVertex t) {
+    private void dinicMaxflow(IFVertex s, IFVertex t) {
         if (s == t) {
-            return -1;
+            return;
         }
         int verticesSize = graphVertices.size();
-        int total = 0;
+        //int total = 0;
         int flow = 0;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
@@ -240,33 +244,36 @@ public class InertialFlowAlgorithm implements IPartitioning {
                 startMap.put(graphVertices.get(i), 0);
             }
             do {
-                total += flow;
+                //total += flow;
                 flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
             } while (flow != 0);
         }
-        return total;
     }
 
     /**
      * Finds minimal source and sink cut.
      */
-    private void findMinSTCut(){
+    private List<IFEdge> findMinSTCut(){
         List<IFVertex> visitedVertices = new ArrayList<>();
+        List<IFEdge> cutEdges = new ArrayList<>();
         dfs(graphVertices.get(0), visitedVertices);
 
         for (IFVertex i: graphVertices) {
             for (IFVertex j: graphVertices) {
-                if (i.getEdgeFlow(this, j) > 0 && visitedVertices.contains(i) && !visitedVertices.contains(j)) {
-
+                IFEdge edge = i.getEdge(this, j);
+                if (edge.getFlow() > 0 && visitedVertices.contains(i) && !visitedVertices.contains(j)) {
+                    cutEdges.add(edge);
                 }
             }
         }
+        return cutEdges;
     }
 
     private void dfs(IFVertex s,  List<IFVertex> visitedVertices) {
         visitedVertices.add(s);
         for (IFVertex v: graphVertices) {
-            if (s.getEdgeFlow(this, v) > 0 && !visitedVertices.contains(v)) {
+            IFEdge edge = s.getEdge(this, v);
+            if (edge.getFlow() > 0 && !visitedVertices.contains(v)) {
                 dfs(v, visitedVertices);
             }
         }

@@ -68,13 +68,13 @@ public class IFVertex {
         return edge;
     }
 
-    public int getEdgeFlow(InertialFlowAlgorithm iFA, IFVertex vertex){
+    public IFEdge getEdge(InertialFlowAlgorithm iFA, IFVertex vertex){
         getAllStartingEdges(iFA);
         for(IFEdge edge: allStartingEdges){
             if(edge.endpoint == vertex){
-                return edge.getFlow();
+                return edge;
             }
         }
-        return 0;
+        return null;
     }
 }
