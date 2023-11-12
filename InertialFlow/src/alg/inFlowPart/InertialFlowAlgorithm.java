@@ -18,7 +18,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
     /** Voluntary parameters of algorithm. */
     private HashMap<String, String> parameters = null;
     /** Class representing simple point with x and y coordinates. */
-    private class Point{
+    private static class Point{
         /** X coordinate. */
         private final double x;
         /** Y coordinate. */
@@ -257,23 +257,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
     /**
      * Finds minimal source and sink cut.
      */
-    private List<IFEdge> findMinSTCut(){
-        List<IFVertex> visitedVertices = new ArrayList<>();
-        List<IFEdge> cutEdges = new ArrayList<>();
-        dfs();
-
-        for (IFVertex i: graphVertices) {
-            for (IFVertex j: graphVertices) {
-                IFEdge edge = i.getEdge(this, j);
-                if (edge.getFlow() > 0 && visitedVertices.contains(i) && !visitedVertices.contains(j)) {
-                    cutEdges.add(edge);
-                }
-            }
-        }
-        return cutEdges;
-    }
-
-    private void dfs() {
+    private void findMinSTCut() {
         List<IFVertex> visitedVertices = new ArrayList<>();
         verticesParts = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
