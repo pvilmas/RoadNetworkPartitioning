@@ -45,21 +45,25 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private double balance = 0.25;
     private List<Vertex> vertexOrder;
     private List<Point> pointOrder;
-    public List<IFVertex> graphVertices;
+    private List<IFVertex> graphVertices;
+    private Map<Vertex, Integer> verticesParts;
 
     @Override
     public GraphPartition divide() {
         pickLine();
         projectAndSortVertices();
         computeMaxFlowBetweenST();
-        Map<Vertex, Integer> verticesParts = getVerticesParts(findMinSTCut());
+        findMinSTCut();
+        getVerticesParts();
         return new GraphPartition(verticesParts);
     }
 
-    private Map<Vertex, Integer> getVerticesParts(List<IFEdge> cutEdges) {
-        Map<Vertex, Integer> verticesParts = new HashMap<>();
-        //TODO
-        return verticesParts;
+    private void getVerticesParts() {
+        for (Vertex vertex: graph.getVertices().values()) {
+            if(!verticesParts.containsKey(vertex)) {
+                verticesParts.put(vertex, 2);
+            }
+        }
     }
 
     /**
@@ -256,7 +260,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private List<IFEdge> findMinSTCut(){
         List<IFVertex> visitedVertices = new ArrayList<>();
         List<IFEdge> cutEdges = new ArrayList<>();
-        dfs(graphVertices.get(0), visitedVertices);
+        dfs();
 
         for (IFVertex i: graphVertices) {
             for (IFVertex j: graphVertices) {
@@ -269,13 +273,27 @@ public class InertialFlowAlgorithm implements IPartitioning {
         return cutEdges;
     }
 
-    private void dfs(IFVertex s,  List<IFVertex> visitedVertices) {
-        visitedVertices.add(s);
-        for (IFVertex v: graphVertices) {
-            IFEdge edge = s.getEdge(this, v);
-            if (edge.getFlow() > 0 && !visitedVertices.contains(v)) {
-                dfs(v, visitedVertices);
+    private void dfs() {
+        List<IFVertex> visitedVertices = new ArrayList<>();
+        verticesParts = new HashMap<>();
+        Stack<IFVertex> stack = new Stack<>();
+        stack.push(graphVertices.get(0));
+        for(Vertex vertex: graphVertices.get(0).getVerticesList()) {
+            verticesParts.put(vertex, 1);
+        }
+        while(!stack.empty()) {
+            IFVertex s = stack.peek();
+            stack.pop();
+            if(!visitedVertices.contains(s)) {
+                visitedVertices.add(s);
+                verticesParts.put(s.getVerticesList().get(0), 1);
             }
+            for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
+                IFVertex v = ifEdge.endpoint;
+                if (!visitedVertices.contains(v))
+                    stack.push(v);
+            }
+
         }
     }
 
