@@ -17,6 +17,7 @@ public class SpartsimAlgorithm implements IPartitioning {
     private static class Part{
         private final List<Vertex> vertexList;
         private double value = 0.0;
+        private List<Part> neighbourParts = null;
         private Part(List<Vertex> vertexList){
             this.vertexList = vertexList;
         }
@@ -75,18 +76,25 @@ public class SpartsimAlgorithm implements IPartitioning {
             i++;
         }
         // Ensure connectivity
-        //for (Part part : parts) {
-        List<Part> subgraphs = computeConnectedSubgraphs(verticesParts, parts);
-        //}
-        //for (Part part : parts){
-        attach(verticesParts, parts);
-        //}
-        
+        List<Part> subgraphs = computeConnectedSubgraphs(parts);
+        attach(verticesParts, subgraphs);
+
         return new GraphPartition(verticesParts);
     }
 
 
     private void attach(Map<Vertex, Integer> verticesParts, List<Part> parts){
+        if(parts.size() == nparts){
+            return;
+        }
+        for(Part part: parts){
+            getPartNeighbours(part, verticesParts);
+        }
+
+    }
+
+    private void getPartNeighbours(Part part, Map<Vertex, Integer> verticesParts) {
+        List<Part> neighbours = new ArrayList<>();
 
     }
 
@@ -355,23 +363,47 @@ public class SpartsimAlgorithm implements IPartitioning {
 
     /**
      * Computes connected subgraphs.
-     * @param verticesParts  part to be computed.
+     * @param parts  parts to be computed.
      */
-    private List<Part> computeConnectedSubgraphs(Map<Vertex, Integer> verticesParts, List<Part> parts) {
+    private List<Part> computeConnectedSubgraphs(List<Part> parts) {
         List<Part> subgraphs = new ArrayList<>();
         for (Part part: parts) {
-            Map<Vertex, Boolean> isVisited = new HashMap<>();
-            int visited = 0;
-            Vertex vertex = part.vertexList.get(0);
-
-            while(visited < part.vertexList.size()){
-
-                visited++;
+            List<Vertex> visitedVertices = new ArrayList<>();
+            int i = 0;
+            while(part.vertexList.size() > visitedVertices.size()){
+                for(; i < part.vertexList.size(); i++){
+                    if(!visitedVertices.contains(part.vertexList.get(i))){
+                        break;
+                    }
+                }
+                Part visitedVerticesPart = bfs(part.vertexList.get(i), part);
+                subgraphs.add(visitedVerticesPart);
+                visitedVertices.addAll(visitedVerticesPart.vertexList);
             }
-
         }
-
         return subgraphs;
+    }
+
+    private Part bfs(Vertex s, Part part) {
+        Part visitedVerticesPart = new Part(new ArrayList<>());
+        LinkedList<Vertex> queue = new LinkedList<>();
+        visitedVerticesPart.vertexList.add(s);
+        visitedVerticesPart.value += s.getValue();
+        queue.add(s);
+        ListIterator<Edge> i;
+        while (queue.size() != 0) {
+            s = queue.poll();
+            for (i = s.getStartingEdges().listIterator(); i.hasNext();) {
+                Vertex v = i.next().getEndpoint();
+                if (!visitedVerticesPart.vertexList.contains(v) && part.vertexList.contains(v)) {
+                    queue.add(v);
+                    visitedVerticesPart.vertexList.add(v);
+                    visitedVerticesPart.value += v.getValue();
+
+                }
+            }
+        }
+        return visitedVerticesPart;
     }
 
     /**
@@ -414,9 +446,9 @@ public class SpartsimAlgorithm implements IPartitioning {
             Vertex maxVertex = graph.getVertices().get(maxVertexID);
             part.vertexList.add(maxVertex);
             part.value += maxVertex.getValue();
-            part.value += maxValue;
+            //part.value += maxValue;
             graphValue += maxVertex.getValue();
-            graphValue += maxValue;
+            //graphValue += maxValue;
             verticesParts.put(maxVertex, i);
         }
         return hasGrown;
@@ -455,20 +487,18 @@ public class SpartsimAlgorithm implements IPartitioning {
     private Map<Integer, Double> getVertexFreeNeighbours(Vertex vertex, Map<Vertex, Integer> verticesParts) {
         Map<Integer, Double> neighbours = new HashMap<>();
         for (Edge edge: vertex.getStartingEdges()) {
-            Vertex v = edge.getEndpoint();
-            if(!verticesParts.containsKey(v)){
-                neighbours.put(v.getId(), edge.getLength());
+            Vertex neighbour = edge.getEndpoint();
+            if(!verticesParts.containsKey(neighbour)){
+                neighbours.put(neighbour.getId(), edge.getLength());
             }
         }
-        for(Edge edge: graph.getEdges().values()){
-            if(edge.getEndpoint().equals(vertex)){
-                Vertex neighbour = edge.getStartpoint();
-                if(!verticesParts.containsKey(neighbour)){
-                    if(neighbours.containsKey(neighbour.getId())){
-                        neighbours.put(neighbour.getId(), neighbours.get(neighbour.getId()) + edge.getLength());
-                    }else{
-                        neighbours.put(neighbour.getId(), edge.getLength());
-                    }
+        for (Edge edge: vertex.getEndingEdges()) {
+            Vertex neighbour = edge.getStartpoint();
+            if(!verticesParts.containsKey(neighbour)){
+                if(neighbours.containsKey(neighbour.getId())){
+                    neighbours.put(neighbour.getId(), neighbours.get(neighbour.getId()) + edge.getLength());
+                }else{
+                    neighbours.put(neighbour.getId(), edge.getLength());
                 }
             }
         }
@@ -484,8 +514,8 @@ public class SpartsimAlgorithm implements IPartitioning {
         int maxDegree = 0;
         Vertex bestVertex = null;
         for(Vertex vertex: graph.getVertices().values()){
-            if((vertex.getStartingEdges().size() > maxDegree) && (!isIncluded(verticesParts, vertex))){
-                maxDegree = vertex.getStartingEdges().size();
+            if(((vertex.getStartingEdges().size() + vertex.getEndingEdges().size()) > maxDegree) && (!isIncluded(verticesParts, vertex))){
+                maxDegree = vertex.getStartingEdges().size() + vertex.getEndingEdges().size();
                 bestVertex = vertex;
             }
         }
