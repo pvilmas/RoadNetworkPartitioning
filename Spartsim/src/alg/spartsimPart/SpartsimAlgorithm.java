@@ -17,7 +17,7 @@ public class SpartsimAlgorithm implements IPartitioning {
     private static class Part{
         private final List<Vertex> vertexList;
         private double value = 0.0;
-        private List<Part> neighbourParts = null;
+        private List<Integer> neighbourParts = null;
         private Part(List<Vertex> vertexList){
             this.vertexList = vertexList;
         }
@@ -94,8 +94,31 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     private void getPartNeighbours(Part part, Map<Vertex, Integer> verticesParts) {
-        List<Part> neighbours = new ArrayList<>();
-
+        List<Integer> neighbours = new ArrayList<>();
+        int index = verticesParts.get(part.vertexList.get(0));
+        for (Vertex vertex: part.vertexList) {
+            for (Edge edge: vertex.getStartingEdges()) {
+                Vertex v = edge.getEndpoint();
+                int partNumber = verticesParts.get(v);
+                if(partNumber != index){
+                    if(!neighbours.contains(partNumber)){
+                        neighbours.add(partNumber);
+                    }
+                }
+            }
+            for(Edge edge: graph.getEdges().values()){
+                if(edge.getEndpoint().equals(vertex)){
+                    Vertex neighbour = edge.getStartpoint();
+                    int partNumber = verticesParts.get(neighbour);
+                    if(partNumber != index){
+                        if(!neighbours.contains(partNumber)){
+                            neighbours.add(partNumber);
+                        }
+                    }
+                }
+            }
+        }
+        part.neighbourParts = neighbours;
     }
 
     /**
