@@ -64,11 +64,12 @@ public class SpartsimAlgorithm implements IPartitioning {
         int enoughIterations = 50;
         int i = 0;
         double epsilon = 10;
+        double partValue = graphValue/nparts;
         while (!balanced && (i < enoughIterations)) {
             int maxPart = getMaxPart(parts);
             int minPart = getMinPart(parts);
-            if (((parts.get(maxPart).value - epsilon) < graphValue)
-                    && (graphValue < (parts.get(minPart).value + epsilon))) {
+            if (((parts.get(maxPart).value - epsilon) < partValue)
+                    && (partValue < (parts.get(minPart).value + epsilon))) {
                 balanced = true;
             } else {
                 trade(parts, maxPart, minPart, verticesParts);
@@ -90,6 +91,11 @@ public class SpartsimAlgorithm implements IPartitioning {
         for(Part part: parts){
             getPartNeighbours(part, verticesParts);
         }
+        int partsCount = parts.size();
+        while (partsCount > nparts){
+            //TODO
+        }
+
 
     }
 
