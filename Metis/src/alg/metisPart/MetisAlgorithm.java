@@ -16,7 +16,7 @@ public class MetisAlgorithm implements IPartitioning {
      */
     private Graph graph = null;
     /**
-     * Map where key is vertex ID and value is ID of matched vertex.
+     * Map where key is vertex and value is matched vertex.
      */
     private Map<Vertex, Vertex> matchedVertices = new HashMap<>();
     /**
@@ -46,20 +46,9 @@ public class MetisAlgorithm implements IPartitioning {
         Vertex[] sortedVertices = sortVertices();
         int[] edgesCount = new int[sortedVertices.length];
         int j = 0;
-        Map<Integer, List<Edge>> endVertex = new HashMap<>();
         for (Vertex v : sortedVertices) {
             int edgeCount = v.getStartingEdges().size();
-            int endCount = 0;
-            List<Edge> adj = new ArrayList<>();
-            for (Vertex vertex : graph.getVertices().values()) {
-                for (Edge e : vertex.getStartingEdges()) {
-                    if (e.getEndpoint().equals(v)) {
-                        adj.add(e);
-                        endCount++;
-                    }
-                }
-            }
-            endVertex.put(v.getId(), adj);
+            int endCount = v.getEndingEdges().size();
             int totalEdgeCount = edgeCount + endCount;
             edgesCount[j] = totalEdgeCount;
             j++;
@@ -74,18 +63,18 @@ public class MetisAlgorithm implements IPartitioning {
                 Vertex maxVertex = null;
                 for (Edge e : sortedVertex.getStartingEdges()) {
                     Vertex maxV= e.getEndpoint();
-                    double weight = 0;
+                    double weight = e.getLength();
                     if (match[maxV.getId()] == 0) {
-                        for (Edge edge : endVertex.get(vID)) {
-                            if (edge.getEndpoint().equals(sortedVertex)) {
-                                weight = e.getLength();
+                        for (Edge edge : sortedVertex.getEndingEdges()) {
+                            if (edge.getStartpoint().equals(maxV)) {
+                                weight += edge.getLength();
                                 break;
                             }
                         }
-                        if (maxWeight < e.getLength() + weight) {
+                        if (maxWeight < weight) {
                             maxID = maxV.getId();
                             maxVertex = maxV;
-                            maxWeight = e.getLength() + weight;
+                            maxWeight = weight;
                             match[vID] = 1;
                         }
                     }
@@ -110,12 +99,8 @@ public class MetisAlgorithm implements IPartitioning {
     private Vertex[] sortVertices() {
         Vertex[] sortedVertices = graph.getVertices().values().toArray(new Vertex[0]);
         Map<Vertex, Integer> vertexDegree = new HashMap<>();
-        for (Edge edge : graph.getEdges().values()) {
-            if (vertexDegree.containsKey(edge.getEndpoint())) {
-                vertexDegree.put(edge.getEndpoint(), vertexDegree.get(edge.getEndpoint()) + 1);
-            } else {
-                vertexDegree.put(edge.getEndpoint(), edge.getEndpoint().getStartingEdges().size() + 1);
-            }
+        for (Vertex vertex : graph.getVertices().values()) {
+            vertexDegree.put(vertex, vertex.getStartingEdges().size() + vertex.getEndingEdges().size());
         }
         quickSort(sortedVertices, vertexDegree);
         return sortedVertices;
@@ -200,6 +185,7 @@ public class MetisAlgorithm implements IPartitioning {
         }
         Vertex v1 = graph.getVertices().get(v.getId());
         Vertex v2 = graph.getVertices().get(maxVertex.getId());
+        //TODO
         double x = (v1.getXCoordinate() + v2.getXCoordinate()) / 2;
         double y = (v1.getYCoordinate() + v2.getYCoordinate()) / 2;
         Vertex vertex = new Vertex(id, x, y);
