@@ -255,7 +255,7 @@ public class SpartsimAlgorithm implements IPartitioning {
         List<Vertex> maxBorderPart = getBorderVertices(parts, maxPart, verticesParts);
         List<Vertex> minBorderPart = getBorderVertices(parts, minPart, verticesParts);
         for (Vertex maxVertex: maxBorderPart) {
-            dijkstrasSearch(maxVertex, minBorderPart);
+            dijkstrasSearch(maxVertex, minBorderPart, verticesParts);
         }
     }
 
@@ -264,7 +264,7 @@ public class SpartsimAlgorithm implements IPartitioning {
      * @param maxVertex
      * @param minBorderPart
      */
-    private void dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart) {
+    private void dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Map<Vertex, Integer> verticesParts) {
         Map<Vertex, Double> distances = new HashMap<>();
         Map<Vertex, List<Vertex>> shortestPaths = new HashMap<>();
         distances.put(maxVertex, 0.0);
@@ -274,16 +274,15 @@ public class SpartsimAlgorithm implements IPartitioning {
         Set<Vertex> unsettledNodes = new HashSet<>();
 
         unsettledNodes.add(maxVertex);
-
+        int part = verticesParts.get(minBorderPart.get(0));
         while (unsettledNodes.size() != 0) {
             Vertex currentNode = getLowestDistanceNode(unsettledNodes, distances);
             unsettledNodes.remove(currentNode);
             Map<Integer, Double> neighbours = getAllVertexNeighbours(currentNode);
-            for (Map.Entry< Integer, Double> neighbour:
-                    neighbours.entrySet()) {
+            for (Map.Entry< Integer, Double> neighbour: neighbours.entrySet()) {
                 Vertex adjacentNode = graph.getVertices().get(neighbour.getKey());
                 double edgeWeight = neighbour.getValue();
-                if (!settledNodes.contains(adjacentNode)) {
+                if (!settledNodes.contains(adjacentNode) && ((verticesParts.get(adjacentNode) != part) || minBorderPart.contains(adjacentNode))) {
                     calculateMinimumDistance(adjacentNode, edgeWeight, currentNode, distances, shortestPaths);
                     unsettledNodes.add(adjacentNode);
                 }
