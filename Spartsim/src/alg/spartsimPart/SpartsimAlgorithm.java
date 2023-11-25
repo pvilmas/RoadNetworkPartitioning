@@ -17,7 +17,7 @@ public class SpartsimAlgorithm implements IPartitioning {
     private static class Part{
         private final List<Vertex> vertexList;
         private double value = 0.0;
-        private List<Integer> neighbourParts = null;
+        private List<Part> neighbourParts = null;
         private Part(List<Vertex> vertexList){
             this.vertexList = vertexList;
         }
@@ -32,6 +32,8 @@ public class SpartsimAlgorithm implements IPartitioning {
     private List<Vertex> minPath = new LinkedList<>();
     /**  */
     private double minValue = Double.MAX_VALUE;
+    double epsilon = 10;
+
 
     @Override
     public GraphPartition divide() {
@@ -63,7 +65,6 @@ public class SpartsimAlgorithm implements IPartitioning {
         boolean balanced = false;
         int enoughIterations = 50;
         int i = 0;
-        double epsilon = 10;
         double partValue = graphValue/nparts;
         while (!balanced && (i < enoughIterations)) {
             int maxPart = getMaxPart(parts);
@@ -78,53 +79,74 @@ public class SpartsimAlgorithm implements IPartitioning {
         }
         // Ensure connectivity
         List<Part> subgraphs = computeConnectedSubgraphs(parts);
-        attach(verticesParts, subgraphs);
+        attach(subgraphs);
 
         return new GraphPartition(verticesParts);
     }
 
 
-    private void attach(Map<Vertex, Integer> verticesParts, List<Part> parts){
-        if(parts.size() == nparts){
+    private void attach(List<Part> subparts){
+        if(subparts.size() == nparts){
             return;
         }
-        for(Part part: parts){
-            getPartNeighbours(part, verticesParts);
+        for(Part part: subparts){
+            getPartNeighbours(part, subparts);
         }
-        int partsCount = parts.size();
+        int partsCount = subparts.size();
+        double partValue = graphValue/nparts;
         while (partsCount > nparts){
-            //TODO
+            for (Part part : subparts) {
+                if (((part.value - epsilon) < partValue) && (partValue < (part.value + epsilon))) {
+                    continue;
+                }
+                for (Part neighbour : part.neighbourParts) {
+                    double value = part.value + neighbour.value;
+                    if (value < (partValue + epsilon)){
+                       part.vertexList.addAll(neighbour.vertexList);
+                       part.value += neighbour.value;
+                       subparts.remove(neighbour);
+                    }
+                }
+                break;
+            }
+            partsCount = subparts.size();
         }
-
-
     }
 
-    private void getPartNeighbours(Part part, Map<Vertex, Integer> verticesParts) {
-        List<Integer> neighbours = new ArrayList<>();
-        int index = verticesParts.get(part.vertexList.get(0));
+    private void getPartNeighbours(Part part, List<Part> subParts) {
+        List<Part> neighbours = new ArrayList<>();
         for (Vertex vertex: part.vertexList) {
             for (Edge edge: vertex.getStartingEdges()) {
                 Vertex v = edge.getEndpoint();
-                int partNumber = verticesParts.get(v);
-                if(partNumber != index){
-                    if(!neighbours.contains(partNumber)){
-                        neighbours.add(partNumber);
+                if(!part.vertexList.contains(v)){
+                    Part neighbourPart = getVertexPart(v, subParts);
+                    if(!neighbours.contains(neighbourPart)){
+                        neighbours.add(neighbourPart);
                     }
                 }
             }
             for(Edge edge: graph.getEdges().values()){
                 if(edge.getEndpoint().equals(vertex)){
                     Vertex neighbour = edge.getStartpoint();
-                    int partNumber = verticesParts.get(neighbour);
-                    if(partNumber != index){
-                        if(!neighbours.contains(partNumber)){
-                            neighbours.add(partNumber);
+                    if(!part.vertexList.contains(neighbour)){
+                        Part neighbourPart = getVertexPart(neighbour, subParts);
+                        if(!neighbours.contains(neighbourPart)){
+                            neighbours.add(neighbourPart);
                         }
                     }
                 }
             }
         }
         part.neighbourParts = neighbours;
+    }
+
+    private Part getVertexPart(Vertex v, List<Part> subParts) {
+        for (Part subPart : subParts) {
+            if (subPart.vertexList.contains(v)){
+                return subPart;
+            }
+        }
+        return null;
     }
 
     /**
