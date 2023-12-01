@@ -1,5 +1,7 @@
 package bp.roadnetworkpartitioning;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -48,33 +50,46 @@ public class MainController {
     /** Map with all available graph partitioning algorithms. */
     private static Map<String, IPartitioning> algorithms;
 
+    private GraphPartition graphPartition = null;
+
     /**
      * Displays all available graph partitioning algorithms.
      */
     public void setAlgorithms(){
         AlgorithmsLoader.findAlgorithms();
         algorithms = AlgorithmsLoader.getAlgorithms();
-        for (String key : algorithms.keySet()) {
+        for (Map.Entry<String, IPartitioning> algorithm: algorithms.entrySet()) {
             HBox hBox = new HBox(20);
             RadioButton radioButton = new RadioButton();
-            radioButton.setText(key);
-            radioButton.setId(key);
+            radioButton.setText(algorithm.getKey());
+            radioButton.setUserData(algorithm.getValue());
+            radioButton.setId(algorithm.getKey());
             radioButton.setToggleGroup(group);
             Button btnSetting = new Button("Setting");
             btnSetting.getStyleClass().setAll("btn","btn-primary");
-            btnSetting.setOnAction(e -> showSettingDialog(key));
+            btnSetting.setOnAction(e -> showSettingDialog(algorithm.getValue()));
             hBox.getChildren().addAll(radioButton, btnSetting);
             vboxRadioBtn.setPadding(new Insets(5, 5, 5, 50));
             vboxRadioBtn.getChildren().add(hBox);
         }
+        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+            public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+
+                if (group.getSelectedToggle() != null) {
+                    IPartitioning algorithm = (IPartitioning) group.getSelectedToggle().getUserData();
+                    graphPartition = algorithm.divide();
+                    visualizeGraph();
+                }
+
+            }
+        });
     }
 
     /**
      * Shows setting dialog of given algorithm.
-     * @param key   name of the algorithm.
+     * @param algorithm   name of the algorithm.
      */
-    private void showSettingDialog(String key) {
-        IPartitioning algorithm = algorithms.get(key);
+    private void showSettingDialog(IPartitioning algorithm) {
         try {
             SettingDialog dialog = new SettingDialog(stage, algorithm);
             dialog.showAndWait().ifPresent(graph -> {
@@ -94,7 +109,7 @@ public class MainController {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
         this.graph = JSONParser.readFile(selectedFile);
-        visualizeGraph(zoom);
+        visualizeGraph();
     }
 
     /**
@@ -105,7 +120,7 @@ public class MainController {
     protected  void onIncreaseButtonClick(){
         zoom += 5;
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom);
+        visualizeGraph();
     }
 
     /**
@@ -116,7 +131,7 @@ public class MainController {
     protected  void onDecreaseButtonClick(){
         zoom -= 5;
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom);
+        visualizeGraph();
     }
 
     /**
@@ -127,7 +142,7 @@ public class MainController {
     protected  void onZoomButtonClick(){
         zoom = getNumberFromString(textZoom.getText());
         labelZoom.setText(""+zoom);
-        visualizeGraph(zoom);
+        visualizeGraph();
     }
 
     /**
@@ -140,7 +155,7 @@ public class MainController {
             CreateGraphDialog dialog = new CreateGraphDialog(stage);
             dialog.showAndWait().ifPresent(graph -> {
                 this.graph = graph;
-                visualizeGraph(zoom);
+                visualizeGraph();
             });
         } catch (Exception e){
             e.printStackTrace();
@@ -149,16 +164,17 @@ public class MainController {
 
     /**
      * Visualizes attribute graph.
-     * @param zoom  how much bigger the graph should be.
      */
-    private void visualizeGraph(int zoom){
+    private void visualizeGraph(){
         Group group = new Group();
         for(Vertex vertex: this.graph.getVertices().values()){
-            group.getChildren().add(new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size));
+            Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
+            group.getChildren().add(circle);
             for(int j = 0; j < vertex.getStartingEdges().size(); j++){
                 Edge edge = vertex.getStartingEdges().get(j);
-                group.getChildren().add(new Line(vertex.getX()*zoom, vertex.getY()*zoom,
-                        edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom));
+                Line line = new Line(vertex.getX()*zoom, vertex.getY()*zoom,
+                        edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom);
+                group.getChildren().add(line);
             }
         }
         scrollPane.setPrefSize(1000, 1000);
