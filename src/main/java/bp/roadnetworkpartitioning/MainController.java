@@ -8,6 +8,7 @@ import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
@@ -51,6 +52,8 @@ public class MainController {
     private static Map<String, IPartitioning> algorithms;
 
     private GraphPartition graphPartition = null;
+
+    private static final Color[] colors = {Color.BLUE, Color.RED};
 
     /**
      * Displays all available graph partitioning algorithms.
@@ -169,6 +172,9 @@ public class MainController {
         Group group = new Group();
         for(Vertex vertex: this.graph.getVertices().values()){
             Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
+            if (graphPartition != null) {
+                circle.setStroke(colors[graphPartition.getVerticesPlacements().get(vertex)]);
+            }
             group.getChildren().add(circle);
             for(int j = 0; j < vertex.getStartingEdges().size(); j++){
                 Edge edge = vertex.getStartingEdges().get(j);

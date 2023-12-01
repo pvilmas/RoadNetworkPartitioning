@@ -33,54 +33,57 @@ public class SpartsimAlgorithm implements IPartitioning {
     /**  */
     private double minValue = Double.MAX_VALUE;
     double epsilon = 10;
+    Map<Vertex, Integer> verticesParts = null;
+
 
 
     @Override
     public GraphPartition divide() {
-        Map<Vertex, Integer> verticesParts = new HashMap<>();
-        // Initialisation
-        List<Part> parts = new ArrayList<>(nparts);
-        int[] stop = new int[nparts];
-        for (int i = 0; i < nparts; i++) {
-            parts.add(new Part(new ArrayList<>()));
-            Vertex baseVertex = getBestCandidateVertex(verticesParts);
-            parts.get(i).vertexList.add(baseVertex);
-            parts.get(i).value += baseVertex.getValue();
-            graphValue += baseVertex.getValue();
-            verticesParts.put(baseVertex, i);
-            stop[i] = 1;
-        }
-        // Region growing
-        while (!isZero(stop)) {
+        if (verticesParts == null) {
+            verticesParts = new HashMap<>();
+            // Initialisation
+            List<Part> parts = new ArrayList<>(nparts);
+            int[] stop = new int[nparts];
             for (int i = 0; i < nparts; i++) {
-                if (stop[i] != 0) {
-                    boolean hasGrown = grow(i, parts.get(i), verticesParts);
-                    if (!hasGrown) {
-                        stop[i] = 0;
+                parts.add(new Part(new ArrayList<>()));
+                Vertex baseVertex = getBestCandidateVertex(verticesParts);
+                parts.get(i).vertexList.add(baseVertex);
+                parts.get(i).value += baseVertex.getValue();
+                graphValue += baseVertex.getValue();
+                verticesParts.put(baseVertex, i);
+                stop[i] = 1;
+            }
+            // Region growing
+            while (!isZero(stop)) {
+                for (int i = 0; i < nparts; i++) {
+                    if (stop[i] != 0) {
+                        boolean hasGrown = grow(i, parts.get(i), verticesParts);
+                        if (!hasGrown) {
+                            stop[i] = 0;
+                        }
                     }
                 }
             }
-        }
-        // Balance partitioning
-        boolean balanced = false;
-        int enoughIterations = 50;
-        int i = 0;
-        double partValue = graphValue/nparts;
-        while (!balanced && (i < enoughIterations)) {
-            int maxPart = getMaxPart(parts);
-            int minPart = getMinPart(parts);
-            if (((parts.get(maxPart).value - epsilon) < partValue)
-                    && (partValue < (parts.get(minPart).value + epsilon))) {
-                balanced = true;
-            } else {
-                trade(parts, maxPart, minPart, verticesParts);
+            // Balance partitioning
+            boolean balanced = false;
+            int enoughIterations = 50;
+            int i = 0;
+            double partValue = graphValue / nparts;
+            while (!balanced && (i < enoughIterations)) {
+                int maxPart = getMaxPart(parts);
+                int minPart = getMinPart(parts);
+                if (((parts.get(maxPart).value - epsilon) < partValue)
+                        && (partValue < (parts.get(minPart).value + epsilon))) {
+                    balanced = true;
+                } else {
+                    trade(parts, maxPart, minPart, verticesParts);
+                }
+                i++;
             }
-            i++;
+            // Ensure connectivity
+            List<Part> subgraphs = computeConnectedSubgraphs(parts);
+            attach(subgraphs);
         }
-        // Ensure connectivity
-        List<Part> subgraphs = computeConnectedSubgraphs(parts);
-        attach(subgraphs);
-
         return new GraphPartition(verticesParts);
     }
 

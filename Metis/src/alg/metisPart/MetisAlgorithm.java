@@ -24,15 +24,20 @@ public class MetisAlgorithm implements IPartitioning {
      */
     private int nparts = 2;
 
+    private GraphPartition graphPartition = null;
+
 
     @Override
     public GraphPartition divide() {
         if (graph == null) {
             return null;
         }
-        Graph smallGraph = coarsenGraph();
-        GraphPartition parts = partitionGraph(smallGraph);
-        return uncoarsenGraph(smallGraph, parts);
+        if (graphPartition == null) {
+            Graph smallGraph = coarsenGraph();
+            GraphPartition parts = partitionGraph(smallGraph);
+            graphPartition = uncoarsenGraph(smallGraph, parts);
+        }
+        return graphPartition;
     }
 
     /**
