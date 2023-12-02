@@ -45,12 +45,12 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private double balance = 0.25;
     private List<Vertex> vertexOrder;
     private List<Point> pointOrder;
-    private List<IFVertex> graphVertices;
+    public List<IFVertex> graphVertices;
     private Map<Vertex, Integer> verticesParts = null;
 
     @Override
     public GraphPartition divide() {
-        if (verticesParts == null) {
+        if (verticesParts == null && graph != null) {
             pickLine();
             projectAndSortVertices();
             computeMaxFlowBetweenST();

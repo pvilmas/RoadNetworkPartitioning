@@ -13,12 +13,15 @@ public class PunchAlgorithm implements IPartitioning {
 
     /** Graph to be divided. */
     private Graph graph = null;
+    private Map<Vertex, Integer> verticesParts = null;
 
     @Override
     public GraphPartition divide() {
-        Map<Vertex, Integer> verticesParts = new HashMap<>();
-        filter();
-        assembly();
+        if (verticesParts == null && graph != null) {
+            Map<Vertex, Integer> verticesParts = new HashMap<>();
+            filter();
+            assembly();
+        }
         return new GraphPartition(verticesParts);
     }
 

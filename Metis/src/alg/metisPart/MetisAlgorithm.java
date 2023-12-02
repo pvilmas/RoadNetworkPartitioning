@@ -29,10 +29,7 @@ public class MetisAlgorithm implements IPartitioning {
 
     @Override
     public GraphPartition divide() {
-        if (graph == null) {
-            return null;
-        }
-        if (graphPartition == null) {
+        if (graphPartition == null && graph != null) {
             Graph smallGraph = coarsenGraph();
             GraphPartition parts = partitionGraph(smallGraph);
             graphPartition = uncoarsenGraph(smallGraph, parts);

@@ -33,13 +33,13 @@ public class SpartsimAlgorithm implements IPartitioning {
     /**  */
     private double minValue = Double.MAX_VALUE;
     double epsilon = 10;
-    Map<Vertex, Integer> verticesParts = null;
+    private Map<Vertex, Integer> verticesParts = null;
 
 
 
     @Override
     public GraphPartition divide() {
-        if (verticesParts == null) {
+        if (verticesParts == null && graph != null) {
             verticesParts = new HashMap<>();
             // Initialisation
             List<Part> parts = new ArrayList<>(nparts);
