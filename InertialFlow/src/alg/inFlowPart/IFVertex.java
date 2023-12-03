@@ -37,14 +37,14 @@ public class IFVertex {
 
     public List<IFEdge> getAllStartingEdges(InertialFlowAlgorithm iFA) {
         if(allStartingEdges.size() == 0) {
-            for (int i = 0; i < this.verticesList.size(); i++) {
-                Vertex v = verticesList.get(i);
+            for (Vertex v: verticesList) {
                 for (Edge e : v.getStartingEdges()) {
                     if (!verticesList.contains(e.getEndpoint())) {
                         IFVertex endpoint = null;
                         for (IFVertex iFVertex : iFA.graphVertices) {
                             if (iFVertex.getVerticesList().contains(e.getEndpoint())) {
                                 endpoint = iFVertex;
+                                break;
                             }
                         }
                         IFEdge edge = new IFEdge(e, endpoint);

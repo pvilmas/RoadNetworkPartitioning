@@ -63,7 +63,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private void getVerticesParts() {
         for (Vertex vertex: graph.getVertices().values()) {
             if(!verticesParts.containsKey(vertex)) {
-                verticesParts.put(vertex, 2);
+                verticesParts.put(vertex, 1);
             }
         }
     }
@@ -132,19 +132,22 @@ public class InertialFlowAlgorithm implements IPartitioning {
             }
             return;
         }
-        for(int i = vertexOrder.size()-1; i >= 0; i--){
+        for(int i = vertexOrder.size()-1; i > 0; i--){
             if(abs(pointOrder.get(i).x - point.x) < epsilon){
-                if(pointOrder.get(i).y < point.y){
+                if(pointOrder.get(i).y <= point.y){
                     pointOrder.add(i+1, point);
                     vertexOrder.add(i+1, v);
                     return;
                 }
-            }else if(pointOrder.get(i).x < point.x){
+            }
+            else if(pointOrder.get(i).x < point.x){
                 pointOrder.add(i+1, point);
                 vertexOrder.add(i+1, v);
                 return;
             }
         }
+        pointOrder.add(0, point);
+        vertexOrder.add(0, v);
     }
 
     /**
@@ -160,11 +163,9 @@ public class InertialFlowAlgorithm implements IPartitioning {
         s.setLevel(0);
         LinkedList<IFVertex> q = new LinkedList<>();
         q.add(s);
-        ListIterator<IFEdge> i;
         while (q.size() != 0) {
             IFVertex u = q.poll();
-            for (i = u.getAllStartingEdges(this).listIterator(); i.hasNext();) {
-                IFEdge e = i.next();
+            for (IFEdge e: u.getAllStartingEdges(this)) {
                 if (e.endpoint.getLevel() < 0 && e.getFlow() < e.getCapacity()) {
                     e.endpoint.setLevel(u.getLevel() + 1);
                     q.add(e.endpoint);
@@ -246,7 +247,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
         int flow = 0;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
-            for(int i  = 0; i <= verticesSize; i++){
+            for(int i  = 0; i < verticesSize; i++){
                 startMap.put(graphVertices.get(i), 0);
             }
             do {
@@ -265,14 +266,14 @@ public class InertialFlowAlgorithm implements IPartitioning {
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
         for(Vertex vertex: graphVertices.get(0).getVerticesList()) {
-            verticesParts.put(vertex, 1);
+            verticesParts.put(vertex, 0);
         }
         while(!stack.empty()) {
             IFVertex s = stack.peek();
             stack.pop();
             if(!visitedVertices.contains(s)) {
                 visitedVertices.add(s);
-                verticesParts.put(s.getVerticesList().get(0), 1);
+                verticesParts.put(s.getVerticesList().get(0), 0);
             }
             for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
                 IFVertex v = ifEdge.endpoint;

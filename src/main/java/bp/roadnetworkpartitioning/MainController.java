@@ -80,6 +80,7 @@ public class MainController {
 
                 if (group.getSelectedToggle() != null) {
                     IPartitioning algorithm = (IPartitioning) group.getSelectedToggle().getUserData();
+                    algorithm.setGraph(graph);
                     graphPartition = algorithm.divide();
                     visualizeGraph();
                 }
