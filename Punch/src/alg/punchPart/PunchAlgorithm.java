@@ -14,11 +14,12 @@ public class PunchAlgorithm implements IPartitioning {
     /** Graph to be divided. */
     private Graph graph = null;
     private Map<Vertex, Integer> verticesParts = null;
+    private int sizeLimit = 1;
 
     @Override
     public GraphPartition divide() {
         if (verticesParts == null && graph != null) {
-            Map<Vertex, Integer> verticesParts = new HashMap<>();
+            verticesParts = new HashMap<>();
             filter();
             assembly();
         }
@@ -31,39 +32,38 @@ public class PunchAlgorithm implements IPartitioning {
     }
 
     private void detectTinyCuts(){
-
+        List<Edge> edgeRemoved = new ArrayList<>();
+        List<List<Edge>> equalClassesEdges = new ArrayList<>();
+        dfsTree(graph.getVertices().get(0), edgeRemoved);
+        //two_cuts_edge_class(edgeRemoved, equalClassesEdges);
+        //cnt_two_cuts(equalClassesEdges, sizeLimit);
+        //cnt_one_cuts(equalClassesEdges.get(0), sizeLimit);
+        //cnt_two_degree_path(sizeLimit);
     }
 
-    private Graph findEdgeConnectedComponents(){
 
-        return null;
-    }
+    private void dfsTree(Vertex startVertex, List<Edge> edgeRemoved){
+            List<Vertex> vertexVisited = new ArrayList<>();
+            Stack<Vertex> vertexStack = new Stack<>();
+            vertexStack.push(startVertex);
+            vertexVisited.add(startVertex);
 
-
-    //TODO
-    private void DFS(Vertex s) {
-        List<Vertex> visited = new ArrayList<>();
-        List<Vertex> unvisited = new ArrayList<>();
-
-        Stack<Vertex> stack = new Stack<>();
-        stack.push(s);
-        Map<Vertex, List<Vertex>> adj = createAdjacencyLists();
-        while(!stack.empty()) {
-            s = stack.peek();
-            stack.pop();
-            if(!visited.contains(s)) {
-                System.out.print(s + " ");
-                visited.add(s);
-            }
-            Iterator<Vertex> itr = adj.get(s).iterator();
-            while (itr.hasNext()) {
-                Vertex v = itr.next();
-                if(!visited.contains(v)) {
-                    stack.push(v);
+            while(!vertexStack.empty()){
+                Vertex vertex = vertexStack.pop();
+                List<Edge> edges = new ArrayList<>(vertex.getStartingEdges());
+                edges.addAll(vertex.getEndingEdges());
+                for(Edge edge: edges){
+                    Vertex v = edge.getEndpoint();
+                    if(!vertexVisited.contains(v)){
+                        edgeRemoved.add(edge);
+                        vertexStack.push(v);
+                        vertexVisited.add(v);
+                    }
+                    else{
+                        edgeRemoved.add(edge);
+                    }
                 }
             }
-
-        }
     }
 
     private Map<Vertex, List<Vertex>> createAdjacencyLists() {
