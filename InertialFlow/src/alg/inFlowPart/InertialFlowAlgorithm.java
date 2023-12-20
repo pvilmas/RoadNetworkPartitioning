@@ -265,7 +265,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
         verticesParts = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
-        for(Vertex vertex: graphVertices.get(0).getVerticesList()) {
+        for(Vertex vertex: graphVertices.get(0).getVertexList()) {
             verticesParts.put(vertex, 0);
         }
         while(!stack.empty()) {
@@ -273,7 +273,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
             stack.pop();
             if(!visitedVertices.contains(s)) {
                 visitedVertices.add(s);
-                verticesParts.put(s.getVerticesList().get(0), 0);
+                verticesParts.put(s.getVertexList().get(0), 0);
             }
             for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
                 IFVertex v = ifEdge.endpoint;

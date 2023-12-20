@@ -6,43 +6,45 @@ import bp.roadnetworkpartitioning.Vertex;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of vertex in inertial flow algorithm.
+ * @author Lucie Roy
+ * @version 20-12-2023
+ */
 public class IFVertex {
-
+    /** Vertex level in graph. */
     private int level;
-    private List<Vertex> verticesList;
+    /** List of original graph vertices that are represented by this instance. */
+    private List<Vertex> vertexList;
+    /** All starting edges coming from this IFVertex to another IFVertices.
+     *  These are computed from all original graph vertices in verticesList.
+     */
     private final List<IFEdge> allStartingEdges = new ArrayList<>();
 
+    /**
+     * Constructor of an vertex in IF.
+     * @param level         Vertex level in graph.
+     * @param verticesList  List of original graph vertices that are represented by this instance.
+     */
     public IFVertex(int level, List<Vertex> verticesList) {
         this.level = level;
-        this.verticesList = verticesList;
+        this.vertexList = verticesList;
     }
 
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    public List<Vertex> getVerticesList() {
-        return verticesList;
-    }
-
-    public void setVerticesList(List<Vertex> verticesList) {
-        this.verticesList = verticesList;
-    }
-
-
+    /**
+     * Gets all starting edges of the IFVertex computed from all original vertices
+     * included in this instance.
+     * @param iFA   Instance of IF algorithm.
+     * @return  all starting edges of the IFVertex.
+     */
     public List<IFEdge> getAllStartingEdges(InertialFlowAlgorithm iFA) {
         if(allStartingEdges.size() == 0) {
-            for (Vertex v: verticesList) {
+            for (Vertex v: vertexList) {
                 for (Edge e : v.getStartingEdges()) {
-                    if (!verticesList.contains(e.getEndpoint())) {
+                    if (!vertexList.contains(e.getEndpoint())) {
                         IFVertex endpoint = null;
                         for (IFVertex iFVertex : iFA.graphVertices) {
-                            if (iFVertex.getVerticesList().contains(e.getEndpoint())) {
+                            if (iFVertex.getVertexList().contains(e.getEndpoint())) {
                                 endpoint = iFVertex;
                                 break;
                             }
@@ -56,6 +58,12 @@ public class IFVertex {
         return allStartingEdges;
     }
 
+    /**
+     * Gets edge that starts in this vertex and ends in given vertex.
+     * @param iFA       Instance of IF algorithm.
+     * @param vertex    Given IFVertex where edge ends.
+     * @return  edge that starts in this vertex and ends in given vertex.
+     */
     public IFEdge getReverseEdge(InertialFlowAlgorithm iFA, IFVertex vertex) {
         getAllStartingEdges(iFA);
         for(IFEdge edge: allStartingEdges){
@@ -68,13 +76,35 @@ public class IFVertex {
         return edge;
     }
 
-    public IFEdge getEdge(InertialFlowAlgorithm iFA, IFVertex vertex){
-        getAllStartingEdges(iFA);
-        for(IFEdge edge: allStartingEdges){
-            if(edge.endpoint == vertex){
-                return edge;
-            }
-        }
-        return null;
+    /**
+     * Getter of vertex level.
+     * @return level of vertex.
+     */
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * Setter of vertex level.
+     * @param level level of vertex.
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    /**
+     * Getter of list of original graph vertices that are represented by this instance.
+     * @return vertex list.
+     */
+    public List<Vertex> getVertexList() {
+        return vertexList;
+    }
+
+    /**
+     * Setter of vertex list.
+     * @param vertexList  List of original graph vertices that are represented by this instance.
+     */
+    public void setVertexList(List<Vertex> vertexList) {
+        this.vertexList = vertexList;
     }
 }
