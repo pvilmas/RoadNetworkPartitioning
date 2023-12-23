@@ -22,7 +22,7 @@ public class IFVertex {
     private final List<IFEdge> allStartingEdges = new ArrayList<>();
 
     /**
-     * Constructor of an vertex in IF.
+     * Constructor of a vertex in IF.
      * @param level         Vertex level in graph.
      * @param verticesList  List of original graph vertices that are represented by this instance.
      */

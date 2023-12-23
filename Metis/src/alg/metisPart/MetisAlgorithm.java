@@ -7,23 +7,17 @@ import java.util.*;
 /**
  * Class with METIS algorithm implementation.
  * @author Lucie Roy
- * @version 27-03-2023
+ * @version 23-12-2023
  */
 public class MetisAlgorithm implements IPartitioning {
 
-    /**
-     * Graph to be divided.
-     */
+    /** Graph to be divided. */
     private Graph graph = null;
-    /**
-     * Map where key is vertex and value is matched vertex.
-     */
+    /** Map where key is vertex and value is matched vertex. */
     private Map<Vertex, Vertex> matchedVertices = new HashMap<>();
-    /**
-     * Number of parts.
-     */
+    /** Number of parts. */
     private int nparts = 2;
-
+    /** Resulting instance of divide method. */
     private GraphPartition graphPartition = null;
 
 
@@ -39,7 +33,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Coarsens graph by Heavy Edge Matching.
-     *
      * @return graph with fewer vertices and edges.
      */
     private Graph coarsenGraph() {
@@ -95,7 +88,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Sorts vertices by their degree.
-     *
      * @return sorted array of vertices.
      */
     private Vertex[] sortVertices() {
@@ -110,7 +102,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * QuickSort using preprocessed degree of each vertex.
-     *
      * @param sortedVertices array to be sorted.
      * @param vertexDegree   degree of each vertex.
      */
@@ -120,7 +111,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * QuickSort using preprocessed degree of each vertex, starts from begin index and ends with end index.
-     *
      * @param sortedVertices array to be sorted.
      * @param begin          starts from begin index.
      * @param end            ends with end index.
@@ -137,12 +127,11 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Method used for partition in quick sort.
-     *
-     * @param sortedVertices
-     * @param begin
-     * @param end
-     * @param vertexDegree
-     * @return
+     * @param sortedVertices    Array of sorted vertices.
+     * @param begin             Number of index to begin.
+     * @param end               Number of index to end.
+     * @param vertexDegree      Stores number of edges for each vertex..
+     * @return index to continue.
      */
     private int partition(Vertex[] sortedVertices, int begin, int end, Map<Vertex, Integer> vertexDegree) {
         Vertex pivot = sortedVertices[end];
@@ -167,7 +156,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Reduces graph by creating one joined vertex from two vertices.
-     *
      * @param vertices     vertices of creating graph.
      * @param edges        edges of creating graph.
      * @param v            vertex.
@@ -232,7 +220,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Finds matched vertex in map matchedVertices values.
-     *
      * @param id ID of vertex.
      * @return (key) ID of matched vertex.
      */
@@ -247,7 +234,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Sorting vertices using bubbleSort.
-     *
      * @param sortedVertices array to be sorted.
      * @param edgesCount     degree of each vertex.
      */
@@ -276,7 +262,6 @@ public class MetisAlgorithm implements IPartitioning {
 
     /**
      * Partition the given graph in half.
-     *
      * @param graph given graph.
      * @return partition of graph.
      */
@@ -285,7 +270,6 @@ public class MetisAlgorithm implements IPartitioning {
         double totalVWeight = countTotalVWeight(graph);
         double currentScore = 0.0;
         Map<Integer, Vertex> bestPart = null;
-        Map<Integer, List<Vertex>> endsVertices = getEndsVertices(graph);
         for (int i = 0; i < 4; i++) {
             int id = new Random(System.nanoTime()).nextInt(graph.getVertices().size());
             Vertex vertex = graph.getVertices().get(id);
@@ -295,7 +279,7 @@ public class MetisAlgorithm implements IPartitioning {
             List<Vertex> vList = new ArrayList<>();
 
             while (verticesWeight < (totalVWeight / 2)) {
-                getNeighbours(part, vList, vertex, endsVertices);
+                getNeighbours(part, vList, vertex);
                 vertex = vList.get(0);
                 part.put(vertex.getId(), vertex);
                 verticesWeight += vertex.getValue();
@@ -319,35 +303,19 @@ public class MetisAlgorithm implements IPartitioning {
         return new GraphPartition(verticesParts);
     }
 
-    private Map<Integer, List<Vertex>> getEndsVertices(Graph graph) {
-        Map<Integer, List<Vertex>> endVertex = new HashMap<>();
-        for (Vertex v : graph.getVertices().values()) {
-            List<Vertex> adj = new ArrayList<>();
-            for (Vertex vertex : graph.getVertices().values()) {
-                for (Edge e : vertex.getStartingEdges()) {
-                    if (e.getEndpoint().equals(v)) {
-                        adj.add(e.getStartpoint());
-                    }
-                }
-            }
-            endVertex.put(v.getId(), adj);
-        }
-        return endVertex;
-    }
-
     /**
      * Sorts vertices and their points on the line by insertion sort.
      * @param vertexOrder   list of sorted vertices.
      * @param v             current vertex.
      */
-    private void insertionSort(List<Vertex> vertexOrder, Vertex v, Map<Integer, Vertex> part, Map<Integer, List<Vertex>> endsVertices) {
-        int edgeCut = getVertexEdgeCut(v, part, endsVertices);
+    private void insertionSort(List<Vertex> vertexOrder, Vertex v, Map<Integer, Vertex> part) {
+        int edgeCut = getVertexEdgeCut(v, part);
         if(vertexOrder.size() == 0){
             vertexOrder.add(v);
             return;
         }
         if(vertexOrder.size() == 1){
-            if(getVertexEdgeCut(vertexOrder.get(0), part, endsVertices) < edgeCut){
+            if(getVertexEdgeCut(vertexOrder.get(0), part) < edgeCut){
                 vertexOrder.add(v);
             } else{
                 vertexOrder.add(0, v);
@@ -355,22 +323,28 @@ public class MetisAlgorithm implements IPartitioning {
             return;
         }
         for(int i = vertexOrder.size()-1; i >= 0; i--){
-            if(getVertexEdgeCut(vertexOrder.get(i), part, endsVertices) < edgeCut){
+            if(getVertexEdgeCut(vertexOrder.get(i), part) < edgeCut){
                 vertexOrder.add(i+1, v);
                 return;
             }
         }
     }
 
-    private int getVertexEdgeCut(Vertex v, Map<Integer, Vertex> part, Map<Integer, List<Vertex>> endsVertices){
+    /**
+     * Gets number of cut edges connected to vertex v.
+     * @param v             vertex.
+     * @param part          part where vertex v belongs.
+     * @return number of cut edges connected to vertex v.
+     */
+    private int getVertexEdgeCut(Vertex v, Map<Integer, Vertex> part){
         int edgeCut = 0;
         for (Edge edge: v.getStartingEdges()) {
             if(!part.containsKey(edge.getEndpoint().getId())){
                 edgeCut++;
             }
         }
-        for (Vertex vertex: endsVertices.get(v.getId())) {
-            if(!part.containsKey(vertex.getId())){
+        for (Edge edge: v.getEndingEdges()) {
+            if(!part.containsKey(edge.getStartpoint().getId())){
                 edgeCut++;
             }
         }
@@ -398,20 +372,19 @@ public class MetisAlgorithm implements IPartitioning {
      * Gets neighbours of the part.
      * @param part      the part.
      * @param vList     list of vertices.
-     * @return  neighbours of the part.
      */
-    private void getNeighbours(Map<Integer, Vertex> part, List<Vertex> vList, Vertex vertex, Map<Integer, List<Vertex>> endsVertices){
+    private void getNeighbours(Map<Integer, Vertex> part, List<Vertex> vList, Vertex vertex){
         if(vList.size() > 0){
             vList.remove(0);
         }
         for (Edge edge: vertex.getStartingEdges()) {
             if(!part.containsKey(edge.getEndpoint().getId()) && !vList.contains(edge.getEndpoint())){
-                insertionSort(vList, edge.getEndpoint(), part, endsVertices);
+                insertionSort(vList, edge.getEndpoint(), part);
             }
         }
-        for (Vertex v: endsVertices.get(vertex.getId())) {
-            if(!part.containsKey(v.getId()) && !vList.contains(v)){
-                insertionSort(vList, v, part, endsVertices);
+        for (Edge edge: vertex.getEndingEdges()) {
+            if(!part.containsKey(edge.getStartpoint().getId()) && !vList.contains(edge.getStartpoint())){
+                insertionSort(vList, edge.getStartpoint(), part);
             }
         }
     }
@@ -500,13 +473,18 @@ public class MetisAlgorithm implements IPartitioning {
         return new GraphPartition(verticesParts);
     }
 
+    /**
+     * Computes border difference values for each part.
+     * @param verticesParts    Divided vertices into parts.
+     * @return border difference values for each part.
+     */
     private Map<Integer, Map<Vertex, Double>> computeBorderDValues(Map<Vertex, Integer> verticesParts){
         Map<Integer, Map<Vertex, Double>> borderDValues = new HashMap<>();
-        for(Map.Entry<Vertex, Integer> entry: verticesParts.entrySet()){
-            Vertex vertex = entry.getKey();
-            int partNumber = entry.getValue();
+        for(Map.Entry<Vertex, Integer> vertexPart: verticesParts.entrySet()){
+            Vertex vertex = vertexPart.getKey();
+            int partNumber = vertexPart.getValue();
             double[] edgesWeights = {0.0, 0.0};
-            getEdgesWeights(edgesWeights, partNumber,  vertex, verticesParts);
+            setEdgesWeights(edgesWeights, vertexPart, verticesParts);
             if(edgesWeights[0] > 0 ){
                 borderDValues.computeIfAbsent(partNumber, value -> new HashMap<>());
                 double dValue = edgesWeights[0] - edgesWeights[1];
@@ -517,10 +495,17 @@ public class MetisAlgorithm implements IPartitioning {
         return borderDValues;
     }
 
-    private void getEdgesWeights(double[] edgesWeights, int partNumber, Vertex vertex, Map<Vertex, Integer> verticesParts){
-        List<Edge> startingEdges = vertex.getStartingEdges();
-        List<Edge> endingEdges = vertex.getEndingEdges();
-        for(Edge edge: startingEdges){
+    /**
+     * Sets total weights of inner edges and connecting edges of two parts going out or in given vertex.
+     * @param edgesWeights      array where first value is total weight of connecting edges and second is
+     *                          total weight of inner edges.
+     * @param vertexPart            The vertex.
+     * @param verticesParts     Map where key is vertex and value is number of its part.
+     */
+    private void setEdgesWeights(double[] edgesWeights, Map.Entry<Vertex, Integer> vertexPart, Map<Vertex, Integer> verticesParts){
+        Vertex vertex = vertexPart.getKey();
+        int partNumber = vertexPart.getValue();
+        for(Edge edge: vertex.getStartingEdges()){
             if(verticesParts.get(edge.getEndpoint()) != partNumber){
                 edgesWeights[0] += edge.getWeight();
             }
@@ -528,7 +513,7 @@ public class MetisAlgorithm implements IPartitioning {
                 edgesWeights[1] += edge.getWeight();
             }
         }
-        for(Edge edge: endingEdges){
+        for(Edge edge: vertex.getEndingEdges()){
             if(verticesParts.get(edge.getStartpoint()) != partNumber){
                 edgesWeights[0] += edge.getWeight();
             }
@@ -538,16 +523,20 @@ public class MetisAlgorithm implements IPartitioning {
         }
     }
 
+    /**
+     * Gets C value. It is sum of weight of all edges between vertex v1 and vertex v2.
+     * @param v1    vertex v1.
+     * @param v2    vertex v2.
+     * @return sum of weight of all edges between vertex v1 and vertex v2.
+     */
     private double getCValue(Vertex v1, Vertex v2){
-        List<Edge> startingEdge1 = v1.getStartingEdges();
-        List<Edge> startingEdge2 = v2.getStartingEdges();
         double edgesWeight = 0;
-        for(Edge edge: startingEdge1){
+        for(Edge edge: v1.getStartingEdges()){
             if(edge.getEndpoint().equals(v2)){
                 edgesWeight += edge.getWeight();
             }
         }
-        for(Edge edge: startingEdge2){
+        for(Edge edge: v2.getStartingEdges()){
             if(edge.getEndpoint().equals(v1)){
                 edgesWeight += edge.getWeight();
             }
