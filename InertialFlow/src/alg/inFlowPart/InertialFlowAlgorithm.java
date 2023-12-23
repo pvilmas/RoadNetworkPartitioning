@@ -12,17 +12,18 @@ import static java.lang.Math.abs;
  * @version 27-03-2023
  */
 public class InertialFlowAlgorithm implements IPartitioning {
-
     /** Graph to be divided. */
     private Graph graph = null;
     /** Voluntary parameters of algorithm. */
     private HashMap<String, String> parameters = null;
+
     /** Class representing simple point with x and y coordinates. */
     private static class Point{
         /** X coordinate. */
         private final double x;
         /** Y coordinate. */
         private final double y;
+
         /**
          * Constructor of point.
          * @param x x coordinate.
@@ -33,6 +34,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
             this.y = y;
         }
     }
+
     /** X coordinate of point A on picked line. */
     private double Ax = 0.0;
     /** Y coordinate of point A on picked line. */
@@ -43,9 +45,13 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private double By = 0.0;
     /** Balance parameter that determining number of sources and sinks vertices. */
     private double balance = 0.25;
+    /** Order of vertices orthographically projected on picked line. */
     private List<Vertex> vertexOrder;
+    /** Order of points orthographically projected on picked line. */
     private List<Point> pointOrder;
+    /** All IFVertices of the graph. */
     public List<IFVertex> graphVertices;
+    /** Map where key is vertex and value is number of part where vertex belongs. */
     private Map<Vertex, Integer> verticesParts = null;
 
     @Override
@@ -55,12 +61,15 @@ public class InertialFlowAlgorithm implements IPartitioning {
             projectAndSortVertices();
             computeMaxFlowBetweenST();
             findMinSTCut();
-            getVerticesParts();
+            setVerticesParts();
         }
         return new GraphPartition(verticesParts);
     }
 
-    private void getVerticesParts() {
+    /**
+     * Sets value in verticesParts map for remaining vertices.
+     */
+    private void setVerticesParts() {
         for (Vertex vertex: graph.getVertices().values()) {
             if(!verticesParts.containsKey(vertex)) {
                 verticesParts.put(vertex, 1);
@@ -154,7 +163,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * Breath-First Search finds path between source s and sink t.
      * @param s     source vertex.
      * @param t     sink vertex.
-     * @return  true if  flow can be sent from s to t.
+     * @return  true if flow can be sent from s to t.
      */
     private boolean bfs(IFVertex s, IFVertex t) {
         for (IFVertex v : graphVertices) {
@@ -184,9 +193,9 @@ public class InertialFlowAlgorithm implements IPartitioning {
      * @param flow  current flow send by parent function call.
      * @param t     sink.
      * @param startMap  To keep track of next edge to be explored.
-     *               start[i] stores  count of edges explored
-     *               from i.
-     * @return
+     *               startMap.get(vertex) stores  count of edges explored
+     *               from vertex.
+     * @return flow.
      */
     private int sendFlow(IFVertex u, int flow, IFVertex t, Map<IFVertex, Integer> startMap) {
         if (u == t) {
@@ -236,14 +245,15 @@ public class InertialFlowAlgorithm implements IPartitioning {
     }
 
     /**
-     * Returns maximum flow in graph.
+     * Implementation of dinic's max flow.
+     * @param s     source vertex.
+     * @param t     sink vertex.
      */
     private void dinicMaxflow(IFVertex s, IFVertex t) {
         if (s == t) {
             return;
         }
         int verticesSize = graphVertices.size();
-        //int total = 0;
         int flow = 0;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
@@ -251,7 +261,6 @@ public class InertialFlowAlgorithm implements IPartitioning {
                 startMap.put(graphVertices.get(i), 0);
             }
             do {
-                //total += flow;
                 flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
             } while (flow != 0);
         }
