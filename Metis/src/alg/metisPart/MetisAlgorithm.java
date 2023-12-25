@@ -16,7 +16,7 @@ public class MetisAlgorithm implements IPartitioning {
     /** Map where key is vertex and value is matched vertex. */
     private Map<Vertex, Vertex> matchedVertices = new HashMap<>();
     /** Number of parts. */
-    private int nparts = 2;
+    private int partsCount = 2;
     /** Resulting instance of divide method. */
     private GraphPartition graphPartition = null;
 
@@ -570,7 +570,7 @@ public class MetisAlgorithm implements IPartitioning {
 
     @Override
     public void setPartsCount(int partsCount) {
-        this.nparts = partsCount;
+        this.partsCount = partsCount;
     }
 
     @Override

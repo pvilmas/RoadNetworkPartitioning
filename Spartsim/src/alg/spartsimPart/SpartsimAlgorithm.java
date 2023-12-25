@@ -12,27 +12,37 @@ import java.util.*;
 public class SpartsimAlgorithm implements IPartitioning {
 
     /**
-     *
+     * Implementation of one part of a graph.
      */
     private static class Part{
+        /** List of vertices of original graph belonging to the part. */
         private final List<Vertex> vertexList;
+        /** Value of the part. */
         private double value = 0.0;
+        /** List of parts beside this part. */
         private List<Part> neighbourParts = null;
+
+        /**
+         * Constructor of part with given list of vertices.
+         * @param vertexList    List of vertices of original graph belonging to the part.
+         */
         private Part(List<Vertex> vertexList){
             this.vertexList = vertexList;
         }
     }
-    /**  */
+    /** Graph to be divided. */
     private Graph graph = null;
-    /**  */
-    private int nparts = 2;
-    /**  */
+    /**  Number of needed parts. */
+    private int partsCount = 2;
+    /**  Total value of the graph. */
     private double graphValue = 0;
-    /**  */
+    /**  List of vertices in minimal path. */
     private List<Vertex> minPath = new LinkedList<>();
-    /**  */
+    /**  Minimal value. */
     private double minValue = Double.MAX_VALUE;
-    double epsilon = 10;
+    /** Maximal difference between each two parts. */
+    private double epsilon = 10;
+    /** Map that stores part number for each vertex. */
     private Map<Vertex, Integer> verticesParts = null;
 
 
@@ -42,9 +52,9 @@ public class SpartsimAlgorithm implements IPartitioning {
         if (verticesParts == null && graph != null) {
             verticesParts = new HashMap<>();
             // Initialisation
-            List<Part> parts = new ArrayList<>(nparts);
-            int[] stop = new int[nparts];
-            for (int i = 0; i < nparts; i++) {
+            List<Part> parts = new ArrayList<>(partsCount);
+            int[] stop = new int[partsCount];
+            for (int i = 0; i < partsCount; i++) {
                 parts.add(new Part(new ArrayList<>()));
                 Vertex baseVertex = getBestCandidateVertex(verticesParts);
                 parts.get(i).vertexList.add(baseVertex);
@@ -55,7 +65,7 @@ public class SpartsimAlgorithm implements IPartitioning {
             }
             // Region growing
             while (!isZero(stop)) {
-                for (int i = 0; i < nparts; i++) {
+                for (int i = 0; i < partsCount; i++) {
                     if (stop[i] != 0) {
                         boolean hasGrown = grow(i, parts.get(i), verticesParts);
                         if (!hasGrown) {
@@ -68,7 +78,7 @@ public class SpartsimAlgorithm implements IPartitioning {
             boolean balanced = false;
             int enoughIterations = 50;
             int i = 0;
-            double partValue = graphValue / nparts;
+            double partValue = graphValue / partsCount;
             while (!balanced && (i < enoughIterations)) {
                 int maxPart = getMaxPart(parts);
                 int minPart = getMinPart(parts);
@@ -87,17 +97,21 @@ public class SpartsimAlgorithm implements IPartitioning {
         return new GraphPartition(verticesParts);
     }
 
-
+    /**
+     * Finds all possible part connection and connects most suitable parts,
+     * so it has given part count.
+     * @param subparts  All parts and subparts previously created.
+     */
     private void attach(List<Part> subparts){
-        if(subparts.size() == nparts){
+        if(subparts.size() == partsCount){
             return;
         }
         for(Part part: subparts){
             getPartNeighbours(part, subparts);
         }
         int partsCount = subparts.size();
-        double partValue = graphValue/nparts;
-        while (partsCount > nparts){
+        double partValue = graphValue/ this.partsCount;
+        while (partsCount > this.partsCount){
             for (Part part : subparts) {
                 if (((part.value - epsilon) < partValue) && (partValue < (part.value + epsilon))) {
                     continue;
@@ -116,13 +130,18 @@ public class SpartsimAlgorithm implements IPartitioning {
         }
     }
 
-    private void getPartNeighbours(Part part, List<Part> subParts) {
+    /**
+     * Gets all neighbour parts of one given part.
+     * @param part      given part.
+     * @param subparts  all parts and subparts.
+     */
+    private void getPartNeighbours(Part part, List<Part> subparts) {
         List<Part> neighbours = new ArrayList<>();
         for (Vertex vertex: part.vertexList) {
             for (Edge edge: vertex.getStartingEdges()) {
                 Vertex v = edge.getEndpoint();
                 if(!part.vertexList.contains(v)){
-                    Part neighbourPart = getVertexPart(v, subParts);
+                    Part neighbourPart = getVertexPart(v, subparts);
                     if(!neighbours.contains(neighbourPart)){
                         neighbours.add(neighbourPart);
                     }
@@ -132,7 +151,7 @@ public class SpartsimAlgorithm implements IPartitioning {
                 if(edge.getEndpoint().equals(vertex)){
                     Vertex neighbour = edge.getStartpoint();
                     if(!part.vertexList.contains(neighbour)){
-                        Part neighbourPart = getVertexPart(neighbour, subParts);
+                        Part neighbourPart = getVertexPart(neighbour, subparts);
                         if(!neighbours.contains(neighbourPart)){
                             neighbours.add(neighbourPart);
                         }
@@ -143,6 +162,12 @@ public class SpartsimAlgorithm implements IPartitioning {
         part.neighbourParts = neighbours;
     }
 
+    /**
+     * Gets part where vertex belongs.
+     * @param v         given vertex.
+     * @param subParts  list of subparts and parts.
+     * @return part/subpart where vertex belongs.
+     */
     private Part getVertexPart(Vertex v, List<Part> subParts) {
         for (Part subPart : subParts) {
             if (subPart.vertexList.contains(v)){
@@ -153,10 +178,11 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *  @param parts
-     * @param maxPart
-     * @param minPart
-     * @param verticesParts
+     * Trades vertices between parts so it balances the partition.
+     * @param parts             all parts.
+     * @param maxPart           maximal part.
+     * @param minPart           minimal part.
+     * @param verticesParts     mapping of vertices and their part number.
      */
     private void trade(List<Part> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
         double difference = (parts.get(maxPart).value - parts.get(minPart).value)/2;
@@ -210,6 +236,14 @@ public class SpartsimAlgorithm implements IPartitioning {
         }
     }
 
+    /**
+     * Moves vertex out of given part.
+     * @param vertex            the vertex.
+     * @param parts             all parts.
+     * @param maxPart           given part.
+     * @param verticesParts     mapping of vertices and their part number.
+     * @param moved             total moved value.
+     */
     private void moveVertexOut(Vertex vertex, List<Part> parts, int maxPart, Map<Vertex, Integer> verticesParts, double moved) {
         int newPart = -1;
         for (Vertex v: minPath) {
@@ -224,6 +258,13 @@ public class SpartsimAlgorithm implements IPartitioning {
         parts.get(maxPart).value -= moved;
     }
 
+    /**
+     * Checks if vertex is in maximal part.
+     * @param endpoint  the vertex.
+     * @param parts     all parts.
+     * @param maxPart   index of maximal part.
+     * @return  true if vertex belongs to max part.
+     */
     private boolean isInMaxPart(Vertex endpoint, List<Part> parts, int maxPart) {
         for (Vertex v: parts.get(maxPart).vertexList) {
             if(v.equals(endpoint)){
@@ -234,10 +275,11 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *  @param vertex
-     * @param parts
-     * @param minPart
-     * @param verticesParts
+     * Moves vertex inside given part.
+     * @param vertex        the vertex.
+     * @param parts         all parts.
+     * @param minPart       the given path.
+     * @param verticesParts mapping of vertices and their part number.
      */
     private void moveVertexIn(Vertex vertex, List<Part> parts, int minPart, double moved, Map<Vertex, Integer> verticesParts) {
         int part = verticesParts.get(vertex);
@@ -249,10 +291,11 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *  @param parts
-     * @param maxPart
-     * @param minPart
-     * @param verticesParts
+     * Finds the shortest path between maximal and minimal part.
+     * @param parts         all parts.
+     * @param maxPart       index of max part.
+     * @param minPart       index of min part.
+     * @param verticesParts mapping of vertices and their part number.
      */
     private void findShortestPathBetweenParts(List<Part> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
         List<Vertex> maxBorderPart = getBorderVertices(parts, maxPart, verticesParts);
@@ -263,9 +306,10 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *
-     * @param maxVertex
-     * @param minBorderPart
+     * Implementation of Dijkstra's search.
+     * @param maxVertex     maximal vertex.
+     * @param minBorderPart part with minimal border.
+     * @param verticesParts vertices partition.
      */
     private void dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Map<Vertex, Integer> verticesParts) {
         Map<Vertex, Double> distances = new HashMap<>();
@@ -304,10 +348,10 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     *
-     * @param unsettledNodes
-     * @param distances
-     * @return
+     * Gets vertex with the lowest distance.
+     * @param unsettledNodes    Set of vertices.
+     * @param distances         Map of distances where key is vertex and value is distance.
+     * @return  vertex with the lowest distance.
      */
     private static Vertex getLowestDistanceNode(Set<Vertex> unsettledNodes, Map<Vertex, Double> distances) {
         Vertex lowestDistanceNode = null;
@@ -324,11 +368,11 @@ public class SpartsimAlgorithm implements IPartitioning {
 
     /**
      * Calculates minimum distance.
-     * @param evaluationNode
-     * @param edgeWeigh
-     * @param sourceNode
-     * @param distances
-     * @param shortestPaths
+     * @param evaluationNode    Vertex for evaluation.
+     * @param edgeWeigh         Weight of edge between these two vertices.
+     * @param sourceNode        Source vertex.
+     * @param distances         Distances between vertices.
+     * @param shortestPaths     Shortest paths between vertices.
      */
     private static void calculateMinimumDistance(Vertex evaluationNode, double edgeWeigh, Vertex sourceNode,
                                                  Map<Vertex, Double> distances, Map<Vertex, List<Vertex>> shortestPaths) {
@@ -379,9 +423,9 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     * Gets minimal value part.
+     * Gets index of part with minimal value.
      * @param parts     all parts.
-     * @return min part.
+     * @return index of min part.
      */
     private int getMinPart(List<Part> parts) {
         double minValue = Double.MAX_VALUE;
@@ -397,9 +441,9 @@ public class SpartsimAlgorithm implements IPartitioning {
     }
 
     /**
-     * Gets maximal value part.
+     * Gets index of part with maximal value.
      * @param parts     all parts.
-     * @return max part.
+     * @return index of max part.
      */
     private int getMaxPart(List<Part> parts) {
         double maxValue = 0;
@@ -437,6 +481,12 @@ public class SpartsimAlgorithm implements IPartitioning {
         return subgraphs;
     }
 
+    /**
+     * Breath-First search used for finding connectivity of one part.
+     * @param s     source vertex.
+     * @param part  part where source vertex belongs.
+     * @return  connected subpart of the part.
+     */
     private Part bfs(Vertex s, Part part) {
         Part visitedVerticesPart = new Part(new ArrayList<>());
         LinkedList<Vertex> queue = new LinkedList<>();
@@ -612,7 +662,7 @@ public class SpartsimAlgorithm implements IPartitioning {
 
     @Override
     public void setPartsCount(int partsCount) {
-        this.nparts = partsCount;
+        this.partsCount = partsCount;
     }
 
     @Override
