@@ -9,16 +9,14 @@ import java.util.*;
  * @author Lucie Roy
  * @version 27-03-2023
  */
-public class PunchAlgorithm implements IPartitioning {
+public class PunchAlgorithm extends APartitionAlgorithm {
 
-    /** Graph to be divided. */
-    private Graph graph = null;
     private Map<Vertex, Integer> verticesParts = null;
     private int sizeLimit = 1;
 
     @Override
-    public GraphPartition divide() {
-        if (verticesParts == null && graph != null) {
+    public GraphPartition getGraphPartition(Graph graph) {
+        if (verticesParts == null && this.graph != null) {
             verticesParts = new HashMap<>();
             filter();
             assembly();

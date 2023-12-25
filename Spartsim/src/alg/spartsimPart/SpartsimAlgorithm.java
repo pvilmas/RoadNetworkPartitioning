@@ -9,7 +9,7 @@ import java.util.*;
  * @author Lucie Roy
  * @version 27-03-2023
  */
-public class SpartsimAlgorithm implements IPartitioning {
+public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     /**
      * Implementation of one part of a graph.
@@ -30,10 +30,7 @@ public class SpartsimAlgorithm implements IPartitioning {
             this.vertexList = vertexList;
         }
     }
-    /** Graph to be divided. */
-    private Graph graph = null;
-    /**  Number of needed parts. */
-    private int partsCount = 2;
+
     /**  Total value of the graph. */
     private double graphValue = 0;
     /**  List of vertices in minimal path. */
@@ -42,15 +39,18 @@ public class SpartsimAlgorithm implements IPartitioning {
     private double minValue = Double.MAX_VALUE;
     /** Maximal difference between each two parts. */
     private double epsilon = 10;
-    /** Map that stores part number for each vertex. */
-    private Map<Vertex, Integer> verticesParts = null;
-
-
 
     @Override
-    public GraphPartition divide() {
-        if (verticesParts == null && graph != null) {
-            verticesParts = new HashMap<>();
+    public GraphPartition getGraphPartition(Graph graph) {
+        boolean isSame = false;
+        if (graph != null) {
+            if (this.graph == graph) {
+                isSame = true;
+            }
+            this.graph = graph;
+        }
+        if ((this.graphPartition == null || !isSame) && this.graph != null) {
+            Map<Vertex, Integer> verticesParts = new HashMap<>();
             // Initialisation
             List<Part> parts = new ArrayList<>(partsCount);
             int[] stop = new int[partsCount];
@@ -93,8 +93,9 @@ public class SpartsimAlgorithm implements IPartitioning {
             // Ensure connectivity
             List<Part> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
+            this.graphPartition = new GraphPartition(verticesParts);
         }
-        return new GraphPartition(verticesParts);
+        return this.graphPartition;
     }
 
     /**

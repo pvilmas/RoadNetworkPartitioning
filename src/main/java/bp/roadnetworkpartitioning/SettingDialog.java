@@ -1,6 +1,5 @@
 package bp.roadnetworkpartitioning;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +18,7 @@ public class SettingDialog extends Dialog<Boolean> {
     @FXML
     private ButtonType settingButtonType;
 
-    public SettingDialog(Window window, IPartitioning algorithm) throws IOException {
+    public SettingDialog(Window window, APartitionAlgorithm algorithm) throws IOException {
         // TODO this method
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("setting-dialog.fxml"));

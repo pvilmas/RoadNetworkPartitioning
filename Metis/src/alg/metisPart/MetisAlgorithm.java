@@ -9,21 +9,21 @@ import java.util.*;
  * @author Lucie Roy
  * @version 23-12-2023
  */
-public class MetisAlgorithm implements IPartitioning {
+public class MetisAlgorithm extends APartitionAlgorithm {
 
-    /** Graph to be divided. */
-    private Graph graph = null;
     /** Map where key is vertex and value is matched vertex. */
     private Map<Vertex, Vertex> matchedVertices = new HashMap<>();
-    /** Number of parts. */
-    private int partsCount = 2;
-    /** Resulting instance of divide method. */
-    private GraphPartition graphPartition = null;
-
 
     @Override
-    public GraphPartition divide() {
-        if (graphPartition == null && graph != null) {
+    public GraphPartition getGraphPartition(Graph graph) {
+        boolean isSame = false;
+        if (graph != null) {
+            if (this.graph == graph) {
+                isSame = true;
+            }
+            this.graph = graph;
+        }
+        if ((this.graphPartition == null || !isSame) && this.graph != null) {
             Graph smallGraph = coarsenGraph();
             GraphPartition parts = partitionGraph(smallGraph);
             graphPartition = uncoarsenGraph(smallGraph, parts);

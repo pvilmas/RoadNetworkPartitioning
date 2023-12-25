@@ -21,13 +21,13 @@ public class AlgorithmsLoader {
     /** Path to jar files. */
     private static final String CLASSPATH = "lib";
     /** HashMap with all available partitioning algorithms. */
-    private static final Map<String, IPartitioning> ALGORITHMS = new HashMap<>();
+    private static final Map<String, APartitionAlgorithm> ALGORITHMS = new HashMap<>();
 
     /**
      * Gets all available algorithms.
      * @return available algorithms.
      */
-    public static Map<String, IPartitioning> getAlgorithms(){
+    public static Map<String, APartitionAlgorithm> getAlgorithms(){
         return ALGORITHMS;
     }
 
@@ -39,10 +39,10 @@ public class AlgorithmsLoader {
         List<Class<?>> classes = AlgorithmsLoader.getClasses(cl);
         for (Class<?> clazz: classes) {
             try {
-                if(IPartitioning.class.isAssignableFrom(clazz)){
+                if(APartitionAlgorithm.class.isAssignableFrom(clazz)){
                     Constructor<?> ctor = clazz.getDeclaredConstructor();
                     ctor.setAccessible(true);
-                    IPartitioning alg = (IPartitioning) ctor.newInstance();
+                    APartitionAlgorithm alg = (APartitionAlgorithm) ctor.newInstance();
                     ALGORITHMS.put(alg.getName(), alg);
                 }
             }catch (AbstractMethodError | Exception e){

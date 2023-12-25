@@ -11,11 +11,7 @@ import static java.lang.Math.abs;
  * @author Lucie Roy
  * @version 27-03-2023
  */
-public class InertialFlowAlgorithm implements IPartitioning {
-    /** Graph to be divided. */
-    private Graph graph = null;
-    /** Voluntary parameters of algorithm. */
-    private HashMap<String, String> parameters = null;
+public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     /** Class representing simple point with x and y coordinates. */
     private static class Point{
@@ -51,25 +47,32 @@ public class InertialFlowAlgorithm implements IPartitioning {
     private List<Point> pointOrder;
     /** All IFVertices of the graph. */
     public List<IFVertex> graphVertices;
-    /** Map where key is vertex and value is number of part where vertex belongs. */
-    private Map<Vertex, Integer> verticesParts = null;
 
     @Override
-    public GraphPartition divide() {
-        if (verticesParts == null && graph != null) {
+    public GraphPartition getGraphPartition(Graph graph) {
+        boolean isSame = false;
+        if (graph != null) {
+            if (this.graph == graph) {
+                isSame = true;
+            }
+            this.graph = graph;
+        }
+        if ((this.graphPartition == null || !isSame) && this.graph != null) {
             pickLine();
             projectAndSortVertices();
             computeMaxFlowBetweenST();
-            findMinSTCut();
-            setVerticesParts();
+            Map<Vertex, Integer> verticesParts = findMinSTCut();
+            setVerticesParts(verticesParts);
+            this.graphPartition = new GraphPartition(verticesParts);
         }
-        return new GraphPartition(verticesParts);
+        return this.graphPartition;
     }
 
     /**
      * Sets value in verticesParts map for remaining vertices.
+     * @param verticesParts  Map where key is vertex and value is number of part where vertex belongs.
      */
-    private void setVerticesParts() {
+    private void setVerticesParts(Map<Vertex, Integer> verticesParts) {
         for (Vertex vertex: graph.getVertices().values()) {
             if(!verticesParts.containsKey(vertex)) {
                 verticesParts.put(vertex, 1);
@@ -253,12 +256,11 @@ public class InertialFlowAlgorithm implements IPartitioning {
         if (s == t) {
             return;
         }
-        int verticesSize = graphVertices.size();
         int flow = 0;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
-            for(int i  = 0; i < verticesSize; i++){
-                startMap.put(graphVertices.get(i), 0);
+            for (IFVertex graphVertex : graphVertices) {
+                startMap.put(graphVertex, 0);
             }
             do {
                 flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
@@ -268,10 +270,11 @@ public class InertialFlowAlgorithm implements IPartitioning {
 
     /**
      * Finds minimal source and sink cut.
+     * @return map where key is vertex and value is number of part where vertex belongs.
      */
-    private void findMinSTCut() {
+    private Map<Vertex, Integer> findMinSTCut() {
         List<IFVertex> visitedVertices = new ArrayList<>();
-        verticesParts = new HashMap<>();
+        Map<Vertex, Integer> verticesParts = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
         for(Vertex vertex: graphVertices.get(0).getVertexList()) {
@@ -291,36 +294,7 @@ public class InertialFlowAlgorithm implements IPartitioning {
             }
 
         }
-    }
-
-    @Override
-    public void setParameters(Map<String, String> parameters) {
-
-    }
-
-    @Override
-    public Map<String, String> getParameters() {
-        return null;
-    }
-
-    @Override
-    public Map<String, String> getParametersDescription() {
-        return null;
-    }
-
-    @Override
-    public void setParametersDescription(Map<String, String> parametersDescription) {
-
-    }
-
-    @Override
-    public void setGraph(Graph graph) {
-        this.graph = graph;
-    }
-
-    @Override
-    public void setPartsCount(int partsCount) {
-
+        return verticesParts;
     }
 
     @Override

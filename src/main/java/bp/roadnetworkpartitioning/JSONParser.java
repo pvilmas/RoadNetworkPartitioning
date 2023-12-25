@@ -86,7 +86,7 @@ public class JSONParser {
      * @return  created graph or null if not successful.
      */
     public static Graph readFile(File graphFile){
-        //TODO divide this method
+        //TODO getGraphPartition this method
         try (Scanner sc = new Scanner(graphFile)){
             HashMap<Integer,Vertex> vertices = new HashMap<>();
             HashMap<Integer,Edge> edges = new HashMap<>();

@@ -49,7 +49,7 @@ public class MainController {
     @FXML
     private ToggleGroup group;
     /** Map with all available graph partitioning algorithms. */
-    private static Map<String, IPartitioning> algorithms;
+    private static Map<String, APartitionAlgorithm> algorithms;
 
     private GraphPartition graphPartition = null;
 
@@ -61,7 +61,7 @@ public class MainController {
     public void setAlgorithms(){
         AlgorithmsLoader.findAlgorithms();
         algorithms = AlgorithmsLoader.getAlgorithms();
-        for (Map.Entry<String, IPartitioning> algorithm: algorithms.entrySet()) {
+        for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
             HBox hBox = new HBox(20);
             RadioButton radioButton = new RadioButton();
             radioButton.setText(algorithm.getKey());
@@ -79,9 +79,8 @@ public class MainController {
             public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
 
                 if (group.getSelectedToggle() != null) {
-                    IPartitioning algorithm = (IPartitioning) group.getSelectedToggle().getUserData();
-                    algorithm.setGraph(graph);
-                    graphPartition = algorithm.divide();
+                    APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
+                    graphPartition = algorithm.getGraphPartition(graph);
                     visualizeGraph();
                 }
 
@@ -93,7 +92,7 @@ public class MainController {
      * Shows setting dialog of given algorithm.
      * @param algorithm   name of the algorithm.
      */
-    private void showSettingDialog(IPartitioning algorithm) {
+    private void showSettingDialog(APartitionAlgorithm algorithm) {
         try {
             SettingDialog dialog = new SettingDialog(stage, algorithm);
             dialog.showAndWait().ifPresent(graph -> {
