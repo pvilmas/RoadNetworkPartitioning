@@ -59,8 +59,7 @@ public class MainController {
      * Displays all available graph partitioning algorithms.
      */
     public void setAlgorithms(){
-        AlgorithmsLoader.findAlgorithms();
-        algorithms = AlgorithmsLoader.getAlgorithms();
+        algorithms = AlgorithmsLoader.findAlgorithms();
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
             HBox hBox = new HBox(20);
             RadioButton radioButton = new RadioButton();

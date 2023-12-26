@@ -24,37 +24,32 @@ public class AlgorithmsLoader {
     private static final Map<String, APartitionAlgorithm> ALGORITHMS = new HashMap<>();
 
     /**
-     * Gets all available algorithms.
+     * Finds all available partitioning algorithms and saves them to static attribute ALGORITHMS.
      * @return available algorithms.
      */
-    public static Map<String, APartitionAlgorithm> getAlgorithms(){
-        return ALGORITHMS;
-    }
-
-    /**
-     * Finds all available partitioning algorithms and saves them to static attribute ALGORITHMS.
-     */
-    public static void findAlgorithms() {
-        URLClassLoader cl = new URLClassLoader(findJarURLsInClasspath(), Thread.currentThread().getContextClassLoader());
-        List<Class<?>> classes = AlgorithmsLoader.getClasses(cl);
-        for (Class<?> clazz: classes) {
-            try {
-                if(APartitionAlgorithm.class.isAssignableFrom(clazz)){
-                    Constructor<?> ctor = clazz.getDeclaredConstructor();
-                    ctor.setAccessible(true);
-                    APartitionAlgorithm alg = (APartitionAlgorithm) ctor.newInstance();
-                    ALGORITHMS.put(alg.getName(), alg);
+    public static Map<String, APartitionAlgorithm> findAlgorithms() {
+        if (ALGORITHMS.size() == 0) {
+            URLClassLoader cl = new URLClassLoader(findJarURLsInClasspath(), Thread.currentThread().getContextClassLoader());
+            List<Class<?>> classes = AlgorithmsLoader.getClasses(cl);
+            for (Class<?> clazz : classes) {
+                try {
+                    if (APartitionAlgorithm.class.isAssignableFrom(clazz)) {
+                        Constructor<?> ctor = clazz.getDeclaredConstructor();
+                        ctor.setAccessible(true);
+                        APartitionAlgorithm alg = (APartitionAlgorithm) ctor.newInstance();
+                        ALGORITHMS.put(alg.getName(), alg);
+                    }
+                } catch (AbstractMethodError | Exception e) {
+                    e.printStackTrace();
                 }
-            }catch (AbstractMethodError | Exception e){
-                e.printStackTrace();
             }
         }
+        return ALGORITHMS;
     }
 
     /**
      * Method that finds all jar files available in given dedicated classpath
      * places. It serves for an URLClassloader initialization.
-     *
      * @return List of jar files URLs
      */
     private static URL[] findJarURLsInClasspath() {
@@ -79,7 +74,6 @@ public class AlgorithmsLoader {
     /**
      * Method that returns all jar files registered in the given URLClassloader
      * and which are present in dedicated classpath places.
-     *
      * @return List of jar files URLs
      */
     private static URL[] getJarURLs(URLClassLoader cl) {
@@ -106,7 +100,6 @@ public class AlgorithmsLoader {
     /**
      * Method that returns all classes available underneath a given package
      * name.
-     *
      * @return Set of Classes
      */
     private static List<Class<?>> getClasses(URLClassLoader cl) {
@@ -121,7 +114,6 @@ public class AlgorithmsLoader {
     /**
      * Method that fills TreeMap with all classes available in a particular jar
      * file, underneath a given package name.
-     *
      */
     private static void getClassesFromJar(List<Class<?>> result, String jarPath, URLClassLoader cl) {
         try (JarFile jarFile = new JarFile(jarPath)) {
