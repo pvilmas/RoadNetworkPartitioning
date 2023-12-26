@@ -10,19 +10,15 @@ import java.util.Map;
 public abstract class APartitionAlgorithm {
 
     /** Voluntary parameters of algorithm. */
-    protected Map<String, String> parameters = null;
-
+    private Map<String, String> parameters = null;
     /** Voluntary parameter description of algorithm. */
-    protected Map<String, String> parametersDescription = null;
-
+    private Map<String, String> parametersDescription = null;
     /** Graph to be divided. */
-    protected Graph graph = null;
-
+    private Graph graph = null;
     /** Number of parts. */
-    protected int partsCount = 2;
-
+    private int partsCount = 2;
     /** Resulting instance of partition algorithm. */
-    protected GraphPartition graphPartition = null;
+    private GraphPartition graphPartition = null;
 
     /**
      * Method divides graph into parts.
@@ -30,6 +26,22 @@ public abstract class APartitionAlgorithm {
      * @param graph     graph to be divided.
      */
     public abstract GraphPartition getGraphPartition(Graph graph);
+
+    /**
+     * Gets graph partition.
+     * @return instance representing graph division (partition).
+     */
+    public GraphPartition getGraphPartition(){
+        return  this.graphPartition;
+    }
+
+    /**
+     * Sets graph partition.
+     * @param graphPartition instance representing graph division (partition).
+     */
+    public void setGraphPartition(GraphPartition graphPartition){
+        this.graphPartition = graphPartition;
+    }
 
     /**
      * Sets algorithm parameters.
@@ -72,11 +84,27 @@ public abstract class APartitionAlgorithm {
     }
 
     /**
+     * Gets graph to be divided.
+     * @return instance of graph.
+     */
+    public Graph getGraph(){
+        return this.graph;
+    }
+
+    /**
      * Sets number of parts a graph to be divided.
      * @param partsCount    number of parts a graph to be divided.
      */
     public void setPartsCount(int partsCount){
         this.partsCount = partsCount;
+    }
+
+    /**
+     * Gets number of parts a graph to be divided.
+     * @return number of parts a graph to be divided.
+     */
+    public int getPartsCount(){
+        return this.partsCount;
     }
 
     /**

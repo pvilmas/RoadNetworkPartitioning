@@ -18,17 +18,17 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     public GraphPartition getGraphPartition(Graph graph) {
         boolean isSame = false;
         if (graph != null) {
-            if (this.graph == graph) {
+            if (this.getGraph() == graph) {
                 isSame = true;
             }
-            this.graph = graph;
+            setGraph(graph);
         }
-        if ((this.graphPartition == null || !isSame) && this.graph != null) {
+        if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
             Graph smallGraph = coarsenGraph();
             GraphPartition parts = partitionGraph(smallGraph);
-            graphPartition = uncoarsenGraph(smallGraph, parts);
+            setGraphPartition(uncoarsenGraph(smallGraph, parts));
         }
-        return graphPartition;
+        return getGraphPartition();
     }
 
     /**
@@ -91,9 +91,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @return sorted array of vertices.
      */
     private Vertex[] sortVertices() {
-        Vertex[] sortedVertices = graph.getVertices().values().toArray(new Vertex[0]);
+        Vertex[] sortedVertices = getGraph().getVertices().values().toArray(new Vertex[0]);
         Map<Vertex, Integer> vertexDegree = new HashMap<>();
-        for (Vertex vertex : graph.getVertices().values()) {
+        for (Vertex vertex : getGraph().getVertices().values()) {
             vertexDegree.put(vertex, vertex.getStartingEdges().size() + vertex.getEndingEdges().size());
         }
         quickSort(sortedVertices, vertexDegree);
@@ -173,8 +173,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             matchedVertices.put(maxVertex, v);
             id = maxVertex.getId();
         }
-        Vertex v1 = graph.getVertices().get(v.getId());
-        Vertex v2 = graph.getVertices().get(maxVertex.getId());
+        Vertex v1 = getGraph().getVertices().get(v.getId());
+        Vertex v2 = getGraph().getVertices().get(maxVertex.getId());
         //TODO
         double x = (v1.getXCoordinate() + v2.getXCoordinate()) / 2;
         double y = (v1.getYCoordinate() + v2.getYCoordinate()) / 2;
@@ -542,35 +542,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             }
         }
         return edgesWeight;
-    }
-
-    @Override
-    public void setParameters(Map<String, String> parameters) {
-    }
-
-    @Override
-    public Map<String, String> getParameters() {
-        return null;
-    }
-
-    @Override
-    public Map<String, String> getParametersDescription() {
-        return null;
-    }
-
-    @Override
-    public void setParametersDescription(Map<String, String> parametersDescription) {
-
-    }
-
-    @Override
-    public void setGraph(Graph graph) {
-        this.graph = graph;
-    }
-
-    @Override
-    public void setPartsCount(int partsCount) {
-        this.partsCount = partsCount;
     }
 
     @Override

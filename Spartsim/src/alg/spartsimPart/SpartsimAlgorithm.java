@@ -44,17 +44,17 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     public GraphPartition getGraphPartition(Graph graph) {
         boolean isSame = false;
         if (graph != null) {
-            if (this.graph == graph) {
+            if (getGraph() == graph) {
                 isSame = true;
             }
-            this.graph = graph;
+            setGraph(graph);
         }
-        if ((this.graphPartition == null || !isSame) && this.graph != null) {
+        if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
             Map<Vertex, Integer> verticesParts = new HashMap<>();
             // Initialisation
-            List<Part> parts = new ArrayList<>(partsCount);
-            int[] stop = new int[partsCount];
-            for (int i = 0; i < partsCount; i++) {
+            List<Part> parts = new ArrayList<>(getPartsCount());
+            int[] stop = new int[getPartsCount()];
+            for (int i = 0; i < getPartsCount(); i++) {
                 parts.add(new Part(new ArrayList<>()));
                 Vertex baseVertex = getBestCandidateVertex(verticesParts);
                 parts.get(i).vertexList.add(baseVertex);
@@ -65,7 +65,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             }
             // Region growing
             while (!isZero(stop)) {
-                for (int i = 0; i < partsCount; i++) {
+                for (int i = 0; i < getPartsCount(); i++) {
                     if (stop[i] != 0) {
                         boolean hasGrown = grow(i, parts.get(i), verticesParts);
                         if (!hasGrown) {
@@ -78,7 +78,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             boolean balanced = false;
             int enoughIterations = 50;
             int i = 0;
-            double partValue = graphValue / partsCount;
+            double partValue = graphValue / getPartsCount();
             while (!balanced && (i < enoughIterations)) {
                 int maxPart = getMaxPart(parts);
                 int minPart = getMinPart(parts);
@@ -93,9 +93,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             // Ensure connectivity
             List<Part> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
-            this.graphPartition = new GraphPartition(verticesParts);
+            setGraphPartition(new GraphPartition(verticesParts));
         }
-        return this.graphPartition;
+        return getGraphPartition();
     }
 
     /**
@@ -104,15 +104,15 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param subparts  All parts and subparts previously created.
      */
     private void attach(List<Part> subparts){
-        if(subparts.size() == partsCount){
+        if(subparts.size() == getPartsCount()){
             return;
         }
         for(Part part: subparts){
             getPartNeighbours(part, subparts);
         }
         int partsCount = subparts.size();
-        double partValue = graphValue/ this.partsCount;
-        while (partsCount > this.partsCount){
+        double partValue = graphValue/ getPartsCount();
+        while (partsCount > getPartsCount()){
             for (Part part : subparts) {
                 if (((part.value - epsilon) < partValue) && (partValue < (part.value + epsilon))) {
                     continue;
@@ -148,7 +148,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                     }
                 }
             }
-            for(Edge edge: graph.getEdges().values()){
+            for(Edge edge: getGraph().getEdges().values()){
                 if(edge.getEndpoint().equals(vertex)){
                     Vertex neighbour = edge.getStartpoint();
                     if(!part.vertexList.contains(neighbour)){
@@ -328,7 +328,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             unsettledNodes.remove(currentNode);
             Map<Integer, Double> neighbours = getAllVertexNeighbours(currentNode);
             for (Map.Entry< Integer, Double> neighbour: neighbours.entrySet()) {
-                Vertex adjacentNode = graph.getVertices().get(neighbour.getKey());
+                Vertex adjacentNode = getGraph().getVertices().get(neighbour.getKey());
                 double edgeWeight = neighbour.getValue();
                 if (!settledNodes.contains(adjacentNode) && ((verticesParts.get(adjacentNode) != part) || minBorderPart.contains(adjacentNode))) {
                     calculateMinimumDistance(adjacentNode, edgeWeight, currentNode, distances, shortestPaths);
@@ -411,7 +411,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                     included = true;
                 }
             }
-            for(Edge edge: graph.getEdges().values()){
+            for(Edge edge: getGraph().getEdges().values()){
                 if(edge.getEndpoint().equals(vertex)){
                     Vertex neighbour = edge.getStartpoint();
                     if((verticesParts.get(neighbour) != index) && !included){
@@ -547,7 +547,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             }
         }
         if(hasGrown){
-            Vertex maxVertex = graph.getVertices().get(maxVertexID);
+            Vertex maxVertex = getGraph().getVertices().get(maxVertexID);
             part.vertexList.add(maxVertex);
             part.value += maxVertex.getValue();
             //part.value += maxValue;
@@ -569,7 +569,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             Vertex v = edge.getEndpoint();
             neighbours.put(v.getId(), edge.getLength());
         }
-        for(Edge edge: graph.getEdges().values()){
+        for(Edge edge: getGraph().getEdges().values()){
             if(edge.getEndpoint().equals(vertex)){
                 int neighbourID = edge.getStartpoint().getId();
                 if(neighbours.containsKey(neighbourID)){
@@ -617,7 +617,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     private Vertex getBestCandidateVertex(Map<Vertex, Integer> verticesParts) {
         int maxDegree = 0;
         Vertex bestVertex = null;
-        for(Vertex vertex: graph.getVertices().values()){
+        for(Vertex vertex: getGraph().getVertices().values()){
             if(((vertex.getStartingEdges().size() + vertex.getEndingEdges().size()) > maxDegree) && (!isIncluded(verticesParts, vertex))){
                 maxDegree = vertex.getStartingEdges().size() + vertex.getEndingEdges().size();
                 bestVertex = vertex;
@@ -634,36 +634,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      */
     private boolean isIncluded(Map<Vertex, Integer> verticesParts, Vertex vertex) {
         return verticesParts.containsKey(vertex);
-    }
-
-    @Override
-    public void setParameters(Map<String, String> parameters) {
-
-    }
-
-    @Override
-    public Map<String, String> getParameters() {
-        return null;
-    }
-
-    @Override
-    public Map<String, String> getParametersDescription() {
-        return null;
-    }
-
-    @Override
-    public void setParametersDescription(Map<String, String> parametersDescription) {
-
-    }
-
-    @Override
-    public void setGraph(Graph graph) {
-        this.graph = graph;
-    }
-
-    @Override
-    public void setPartsCount(int partsCount) {
-        this.partsCount = partsCount;
     }
 
     @Override

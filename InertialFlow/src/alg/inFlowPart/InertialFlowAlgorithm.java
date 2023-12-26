@@ -58,20 +58,20 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     public GraphPartition getGraphPartition(Graph graph) {
         boolean isSame = false;
         if (graph != null) {
-            if (this.graph == graph) {
+            if (getGraph() == graph) {
                 isSame = true;
             }
-            this.graph = graph;
+            setGraph(graph);
         }
-        if ((this.graphPartition == null || !isSame) && this.graph != null) {
+        if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
             pickLine();
             projectAndSortVertices();
             computeMaxFlowBetweenST();
             Map<Vertex, Integer> verticesParts = findMinSTCut();
             setVerticesParts(verticesParts);
-            this.graphPartition = new GraphPartition(verticesParts);
+            setGraphPartition(new GraphPartition(verticesParts));
         }
-        return this.graphPartition;
+        return getGraphPartition();
     }
 
     /**
@@ -79,7 +79,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * @param verticesParts  Map where key is vertex and value is number of part where vertex belongs.
      */
     private void setVerticesParts(Map<Vertex, Integer> verticesParts) {
-        for (Vertex vertex: graph.getVertices().values()) {
+        for (Vertex vertex: getGraph().getVertices().values()) {
             if(!verticesParts.containsKey(vertex)) {
                 verticesParts.put(vertex, 1);
             }
@@ -90,6 +90,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Picks default or set line as a parameter.
      */
     private void pickLine() {
+        Map<String, String> parameters = getParameters();
         if(parameters != null && parameters.containsKey("LineAX") && parameters.containsKey("LineAY")
             && parameters.containsKey("LineBX") && parameters.containsKey("LineBY")){
             double Ax = Double.parseDouble(parameters.get("LineAX"));
@@ -113,7 +114,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         double b = A.y - B.y;
         double c = -A.y + B.y;
         double d = A.x - B.x;
-        for (Vertex v: graph.getVertices().values()) {
+        for (Vertex v: getGraph().getVertices().values()) {
             double y = (((-c)*A.x) - ((c*b*A.y)/a) + c*v.getXCoordinate() + d*v.getYCoordinate())/(((-b*c)/a) + d);
             double x = (-b*y + a*A.x + b*A.y)/(a);
             Point point = new Point(x, y);
@@ -233,7 +234,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Computes a maximum flow between source s and sink t.
      */
     private void computeMaxFlowBetweenST(){
-        int verticesCount = (int) (balance*graph.getVertices().size());
+        int verticesCount = (int) (balance*getGraph().getVertices().size());
         graphVertices = new ArrayList<>();
         List<Vertex> sourceVertices = new ArrayList<>();
         List<Vertex> sinkVertices = new ArrayList<>();
