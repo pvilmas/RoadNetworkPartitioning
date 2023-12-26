@@ -12,14 +12,14 @@ import java.util.List;
  * @version 20-12-2023
  */
 public class IFVertex {
-    /** Vertex level in graph. */
-    private int level;
     /** List of original graph vertices that are represented by this instance. */
-    private List<Vertex> vertexList;
+    private final List<Vertex> vertexList;
     /** All starting edges coming from this IFVertex to another IFVertices.
      *  These are computed from all original graph vertices in verticesList.
      */
     private final List<IFEdge> allStartingEdges = new ArrayList<>();
+    /** Vertex level in graph. */
+    private int level;
 
     /**
      * Constructor of a vertex in IF.
@@ -100,11 +100,4 @@ public class IFVertex {
         return vertexList;
     }
 
-    /**
-     * Setter of vertex list.
-     * @param vertexList  List of original graph vertices that are represented by this instance.
-     */
-    public void setVertexList(List<Vertex> vertexList) {
-        this.vertexList = vertexList;
-    }
 }

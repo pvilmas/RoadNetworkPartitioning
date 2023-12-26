@@ -15,15 +15,15 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     /** Class representing simple point with x and y coordinates. */
     private static class Point{
-        /** X coordinate. */
+        /** X-coordinate. */
         private final double x;
-        /** Y coordinate. */
+        /** Y-coordinate. */
         private final double y;
 
         /**
          * Constructor of point.
-         * @param x x coordinate.
-         * @param y y coordinate.
+         * @param x x-coordinate.
+         * @param y y-coordinate.
          */
         private Point(double x, double y){
             this.x = x;
@@ -31,14 +31,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         }
     }
 
-    /** X coordinate of point A on picked line. */
-    private double Ax = 0.0;
-    /** Y coordinate of point A on picked line. */
-    private double Ay = 0.0;
-    /** X coordinate of point B on picked line. */
-    private double Bx = 1.0;
-    /** Y coordinate of point B on picked line. */
-    private double By = 0.0;
+    /** Point A on picked line. */
+    private Point A = new Point(0.0, 0.0);
+    /** Point B on picked line. */
+    private Point B = new Point(1.0, 0.0);
     /** Balance parameter that determining number of sources and sinks vertices. */
     private double balance = 0.25;
     /** Order of vertices orthographically projected on picked line. */
@@ -47,6 +43,16 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private List<Point> pointOrder;
     /** All IFVertices of the graph. */
     public List<IFVertex> graphVertices;
+
+    @Override
+    public String getName() {
+        return "Inertial Flow";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Inertial Flow";
+    }
 
     @Override
     public GraphPartition getGraphPartition(Graph graph) {
@@ -86,10 +92,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private void pickLine() {
         if(parameters != null && parameters.containsKey("LineAX") && parameters.containsKey("LineAY")
             && parameters.containsKey("LineBX") && parameters.containsKey("LineBY")){
-            Ax = Double.parseDouble(parameters.get("LineAX"));
-            Ay = Double.parseDouble(parameters.get("LineAY"));
-            Bx = Double.parseDouble(parameters.get("LineBX"));
-            By = Double.parseDouble(parameters.get("LineBY"));
+            double Ax = Double.parseDouble(parameters.get("LineAX"));
+            double Ay = Double.parseDouble(parameters.get("LineAY"));
+            A = new Point(Ax, Ay);
+            double Bx = Double.parseDouble(parameters.get("LineBX"));
+            double By = Double.parseDouble(parameters.get("LineBY"));
+            B = new Point(Bx, By);
         }
 
     }
@@ -101,13 +109,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private void projectAndSortVertices(){
         vertexOrder = new ArrayList<>();
         pointOrder = new ArrayList<>();
-        double a = Ax - Bx;
-        double b = Ay - By;
-        double c = -Ay + By;
-        double d = Ax - Bx;
+        double a = A.x - B.x;
+        double b = A.y - B.y;
+        double c = -A.y + B.y;
+        double d = A.x - B.x;
         for (Vertex v: graph.getVertices().values()) {
-            double y = (((-c)*Ax) - ((c*b*Ay)/a) + c*v.getXCoordinate() + d*v.getYCoordinate())/(((-b*c)/a) + d);
-            double x = (-b*y + a*Ax + b*Ay)/(a);
+            double y = (((-c)*A.x) - ((c*b*A.y)/a) + c*v.getXCoordinate() + d*v.getYCoordinate())/(((-b*c)/a) + d);
+            double x = (-b*y + a*A.x + b*A.y)/(a);
             Point point = new Point(x, y);
             if(vertexOrder.size() > 0){
                 insertionSort(v, point);
@@ -256,7 +264,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         if (s == t) {
             return;
         }
-        int flow = 0;
+        int flow;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
             for (IFVertex graphVertex : graphVertices) {
@@ -295,15 +303,5 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
         }
         return verticesParts;
-    }
-
-    @Override
-    public String getName() {
-        return "Inertial Flow";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Inertial Flow";
     }
 }
