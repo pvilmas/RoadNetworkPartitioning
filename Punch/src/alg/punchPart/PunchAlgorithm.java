@@ -16,12 +16,22 @@ public class PunchAlgorithm extends APartitionAlgorithm {
 
     @Override
     public GraphPartition getGraphPartition(Graph graph) {
-        if (verticesParts == null && this.graph != null) {
+        if (verticesParts == null && this.getGraph() != null) {
             verticesParts = new HashMap<>();
             filter();
             assembly();
         }
         return new GraphPartition(verticesParts);
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParameters() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParametersDescriptions() {
+        return null;
     }
 
     private void filter(){
@@ -32,7 +42,7 @@ public class PunchAlgorithm extends APartitionAlgorithm {
     private void detectTinyCuts(){
         List<Edge> edgeRemoved = new ArrayList<>();
         List<List<Edge>> equalClassesEdges = new ArrayList<>();
-        dfsTree(graph.getVertices().get(0), edgeRemoved);
+        dfsTree(getGraph().getVertices().get(0), edgeRemoved);
         //two_cuts_edge_class(edgeRemoved, equalClassesEdges);
         //cnt_two_cuts(equalClassesEdges, sizeLimit);
         //cnt_one_cuts(equalClassesEdges.get(0), sizeLimit);
@@ -66,7 +76,7 @@ public class PunchAlgorithm extends APartitionAlgorithm {
 
     private Map<Vertex, List<Vertex>> createAdjacencyLists() {
         Map<Vertex, List<Vertex>> adjacencyLists = new HashMap<>();
-        for(Vertex vertex: graph.getVertices().values()){
+        for(Vertex vertex: getGraph().getVertices().values()){
             List<Vertex> neighbours = new ArrayList<>();
             List<Edge> startingEdges = vertex.getStartingEdges();
             for(Edge edge: startingEdges){
@@ -111,36 +121,6 @@ public class PunchAlgorithm extends APartitionAlgorithm {
     }
 
     private void combine(){
-
-    }
-
-    @Override
-    public void setParameters(Map<String, String> parameters) {
-
-    }
-
-    @Override
-    public Map<String, String> getParameters() {
-        return null;
-    }
-
-    @Override
-    public Map<String, String> getParametersDescription() {
-        return null;
-    }
-
-    @Override
-    public void setParametersDescription(Map<String, String> parametersDescription) {
-
-    }
-
-    @Override
-    public void setGraph(Graph graph) {
-        this.graph = graph;
-    }
-
-    @Override
-    public void setPartsCount(int partsCount) {
 
     }
 

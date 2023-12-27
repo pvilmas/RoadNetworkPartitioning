@@ -98,6 +98,16 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         return getGraphPartition();
     }
 
+    @Override
+    public Map<String, String> getAllCustomParameters() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParametersDescriptions() {
+        return null;
+    }
+
     /**
      * Finds all possible part connection and connects most suitable parts,
      * so it has given part count.

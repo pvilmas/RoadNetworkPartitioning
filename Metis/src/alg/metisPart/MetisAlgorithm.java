@@ -31,6 +31,16 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         return getGraphPartition();
     }
 
+    @Override
+    public Map<String, String> getAllCustomParameters() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParametersDescriptions() {
+        return null;
+    }
+
     /**
      * Coarsens graph by Heavy Edge Matching.
      * @return graph with fewer vertices and edges.

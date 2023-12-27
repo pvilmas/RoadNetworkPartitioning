@@ -74,6 +74,25 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         return getGraphPartition();
     }
 
+    @Override
+    public Map<String, String> getAllCustomParameters() {
+        Map<String, String> customParameters = new HashMap<>();
+        customParameters.put("parameter1", "11");
+        customParameters.put("parameter2", "22");
+        customParameters.put("parameter3", "33");
+
+        return customParameters;
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParametersDescriptions() {
+        Map<String, String> customParametersDescription = new HashMap<>();
+        customParametersDescription.put("parameter1", "desc1");
+        customParametersDescription.put("parameter2", "desc2");
+        customParametersDescription.put("parameter3", "desc3");
+        return customParametersDescription;
+    }
+
     /**
      * Sets value in verticesParts map for remaining vertices.
      * @param verticesParts  Map where key is vertex and value is number of part where vertex belongs.

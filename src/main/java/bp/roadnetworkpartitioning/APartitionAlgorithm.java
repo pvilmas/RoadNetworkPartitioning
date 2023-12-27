@@ -52,6 +52,12 @@ public abstract class APartitionAlgorithm {
     }
 
     /**
+     * Gets all custom algorithm parameters.
+     * @return map where key is unique parameter name and value is default value of the parameter.
+     */
+    public abstract Map<String, String> getAllCustomParameters();
+
+    /**
      * Gets algorithm parameters.
      * @return Map where key is name of parameter and value is value of parameter.
      */
@@ -71,9 +77,15 @@ public abstract class APartitionAlgorithm {
      * Sets algorithm parameters description.
      * @param parametersDescription Map where key is name of parameter and value is description of parameter.
      */
-    public void setParametersDescription(Map<String, String> parametersDescription){
+    public void setParametersDescriptions(Map<String, String> parametersDescription){
         this.parametersDescription = parametersDescription;
     }
+
+    /**
+     * Gets all custom algorithm parameters description.
+     * @return map where key is unique parameter name and value is description.
+     */
+    public abstract Map<String, String> getAllCustomParametersDescriptions();
 
     /**
      * Sets graph to be divided.

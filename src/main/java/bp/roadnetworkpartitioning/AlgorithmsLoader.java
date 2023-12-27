@@ -37,6 +37,8 @@ public class AlgorithmsLoader {
                         Constructor<?> ctor = clazz.getDeclaredConstructor();
                         ctor.setAccessible(true);
                         APartitionAlgorithm alg = (APartitionAlgorithm) ctor.newInstance();
+                        alg.setParameters(alg.getAllCustomParameters());
+                        alg.setParametersDescriptions(alg.getAllCustomParametersDescriptions());
                         ALGORITHMS.put(alg.getName(), alg);
                     }
                 } catch (AbstractMethodError | Exception e) {
