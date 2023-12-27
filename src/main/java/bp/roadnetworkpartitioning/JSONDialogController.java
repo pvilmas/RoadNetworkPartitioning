@@ -22,7 +22,7 @@ import java.util.Scanner;
  *  @author Lucie Roy
  *  @version 27-03-2023
  */
-public class CreateJSONDialog extends Dialog<Boolean> {
+public class JSONDialogController extends Dialog<Boolean> {
 
     /** File with vertices coordinates. */
     private File coordinatesFile = null;
@@ -81,7 +81,7 @@ public class CreateJSONDialog extends Dialog<Boolean> {
      * @param window        stage/window hosting dialog.
      * @throws IOException  when loading fxml.
      */
-    public CreateJSONDialog(Window window) throws IOException {
+    public JSONDialogController(Window window) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("create-json-dialog.fxml"));
         fxmlLoader.setController(this);
@@ -103,8 +103,6 @@ public class CreateJSONDialog extends Dialog<Boolean> {
         });
 
         setOnShowing(dialogEvent -> Platform.runLater(() -> btnFileEdge.requestFocus()));
-
-
     }
 
     /**

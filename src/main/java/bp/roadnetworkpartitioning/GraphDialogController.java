@@ -16,7 +16,7 @@ import java.util.Objects;
  *  @author Lucie Roy
  *  @version 27-03-2023
  */
-public class CreateGraphDialog extends Dialog<Graph> {
+public class GraphDialogController extends Dialog<Graph> {
 
     /** Main button of dialog creating graph. */
     @FXML
@@ -38,7 +38,7 @@ public class CreateGraphDialog extends Dialog<Graph> {
      * @param window        stage/window hosting dialog.
      * @throws IOException  when loading fxml.
      */
-    public CreateGraphDialog(Window window) throws IOException {
+    public GraphDialogController(Window window) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("create-graph-dialog.fxml"));
         fxmlLoader.setController(this);

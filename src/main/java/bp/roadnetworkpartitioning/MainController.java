@@ -74,16 +74,14 @@ public class MainController {
             vboxRadioBtn.setPadding(new Insets(5, 5, 5, 50));
             vboxRadioBtn.getChildren().add(hBox);
         }
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+        group.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
 
-                if (group.getSelectedToggle() != null) {
-                    APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
-                    graphPartition = algorithm.getGraphPartition(graph);
-                    visualizeGraph();
-                }
-
+            if (group.getSelectedToggle() != null) {
+                APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
+                graphPartition = algorithm.getGraphPartition(graph);
+                visualizeGraph();
             }
+
         });
     }
 
@@ -93,7 +91,8 @@ public class MainController {
      */
     private void showSettingDialog(APartitionAlgorithm algorithm) {
         try {
-            SettingDialog dialog = new SettingDialog(stage, algorithm);
+
+            SettingDialogController dialog = new SettingDialogController(stage, algorithm);
             dialog.showAndWait().ifPresent(graph -> {
 
             });
@@ -154,7 +153,7 @@ public class MainController {
     @FXML
     protected void onCreateGraphMenuClick(){
         try {
-            CreateGraphDialog dialog = new CreateGraphDialog(stage);
+            GraphDialogController dialog = new GraphDialogController(stage);
             dialog.showAndWait().ifPresent(graph -> {
                 this.graph = graph;
                 visualizeGraph();
@@ -195,7 +194,7 @@ public class MainController {
     @FXML
     protected void onCreateJSONMenuClick(){
         try {
-            CreateJSONDialog dialog = new CreateJSONDialog(stage);
+            JSONDialogController dialog = new JSONDialogController(stage);
             dialog.showAndWait().ifPresent(System.out::println);
         } catch (Exception e){
             e.printStackTrace();

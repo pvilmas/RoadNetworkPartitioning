@@ -6,11 +6,10 @@ package bp.roadnetworkpartitioning;
  * @version 27-03-2023
  */
 public class Edge {
-
-    /** ID of edge. */
-    private int id;
     /** Number of existing instances of edge. */
     private static int count = 0;
+    /** ID of edge. */
+    private int id;
     /** Length of edge (no specific units). */
     private double length;
     /** Weight of edge (no specific units). */
@@ -32,6 +31,21 @@ public class Edge {
         this.length = length;
         count++;
         id = count;
+    }
+
+    /**
+     * Gets attribute count.
+     * @return  count (number of existing instances of edge).
+     */
+    public static int getCount(){
+        return count;
+    }
+
+    /**
+     * Resets edge count to 0.
+     */
+    public static void resetEdgeCount() {
+        count = 0;
     }
 
     /**
@@ -115,14 +129,6 @@ public class Edge {
      */
     public void setStartpoint(Vertex startpoint){
         this.startpoint = startpoint;
-    }
-
-    /**
-     * Gets attribute count.
-     * @return  count (number of existing instances of edge).
-     */
-    public static int getCount(){
-        return count;
     }
 
     @Override
