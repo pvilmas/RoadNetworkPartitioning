@@ -79,6 +79,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             int enoughIterations = 50;
             int i = 0;
             double partValue = graphValue / getPartsCount();
+            if (getParameters() != null && getParameters().containsKey("epsilon")) {
+                epsilon = Double.parseDouble(getParameters().get("epsilon"));
+            }
             while (!balanced && (i < enoughIterations)) {
                 int maxPart = getMaxPart(parts);
                 int minPart = getMinPart(parts);
@@ -100,12 +103,16 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     @Override
     public Map<String, String> getAllCustomParameters() {
-        return null;
+        Map<String, String> customParameters = new TreeMap<>();
+        customParameters.put("Epsilon", "10");
+        return customParameters;
     }
 
     @Override
     public Map<String, String> getAllCustomParametersDescriptions() {
-        return null;
+        Map<String, String> customParametersDescriptions = new TreeMap<>();
+        customParametersDescriptions.put("Epsilon", "Maximal difference between two parts.");
+        return customParametersDescriptions;
     }
 
     /**

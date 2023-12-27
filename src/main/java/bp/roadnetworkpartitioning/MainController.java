@@ -2,6 +2,7 @@ package bp.roadnetworkpartitioning;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -24,6 +25,8 @@ import java.util.Map;
 public class MainController {
     /** Instance of main stage. */
     private static Stage stage = null;
+    @FXML
+    private Spinner<Integer> spinnerPartCount;
     /** Graph to show. */
     private Graph graph = null;
     /** Instance of ScrollPane containing graph. */
@@ -59,7 +62,7 @@ public class MainController {
     public void setAlgorithms(){
         algorithms = AlgorithmsLoader.findAlgorithms();
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
-            HBox hBox = new HBox(20);
+            HBox hBox = new HBox(10);
             RadioButton radioButton = new RadioButton();
             radioButton.setText(algorithm.getKey());
             radioButton.setUserData(algorithm.getValue());
@@ -69,7 +72,7 @@ public class MainController {
             btnSetting.getStyleClass().setAll("btn","btn-primary");
             btnSetting.setOnAction(e -> showSettingDialog(algorithm.getValue()));
             hBox.getChildren().addAll(radioButton, btnSetting);
-            vboxRadioBtn.setPadding(new Insets(5, 5, 5, 50));
+            hBox.setAlignment(Pos.CENTER);
             vboxRadioBtn.getChildren().add(hBox);
         }
         group.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {

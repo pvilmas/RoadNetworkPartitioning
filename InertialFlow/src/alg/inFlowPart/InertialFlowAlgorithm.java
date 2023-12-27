@@ -76,20 +76,24 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     @Override
     public Map<String, String> getAllCustomParameters() {
-        Map<String, String> customParameters = new HashMap<>();
-        customParameters.put("parameter1", "11");
-        customParameters.put("parameter2", "22");
-        customParameters.put("parameter3", "33");
+        Map<String, String> customParameters = new TreeMap<>();
+        customParameters.put("Line Ax", "0.0");
+        customParameters.put("Line Ay", "0.0");
+        customParameters.put("Line Bx", "1.0");
+        customParameters.put("Line By", "0.0");
+        customParameters.put("Balance", "0.25");
 
         return customParameters;
     }
 
     @Override
     public Map<String, String> getAllCustomParametersDescriptions() {
-        Map<String, String> customParametersDescription = new HashMap<>();
-        customParametersDescription.put("parameter1", "desc1");
-        customParametersDescription.put("parameter2", "desc2");
-        customParametersDescription.put("parameter3", "desc3");
+        Map<String, String> customParametersDescription = new TreeMap<>();
+        customParametersDescription.put("Line Ax", "X-coordinate of point A on picked line.");
+        customParametersDescription.put("Line Ay", "Y-coordinate of point A on picked line.");
+        customParametersDescription.put("Line Bx", "X-coordinate of point B on picked line.");
+        customParametersDescription.put("Line By", "Y-coordinate of point B on picked line.");
+        customParametersDescription.put("Balance", "Defines balance of the partition.");
         return customParametersDescription;
     }
 
@@ -110,13 +114,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private void pickLine() {
         Map<String, String> parameters = getParameters();
-        if(parameters != null && parameters.containsKey("LineAX") && parameters.containsKey("LineAY")
-            && parameters.containsKey("LineBX") && parameters.containsKey("LineBY")){
-            double Ax = Double.parseDouble(parameters.get("LineAX"));
-            double Ay = Double.parseDouble(parameters.get("LineAY"));
+        if(parameters != null && parameters.containsKey("Line Ax") && parameters.containsKey("Line Ay")
+            && parameters.containsKey("Line Bx") && parameters.containsKey("Line By")){
+            double Ax = Double.parseDouble(parameters.get("Line Ax"));
+            double Ay = Double.parseDouble(parameters.get("Line Ay"));
             A = new Point(Ax, Ay);
-            double Bx = Double.parseDouble(parameters.get("LineBX"));
-            double By = Double.parseDouble(parameters.get("LineBY"));
+            double Bx = Double.parseDouble(parameters.get("Line Bx"));
+            double By = Double.parseDouble(parameters.get("Line By"));
             B = new Point(Bx, By);
         }
 
@@ -253,7 +257,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Computes a maximum flow between source s and sink t.
      */
     private void computeMaxFlowBetweenST(){
-        int verticesCount = (int) (balance*getGraph().getVertices().size());
+        if (getParameters() != null && getParameters().containsKey("Balance")){
+            balance = Double.parseDouble(getParameters().get("Balance"));
+        }
+        int verticesCount = (int) (balance * getGraph().getVertices().size());
         graphVertices = new ArrayList<>();
         List<Vertex> sourceVertices = new ArrayList<>();
         List<Vertex> sinkVertices = new ArrayList<>();

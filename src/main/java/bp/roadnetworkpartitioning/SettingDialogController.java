@@ -105,12 +105,17 @@ public class SettingDialogController extends Dialog<Boolean> {
      * Loads and displays parameters of the algorithm.
      */
     private void showParameters() {
-        if (this.algorithm.getParameters() != null) {
+        if (this.algorithm.getParameters() != null && this.algorithm.getParameters().size() > 0) {
             for (Map.Entry<String, String> parameter : this.algorithm.getParameters().entrySet()) {
                 String parameterDescription = this.algorithm.getParametersDescription() != null ?
                         this.algorithm.getParametersDescription().get(parameter.getKey()) : null;
                 addParameterHBox(parameter, parameterDescription);
             }
+        }
+        else {
+            Label noParameters = new Label("No Parameters Available");
+            noParameters.setAlignment(Pos.CENTER);
+            vBox.getChildren().add(noParameters);
         }
     }
 }
