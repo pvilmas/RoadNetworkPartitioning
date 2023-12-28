@@ -20,15 +20,20 @@ import java.util.Objects;
 /**
  * Controller of main window of the app.
  * @author Lucie Roy
- * @version 27-03-2023
+ * @version 28-12-2023
  */
 public class MainController {
     /** Instance of main stage. */
     private static Stage stage = null;
+    /** Default zoom value. */
+    private static int zoom = 10;
+    /** Default size of vertex. */
+    private static final int size = 5;
+    /** Stores color of each part. */
+    private static Color[] colors = {Color.BLUE, Color.RED};
+    /** Sets number of parts. */
     @FXML
     private Spinner<Integer> spinnerPartCount;
-    /** Graph to show. */
-    private Graph graph = null;
     /** Instance of ScrollPane containing graph. */
     @FXML
     private ScrollPane scrollPane;
@@ -42,25 +47,42 @@ public class MainController {
     /** Label with zoom value. */
     @FXML
     private Label labelZoom;
-    /** Default zoom value. */
-    private static int zoom = 10;
-    /** Default size of vertex. */
-    private static final int size = 5;
     /** Toggle group containing radio buttons of all available algorithms. */
     @FXML
     private ToggleGroup group;
-    /** Map with all available graph partitioning algorithms. */
-    private static Map<String, APartitionAlgorithm> algorithms;
-    /** */
+    /** Graph to show. */
+    private Graph graph = null;
+    /** Computed partition of the graph. */
     private GraphPartition graphPartition = null;
-    /** */
-    private static Color[] colors = {Color.BLUE, Color.RED};
+
+    /**
+     * Gets positive integer from string.
+     * @param text      String to convert to integer.
+     * @return  integer made from string.
+     */
+    public static int getNumberFromString(String text){
+        if(text.trim().matches("\\d+")){
+            return Integer.parseInt(text.trim());
+        }else {
+            return -1;
+        }
+    }
+
+    /**
+     * Sets primary stage.
+     * @param primaryStage  Instance of Stage.
+     */
+    public static void setStage(Stage primaryStage){
+        if(stage == null) {
+            stage = primaryStage;
+        }
+    }
 
     /**
      * Displays all available graph partitioning algorithms.
      */
     public void setAlgorithms(){
-        algorithms = AlgorithmsLoader.findAlgorithms();
+        Map<String, APartitionAlgorithm> algorithms = AlgorithmsLoader.findAlgorithms();
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
             HBox hBox = new HBox(10);
             RadioButton radioButton = new RadioButton();
@@ -87,26 +109,8 @@ public class MainController {
     }
 
     /**
-     * Shows setting dialog of given algorithm.
-     * @param algorithm   name of the algorithm.
-     */
-    private void showSettingDialog(APartitionAlgorithm algorithm) {
-        try {
-            SettingDialogController dialog = new SettingDialogController(stage, algorithm);
-            dialog.showAndWait().ifPresent(apply -> {
-                if (group.getSelectedToggle() != null) {
-                    graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
-                    visualizeGraph();
-                }
-            });
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Method called when MenuItem "Insert Graph" is clicked.
-     * This method opens a dialog for choosing a file with vertices coordinates.
+     * This method opens a dialog for choosing a json file with graph parameters.
      */
     @FXML
     protected void onInsertGraphJSONMenuClick(){
@@ -150,7 +154,8 @@ public class MainController {
     }
 
     /**
-     *
+     * Called when button "Pick colors" is clicked.
+     * It opens dialog with color picker for each part.
      */
     @FXML
     protected void onPickColorsButtonClick() {
@@ -167,7 +172,7 @@ public class MainController {
 
     /**
      * Method called when button "Create graph!" is clicked.
-     * This method opens a dialog for choosing a file with vertices coordinates.
+     * This method opens a dialog for inserting graph parameters.
      */
     @FXML
     protected void onCreateGraphMenuClick(){
@@ -183,7 +188,46 @@ public class MainController {
     }
 
     /**
-     * Visualizes attribute graph.
+     * Method called when button "Create JSON File!" is clicked.
+     * It opens dialog for entering details and files for requested JSON file.
+     */
+    @FXML
+    protected void onCreateJSONMenuClick(){
+        try {
+            JSONDialogController dialog = new JSONDialogController(stage);
+            dialog.showAndWait().ifPresent(isCreated -> {
+                if (isCreated) {
+                    System.out.println("JSON file was created.");
+                }
+                else {
+                    System.out.println("JSON file could not be created.");
+                }
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Shows setting dialog of given algorithm.
+     * @param algorithm   name of the algorithm.
+     */
+    private void showSettingDialog(APartitionAlgorithm algorithm) {
+        try {
+            SettingDialogController dialog = new SettingDialogController(stage, algorithm);
+            dialog.showAndWait().ifPresent(apply -> {
+                if (group.getSelectedToggle() != null) {
+                    graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
+                    visualizeGraph();
+                }
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Visualizes graph.
      */
     private void visualizeGraph(){
         if (this.graph == null) {
@@ -208,44 +252,5 @@ public class MainController {
         }
         scrollPane.setPrefSize(1000, 1000);
         scrollPane.setContent(group);
-    }
-
-
-    /**
-     * Method called when button "Create JSON File!" is clicked.
-     * This method uses method createJSONFile from JSONParser class for creating JSON file.
-     * And gets details from textFields for correct parsing of files.
-     */
-    @FXML
-    protected void onCreateJSONMenuClick(){
-        try {
-            JSONDialogController dialog = new JSONDialogController(stage);
-            dialog.showAndWait().ifPresent(System.out::println);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Gets positive integer from string.
-     * @param text      String to convert to integer.
-     * @return  integer made from string.
-     */
-    public static int getNumberFromString(String text){
-        if(text.trim().matches("\\d+")){
-            return Integer.parseInt(text.trim());
-        }else {
-            return -1;
-        }
-    }
-
-    /**
-     * Sets primary stage.
-     * @param primaryStage  Instance of Stage.
-     */
-    public static void setStage(Stage primaryStage){
-        if(stage == null) {
-            stage = primaryStage;
-        }
     }
 }
