@@ -23,9 +23,10 @@ public abstract class APartitionAlgorithm {
     /**
      * Method divides graph into parts.
      * @return instance representing graph division (partition).
-     * @param graph     graph to be divided.
+     * @param graph         graph to be divided.
+     * @param partsCount    number of parts.
      */
-    public abstract GraphPartition getGraphPartition(Graph graph);
+    public abstract GraphPartition getGraphPartition(Graph graph, int partsCount);
 
     /**
      * Gets graph partition.

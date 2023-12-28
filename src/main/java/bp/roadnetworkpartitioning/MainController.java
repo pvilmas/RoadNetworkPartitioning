@@ -1,7 +1,6 @@
 package bp.roadnetworkpartitioning;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.*;
@@ -15,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -51,10 +51,10 @@ public class MainController {
     private ToggleGroup group;
     /** Map with all available graph partitioning algorithms. */
     private static Map<String, APartitionAlgorithm> algorithms;
-
+    /** */
     private GraphPartition graphPartition = null;
-
-    private static final Color[] colors = {Color.BLUE, Color.RED};
+    /** */
+    private static Color[] colors = {Color.BLUE, Color.RED};
 
     /**
      * Displays all available graph partitioning algorithms.
@@ -79,7 +79,7 @@ public class MainController {
 
             if (group.getSelectedToggle() != null) {
                 APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
-                graphPartition = algorithm.getGraphPartition(graph);
+                graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
                 visualizeGraph();
             }
 
@@ -92,10 +92,12 @@ public class MainController {
      */
     private void showSettingDialog(APartitionAlgorithm algorithm) {
         try {
-
             SettingDialogController dialog = new SettingDialogController(stage, algorithm);
-            dialog.showAndWait().ifPresent(graph -> {
-
+            dialog.showAndWait().ifPresent(apply -> {
+                if (group.getSelectedToggle() != null) {
+                    graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
+                    visualizeGraph();
+                }
             });
         } catch (Exception e){
             e.printStackTrace();
@@ -119,7 +121,7 @@ public class MainController {
      * Increasing zoom by 5.
      */
     @FXML
-    protected  void onIncreaseButtonClick(){
+    protected void onIncreaseButtonClick(){
         zoom += 5;
         labelZoom.setText(""+zoom);
         visualizeGraph();
@@ -130,7 +132,7 @@ public class MainController {
      * Decreasing zoom by 5.
      */
     @FXML
-    protected  void onDecreaseButtonClick(){
+    protected void onDecreaseButtonClick(){
         zoom -= 5;
         labelZoom.setText(""+zoom);
         visualizeGraph();
@@ -141,10 +143,26 @@ public class MainController {
      * This method zooms graph.
      */
     @FXML
-    protected  void onZoomButtonClick(){
+    protected void onZoomButtonClick(){
         zoom = getNumberFromString(textZoom.getText());
         labelZoom.setText(""+zoom);
         visualizeGraph();
+    }
+
+    /**
+     *
+     */
+    @FXML
+    protected void onPickColorsButtonClick() {
+        try {
+            PartColorsDialogController dialog = new PartColorsDialogController(stage, spinnerPartCount.getValue(), colors);
+            dialog.showAndWait().ifPresent(pickedColors -> {
+                colors = pickedColors;
+                visualizeGraph();
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -168,17 +186,23 @@ public class MainController {
      * Visualizes attribute graph.
      */
     private void visualizeGraph(){
+        if (this.graph == null) {
+            return;
+        }
         Group group = new Group();
         for(Vertex vertex: this.graph.getVertices().values()){
             Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
             if (graphPartition != null) {
                 circle.setStroke(colors[graphPartition.getVerticesPlacements().get(vertex)]);
+                circle.setFill(colors[graphPartition.getVerticesPlacements().get(vertex)]);
             }
             group.getChildren().add(circle);
-            for(int j = 0; j < vertex.getStartingEdges().size(); j++){
-                Edge edge = vertex.getStartingEdges().get(j);
+            for(Edge edge: vertex.getStartingEdges()){
                 Line line = new Line(vertex.getX()*zoom, vertex.getY()*zoom,
                         edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom);
+                if ((graphPartition != null) && Objects.equals(graphPartition.getVerticesPlacements().get(vertex), graphPartition.getVerticesPlacements().get(edge.getEndpoint()))){
+                    line.setStroke(colors[graphPartition.getVerticesPlacements().get(vertex)]);
+                }
                 group.getChildren().add(line);
             }
         }

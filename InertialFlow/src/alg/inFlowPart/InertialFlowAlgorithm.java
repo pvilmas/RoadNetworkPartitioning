@@ -55,7 +55,8 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     @Override
-    public GraphPartition getGraphPartition(Graph graph) {
+    public GraphPartition getGraphPartition(Graph graph, int partsCount) {
+        setPartsCount(partsCount);
         boolean isSame = false;
         if (graph != null) {
             if (getGraph() == graph) {

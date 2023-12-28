@@ -15,7 +15,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     private Map<Vertex, Vertex> matchedVertices = new HashMap<>();
 
     @Override
-    public GraphPartition getGraphPartition(Graph graph) {
+    public GraphPartition getGraphPartition(Graph graph, int partsCount) {
+        setPartsCount(partsCount);
         boolean isSame = false;
         if (graph != null) {
             if (this.getGraph() == graph) {
