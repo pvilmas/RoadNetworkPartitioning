@@ -1,6 +1,6 @@
 package bp.roadnetworkpartitioning;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Instance of this class represents partition of a graph.
@@ -12,15 +12,15 @@ public class GraphPartition {
      * Map where key is a vertex ID and value is
      * number of part of graph where this vertex belongs.
      */
-    private final Map<Vertex, Integer> verticesPlacements;
+    private final List<Graph> graphComponents;
 
     /**
      * Constructor with given mapping.
-     * @param verticesPlacements Map where key is a vertex ID and value is
+     * @param graphComponents Map where key is a vertex ID and value is
      *                           number of part of graph where this vertex belongs.
      */
-    public GraphPartition(Map<Vertex, Integer> verticesPlacements){
-       this.verticesPlacements = verticesPlacements;
+    public GraphPartition(List<Graph> graphComponents){
+       this.graphComponents = graphComponents;
 
     }
 
@@ -30,7 +30,7 @@ public class GraphPartition {
      * @return map where key is a vertex ID and value is
      * number of part of graph where this vertex belongs.
      */
-    public Map<Vertex, Integer> getVerticesPlacements(){
-        return  this.verticesPlacements;
+    public List<Graph> getVerticesPlacements(){
+        return  this.graphComponents;
     }
 }

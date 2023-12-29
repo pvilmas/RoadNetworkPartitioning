@@ -39,8 +39,6 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private double balance = 0.25;
     /** Order of vertices orthographically projected on picked line. */
     private List<Vertex> vertexOrder;
-    /** Order of points orthographically projected on picked line. */
-    private List<Point> pointOrder;
     /** All IFVertices of the graph. */
     public List<IFVertex> graphVertices;
 
@@ -65,12 +63,16 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             setGraph(graph);
         }
         if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
+            List<Graph> graphComponents = new ArrayList<>();
+            setGraphPartition(new GraphPartition(graphComponents));
+            graphComponents.add(graph);
             pickLine();
             projectAndSortVertices();
-            computeMaxFlowBetweenST();
-            Map<Vertex, Integer> verticesParts = findMinSTCut();
-            setVerticesParts(verticesParts);
-            setGraphPartition(new GraphPartition(verticesParts));
+            int numberOfParts = 0;
+            while(numberOfParts < getPartsCount()){
+                divide(graphComponents.get(0));
+                numberOfParts++;
+            }
         }
         return getGraphPartition();
     }
@@ -96,6 +98,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         customParametersDescription.put("Line By", "Y-coordinate of point B on picked line.");
         customParametersDescription.put("Balance", "Defines balance of the partition.");
         return customParametersDescription;
+    }
+
+    private void divide(Graph graph) {
+        computeMaxFlowBetweenST(graph);
+        Map<Vertex, Integer> verticesParts = findMinSTCut();
+        setVerticesParts(verticesParts);
     }
 
     /**
@@ -133,7 +141,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private void projectAndSortVertices(){
         vertexOrder = new ArrayList<>();
-        pointOrder = new ArrayList<>();
+        List<Point> pointOrder = new ArrayList<>();
         double a = A.x - B.x;
         double b = A.y - B.y;
         double c = -A.y + B.y;
@@ -143,7 +151,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             double x = (-b*y + a*A.x + b*A.y)/(a);
             Point point = new Point(x, y);
             if(vertexOrder.size() > 0){
-                insertionSort(v, point);
+                insertionSort(v, point, pointOrder);
             }
             else{
                 vertexOrder.add(v);
@@ -157,7 +165,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * @param v             current vertex.
      * @param point         vertex's point.
      */
-    private void insertionSort(Vertex v, Point point) {
+    private void insertionSort(Vertex v, Point point, List<Point> pointOrder) {
         double epsilon = 0.00001;
         if(vertexOrder.size() == 1){
             if(abs(pointOrder.get(0).x - point.x) < epsilon){
@@ -257,26 +265,37 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     /**
      * Computes a maximum flow between source s and sink t.
      */
-    private void computeMaxFlowBetweenST(){
+    private void computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){
             balance = Double.parseDouble(getParameters().get("Balance"));
         }
-        int verticesCount = (int) (balance * getGraph().getVertices().size());
+        int verticesCount = (int) (balance * graph.getVertices().size());
         graphVertices = new ArrayList<>();
         List<Vertex> sourceVertices = new ArrayList<>();
         List<Vertex> sinkVertices = new ArrayList<>();
         int i = 0;
-        for(; i < verticesCount; i++) {
-            sourceVertices.add(vertexOrder.get(i));
+        while(i < verticesCount) {
+            if(graph.getVertices().containsValue(vertexOrder.get(i))){
+                sourceVertices.add(vertexOrder.get(i));
+                i++;
+            }
         }
         IFVertex s = new IFVertex(0, sourceVertices);
         graphVertices.add(s);
-        int verticesSize = vertexOrder.size();
-        for(;i < verticesSize - verticesCount; i++) {
-            graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(i))));
+        int verticesSize = graph.getVertices().size();
+        i = verticesCount;
+        while(i < verticesSize - verticesCount) {
+            if(graph.getVertices().containsValue(vertexOrder.get(i))) {
+                graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(i))));
+                i++;
+            }
         }
-        for(; i < verticesSize; i++) {
-            sinkVertices.add(vertexOrder.get(i));
+        i = verticesSize - verticesCount;
+        while(i < verticesSize) {
+            if(graph.getVertices().containsValue(vertexOrder.get(i))) {
+                sinkVertices.add(vertexOrder.get(i));
+                i++;
+            }
         }
         IFVertex t = new IFVertex(0, sinkVertices);
         graphVertices.add(t);
