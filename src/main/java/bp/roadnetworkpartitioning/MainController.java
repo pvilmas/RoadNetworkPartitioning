@@ -234,23 +234,38 @@ public class MainController {
             return;
         }
         Group group = new Group();
-        for(Vertex vertex: this.graph.getVertices().values()){
-            Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
-            if (graphPartition != null) {
-                circle.setStroke(colors[graphPartition.getVerticesPlacements().get(vertex)]);
-                circle.setFill(colors[graphPartition.getVerticesPlacements().get(vertex)]);
-            }
-            group.getChildren().add(circle);
-            for(Edge edge: vertex.getStartingEdges()){
-                Line line = new Line(vertex.getX()*zoom, vertex.getY()*zoom,
-                        edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom);
-                if ((graphPartition != null) && Objects.equals(graphPartition.getVerticesPlacements().get(vertex), graphPartition.getVerticesPlacements().get(edge.getEndpoint()))){
-                    line.setStroke(colors[graphPartition.getVerticesPlacements().get(vertex)]);
-                }
-                group.getChildren().add(line);
+        if (graphPartition == null) {
+            drawGraph(group, this.graph, Color.BLACK);
+        }
+        else {
+            for (int i = 0; i < colors.length; i++) {
+                drawGraph(group, graphPartition.getVerticesPlacements().get(i), colors[i]);
             }
         }
         scrollPane.setPrefSize(1000, 1000);
         scrollPane.setContent(group);
+    }
+
+    /**
+     * Draws graph or one graph component/part.
+     * @param group group where graph belongs.
+     * @param graph the graph.
+     * @param color color of the graph.
+     */
+    private void drawGraph(Group group, Graph graph, Color color){
+        for(Vertex vertex: graph.getVertices().values()){
+            Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
+            circle.setStroke(color);
+            circle.setFill(color);
+            group.getChildren().add(circle);
+            for(Edge edge: vertex.getStartingEdges()){
+                Line line = new Line(vertex.getX()*zoom, vertex.getY()*zoom,
+                        edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom);
+                if (graph.getVertices().containsValue(edge.getEndpoint())){
+                    line.setStroke(color);
+                }
+                group.getChildren().add(line);
+            }
+        }
     }
 }

@@ -25,9 +25,16 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             setGraph(graph);
         }
         if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
-            Graph smallGraph = coarsenGraph();
-            GraphPartition parts = partitionGraph(smallGraph);
-            setGraphPartition(uncoarsenGraph(smallGraph, parts));
+            List<Graph> graphComponents = new ArrayList<>();
+            setGraphPartition(new GraphPartition(graphComponents));
+            graphComponents.add(graph);
+            int numberOfParts = 0;
+            while(numberOfParts < getPartsCount()) {
+                Graph smallGraph = coarsenGraph();
+                GraphPartition parts = partitionGraph(smallGraph);
+                uncoarsenGraph(smallGraph, parts);
+                numberOfParts++;
+            }
         }
         return getGraphPartition();
     }
@@ -141,7 +148,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param sortedVertices    Array of sorted vertices.
      * @param begin             Number of index to begin.
      * @param end               Number of index to end.
-     * @param vertexDegree      Stores number of edges for each vertex..
+     * @param vertexDegree      Stores number of edges for each vertex.
      * @return index to continue.
      */
     private int partition(Vertex[] sortedVertices, int begin, int end, Map<Vertex, Integer> vertexDegree) {

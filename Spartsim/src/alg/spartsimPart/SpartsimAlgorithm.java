@@ -116,7 +116,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 graph = new Graph(new HashMap<>(), new HashMap<>());
                 graphComponents.add(graph);
             }
-
+            graph.getVertices().put(vertexPart.getKey().getId(), vertexPart.getKey());
         }
         setGraphPartition(new GraphPartition(graphComponents));
     }
