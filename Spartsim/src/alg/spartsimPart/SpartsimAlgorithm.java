@@ -123,7 +123,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     private int getIndexNumber(List<Integer> partNumbers, Integer value) {
         for (int i = 0; i < partNumbers.size(); i++) {
-            if(partNumbers.get(i) == value){
+            if(Objects.equals(partNumbers.get(i), value)){
                 return i;
             }
         }
