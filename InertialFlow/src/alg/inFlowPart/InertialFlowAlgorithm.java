@@ -9,7 +9,7 @@ import static java.lang.Math.abs;
 /**
  * Class with Inertial Flow algorithm implementation.
  * @author Lucie Roy
- * @version 27-03-2023
+ * @version 31-12-2023
  */
 public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
@@ -70,7 +70,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             projectAndSortVertices();
             int numberOfParts = 0;
             while(numberOfParts < getPartsCount()){
-                divide(graphComponents.get(0));
+                divide(graphComponents);
                 numberOfParts++;
             }
         }
@@ -100,22 +100,37 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         return customParametersDescription;
     }
 
-    private void divide(Graph graph) {
+    /**
+     * Takes first graph in graph component list and divides it in half.
+     * @param graphComponents   all graph parts.
+     */
+    private void divide(List<Graph> graphComponents) {
+        Graph graph = graphComponents.remove(0);
         computeMaxFlowBetweenST(graph);
-        Map<Vertex, Integer> verticesParts = findMinSTCut();
-        setVerticesParts(verticesParts);
+        createFirstGraphComponent(graphComponents);
+        createSecondGraphComponent(graphComponents, graph);
     }
 
     /**
-     * Sets value in verticesParts map for remaining vertices.
-     * @param verticesParts  Map where key is vertex and value is number of part where vertex belongs.
+     * Creates second graph component by checking what is not in first component.
+     * @param graphComponents   all graph parts.
+     * @param graph             current graph for partitioning.
      */
-    private void setVerticesParts(Map<Vertex, Integer> verticesParts) {
-        for (Vertex vertex: getGraph().getVertices().values()) {
-            if(!verticesParts.containsKey(vertex)) {
-                verticesParts.put(vertex, 1);
+    private void createSecondGraphComponent(List<Graph> graphComponents, Graph graph) {
+        Graph graphComponent = graphComponents.get(graphComponents.size()-1);
+        Map<Integer, Vertex> vertices = new HashMap<>();
+        Map<Integer, Edge> edges = new HashMap<>();
+        for (Vertex vertex: graph.getVertices().values()) {
+            if(!graphComponent.getVertices().containsValue(vertex)) {
+                vertices.put(vertex.getId(), vertex);
             }
         }
+        for (Edge edge: graph.getEdges().values()) {
+            if(!graphComponent.getEdges().containsValue(edge)) {
+                edges.put(edge.getId(), edge);
+            }
+        }
+        graphComponents.add(new Graph(vertices, edges));
     }
 
     /**
@@ -164,6 +179,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Sorts vertices and their points on the line by insertion sort.
      * @param v             current vertex.
      * @param point         vertex's point.
+     * @param pointOrder    list of points in line order.
      */
     private void insertionSort(Vertex v, Point point, List<Point> pointOrder) {
         double epsilon = 0.00001;
@@ -264,6 +280,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     /**
      * Computes a maximum flow between source s and sink t.
+     * @param graph     graph to be divided.
      */
     private void computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){
@@ -324,31 +341,33 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * Finds minimal source and sink cut.
-     * @return map where key is vertex and value is number of part where vertex belongs.
+     * Finds minimal source and sink cut and creates first half of the graph.
+     * @param graphComponents   all graph components.
      */
-    private Map<Vertex, Integer> findMinSTCut() {
+    private void createFirstGraphComponent(List<Graph> graphComponents) {
         List<IFVertex> visitedVertices = new ArrayList<>();
-        Map<Vertex, Integer> verticesParts = new HashMap<>();
+        Map<Integer, Vertex> vertices = new HashMap<>();
+        Map<Integer, Edge> edges = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
         for(Vertex vertex: graphVertices.get(0).getVertexList()) {
-            verticesParts.put(vertex, 0);
+            vertices.put(vertex.getId(), vertex);
         }
         while(!stack.empty()) {
             IFVertex s = stack.peek();
             stack.pop();
             if(!visitedVertices.contains(s)) {
                 visitedVertices.add(s);
-                verticesParts.put(s.getVertexList().get(0), 0);
+                vertices.put(s.getVertexList().get(0).getId(), s.getVertexList().get(0));
             }
             for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
                 IFVertex v = ifEdge.endpoint;
                 if (!visitedVertices.contains(v))
+                    edges.put(ifEdge.edge.getId(), ifEdge.edge);
                     stack.push(v);
             }
 
         }
-        return verticesParts;
+        graphComponents.add(new Graph(vertices, edges));
     }
 }

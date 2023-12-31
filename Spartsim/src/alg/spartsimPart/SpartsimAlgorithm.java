@@ -97,9 +97,37 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             // Ensure connectivity
             List<Part> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
-            setGraphPartition(new GraphPartition(verticesParts));
+            setGraphPartition(verticesParts);
         }
         return getGraphPartition();
+    }
+
+    private void setGraphPartition(Map<Vertex, Integer> verticesParts){
+        List<Integer> partNumbers = new ArrayList<>();
+        List<Graph> graphComponents = new ArrayList<>();
+        for(Map.Entry<Vertex, Integer> vertexPart: verticesParts.entrySet()){
+            int i = getIndexNumber(partNumbers, vertexPart.getValue());
+            Graph graph;
+            if(i > -1){
+                graph = graphComponents.get(i);
+            }
+            else{
+                partNumbers.add(vertexPart.getValue());
+                graph = new Graph(new HashMap<>(), new HashMap<>());
+                graphComponents.add(graph);
+            }
+
+        }
+        setGraphPartition(new GraphPartition(graphComponents));
+    }
+
+    private int getIndexNumber(List<Integer> partNumbers, Integer value) {
+        for (int i = 0; i < partNumbers.size(); i++) {
+            if(partNumbers.get(i) == value){
+                return i;
+            }
+        }
+        return  -1;
     }
 
     @Override
