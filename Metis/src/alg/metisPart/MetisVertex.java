@@ -20,12 +20,12 @@ public class MetisVertex {
     private final double weight;
     /** New ID of vertex. */
     private final int id;
+    private List<MetisVertex> neighbourVertices;
 
     /**
      * Constructor of a vertex in IF.
      * @param containingVertices    List of original graph vertices.
      * @param weight                Custom weight of vertex.
-     * @param id                    New ID of vertex.
      */
     public  MetisVertex(List<Vertex> containingVertices, double weight) {
         this.containingVertices = containingVertices;
@@ -58,15 +58,39 @@ public class MetisVertex {
         return id;
     }
 
-    public List<MetisVertex> getStartingEdges(Set<MetisVertex> vertices) {
-        List<MetisVertex> metisVertices = new ArrayList<>();
-
-        return metisVertices;
+    public List<MetisVertex> getNeighbourVertices(Set<MetisVertex> vertices) {
+        if(this.neighbourVertices == null) {
+            this.neighbourVertices = new ArrayList<>();
+            List<Vertex> neighbourVertices = new ArrayList<>();
+            for (Vertex vertex : this.containingVertices) {
+                for (Edge edge : vertex.getStartingEdges()) {
+                    Vertex v = edge.getEndpoint();
+                    if (!containingVertices.contains(v) && !neighbourVertices.contains(v)) {
+                        neighbourVertices.add(v);
+                    }
+                }
+                for (Edge edge : vertex.getStartingEdges()) {
+                    Vertex v = edge.getStartpoint();
+                    if (!containingVertices.contains(v) && !neighbourVertices.contains(v)) {
+                        neighbourVertices.add(v);
+                    }
+                }
+            }
+            for (MetisVertex metisVertex : vertices) {
+                for (Vertex v : neighbourVertices) {
+                    if (metisVertex.containingVertices.contains(v)) {
+                        if (!this.neighbourVertices.contains(metisVertex)) {
+                            this.neighbourVertices.add(metisVertex);
+                        }
+                        neighbourVertices.remove(v);
+                        if (neighbourVertices.size() == 0) {
+                            return this.neighbourVertices;
+                        }
+                    }
+                }
+            }
+        }
+        return this.neighbourVertices;
     }
 
-    public List<MetisVertex> getEndingEdges(Set<MetisVertex> vertices) {
-        List<MetisVertex> metisVertices = new ArrayList<>();
-
-        return metisVertices;
-    }
 }
