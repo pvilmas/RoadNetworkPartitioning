@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Class with SParTSim algorithm implementation.
  * @author Lucie Roy
- * @version 27-03-2023
+ * @version 19-01-2024
  */
 public class SpartsimAlgorithm extends APartitionAlgorithm {
 
@@ -52,48 +52,10 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         }
         if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
             Map<Vertex, Integer> verticesParts = new HashMap<>();
-            // Initialisation
             List<Part> parts = new ArrayList<>(getPartsCount());
-            int[] stop = new int[getPartsCount()];
-            for (int i = 0; i < getPartsCount(); i++) {
-                parts.add(new Part(new ArrayList<>()));
-                Vertex baseVertex = getBestCandidateVertex(verticesParts);
-                parts.get(i).vertexList.add(baseVertex);
-                parts.get(i).value += baseVertex.getValue();
-                graphValue += baseVertex.getValue();
-                verticesParts.put(baseVertex, i);
-                stop[i] = 1;
-            }
-            // Region growing
-            while (!isZero(stop)) {
-                for (int i = 0; i < getPartsCount(); i++) {
-                    if (stop[i] != 0) {
-                        boolean hasGrown = grow(i, parts.get(i), verticesParts);
-                        if (!hasGrown) {
-                            stop[i] = 0;
-                        }
-                    }
-                }
-            }
-            // Balance partitioning
-            boolean balanced = false;
-            int enoughIterations = 50;
-            int i = 0;
-            double partValue = graphValue / getPartsCount();
-            if (getParameters() != null && getParameters().containsKey("epsilon")) {
-                epsilon = Double.parseDouble(getParameters().get("epsilon"));
-            }
-            while (!balanced && (i < enoughIterations)) {
-                int maxPart = getMaxPart(parts);
-                int minPart = getMinPart(parts);
-                if (((parts.get(maxPart).value - epsilon) < partValue)
-                        && (partValue < (parts.get(minPart).value + epsilon))) {
-                    balanced = true;
-                } else {
-                    trade(parts, maxPart, minPart, verticesParts);
-                }
-                i++;
-            }
+            int[] stop = initialise(parts, verticesParts);
+            growRegions(parts, verticesParts, stop);
+            balancePartitioning(parts, verticesParts);
             // Ensure connectivity
             List<Part> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
@@ -102,6 +64,99 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         return getGraphPartition();
     }
 
+    @Override
+    public Map<String, String> getAllCustomParameters() {
+        Map<String, String> customParameters = new TreeMap<>();
+        customParameters.put("Epsilon", "10");
+        return customParameters;
+    }
+
+    @Override
+    public Map<String, String> getAllCustomParametersDescriptions() {
+        Map<String, String> customParametersDescriptions = new TreeMap<>();
+        customParametersDescriptions.put("Epsilon", "Maximal difference between two parts.");
+        return customParametersDescriptions;
+    }
+
+    @Override
+    public String getName() {
+        return "SParTSim";
+    }
+
+    @Override
+    public String getDescription() {
+        return "SParTSim";
+    }
+
+    /**
+     *
+     * @param parts
+     * @param verticesParts
+     * @return
+     */
+    private int[] initialise(List<Part> parts, Map<Vertex, Integer> verticesParts){
+        int[] stop = new int[getPartsCount()];
+        for (int i = 0; i < getPartsCount(); i++) {
+            parts.add(new Part(new ArrayList<>()));
+            Vertex baseVertex = getBestCandidateVertex(verticesParts);
+            parts.get(i).vertexList.add(baseVertex);
+            parts.get(i).value += baseVertex.getValue();
+            graphValue += baseVertex.getValue();
+            verticesParts.put(baseVertex, i);
+            stop[i] = 1;
+        }
+        return stop;
+    }
+
+    /**
+     *
+     * @param parts
+     * @param verticesParts
+     * @param stop
+     */
+    private void growRegions(List<Part> parts, Map<Vertex, Integer> verticesParts, int[] stop){
+        while (!isZero(stop)) {
+            for (int i = 0; i < getPartsCount(); i++) {
+                if (stop[i] != 0) {
+                    boolean hasGrown = grow(i, parts.get(i), verticesParts);
+                    if (!hasGrown) {
+                        stop[i] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param parts
+     * @param verticesParts
+     */
+    private void balancePartitioning(List<Part> parts, Map<Vertex, Integer> verticesParts){
+        boolean balanced = false;
+        int enoughIterations = 50;
+        int i = 0;
+        double partValue = graphValue / getPartsCount();
+        if (getParameters() != null && getParameters().containsKey("epsilon")) {
+            epsilon = Double.parseDouble(getParameters().get("epsilon"));
+        }
+        while (!balanced && (i < enoughIterations)) {
+            int maxPart = getMaxPart(parts);
+            int minPart = getMinPart(parts);
+            if (((parts.get(maxPart).value - epsilon) < partValue)
+                    && (partValue < (parts.get(minPart).value + epsilon))) {
+                balanced = true;
+            } else {
+                trade(parts, maxPart, minPart, verticesParts);
+            }
+            i++;
+        }
+    }
+
+    /**
+     * Sets graph partition based on map where key is vertex and value is part number.
+     * @param verticesParts     map where key is vertex and value is part number.
+     */
     private void setGraphPartition(Map<Vertex, Integer> verticesParts){
         List<Integer> partNumbers = new ArrayList<>();
         List<Graph> graphComponents = new ArrayList<>();
@@ -121,6 +176,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         setGraphPartition(new GraphPartition(graphComponents));
     }
 
+    /**
+     * Gets index number of graph component.
+     * @param partNumbers   all part numbers in specific order.
+     * @param value         number of specific part.
+     * @return  index number of graph component.
+     */
     private int getIndexNumber(List<Integer> partNumbers, Integer value) {
         for (int i = 0; i < partNumbers.size(); i++) {
             if(Objects.equals(partNumbers.get(i), value)){
@@ -128,20 +189,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             }
         }
         return  -1;
-    }
-
-    @Override
-    public Map<String, String> getAllCustomParameters() {
-        Map<String, String> customParameters = new TreeMap<>();
-        customParameters.put("Epsilon", "10");
-        return customParameters;
-    }
-
-    @Override
-    public Map<String, String> getAllCustomParametersDescriptions() {
-        Map<String, String> customParametersDescriptions = new TreeMap<>();
-        customParametersDescriptions.put("Epsilon", "Maximal difference between two parts.");
-        return customParametersDescriptions;
     }
 
     /**
@@ -682,13 +729,4 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         return verticesParts.containsKey(vertex);
     }
 
-    @Override
-    public String getName() {
-        return "SParTSim";
-    }
-
-    @Override
-    public String getDescription() {
-        return "SParTSim";
-    }
 }
