@@ -55,9 +55,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             growRegions(parts, verticesParts, stop);
             balancePartitioning(parts, verticesParts);
             // Ensure connectivity
-            List<Part> subgraphs = computeConnectedSubgraphs(parts);
+            List<Graph> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
-            setGraphPartition(verticesParts);
+            setGraphPartition(new GraphPartition(subgraphs));
         }
         return getGraphPartition();
     }
@@ -152,71 +152,36 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * Sets graph partition based on map where key is vertex and value is part number.
-     * @param verticesParts     map where key is vertex and value is part number.
-     */
-    private void setGraphPartition(Map<Vertex, Integer> verticesParts){
-        List<Integer> partNumbers = new ArrayList<>();
-        List<Graph> graphComponents = new ArrayList<>();
-        for(Map.Entry<Vertex, Integer> vertexPart: verticesParts.entrySet()){
-            int i = getIndexNumber(partNumbers, vertexPart.getValue());
-            Graph graph;
-            if(i > -1){
-                graph = graphComponents.get(i);
-            }
-            else{
-                partNumbers.add(vertexPart.getValue());
-                graph = new Graph(new HashMap<>(), new HashMap<>());
-                graphComponents.add(graph);
-            }
-            graph.getVertices().put(vertexPart.getKey().getId(), vertexPart.getKey());
-        }
-        setGraphPartition(new GraphPartition(graphComponents));
-    }
-
-    /**
-     * Gets index number of graph component.
-     * @param partNumbers   all part numbers in specific order.
-     * @param value         number of specific part.
-     * @return  index number of graph component.
-     */
-    private int getIndexNumber(List<Integer> partNumbers, Integer value) {
-        for (int i = 0; i < partNumbers.size(); i++) {
-            if(Objects.equals(partNumbers.get(i), value)){
-                return i;
-            }
-        }
-        return  -1;
-    }
-
-    /**
      * Finds all possible part connection and connects most suitable parts,
      * so it has given part count.
      * @param subparts  All parts and subparts previously created.
      */
-    private void attach(List<Part> subparts){
+    private void attach(List<Graph> subparts){
         if(subparts.size() == getPartsCount()){
             return;
         }
-        for(Part part: subparts){
+        for(Graph part: subparts){
             getPartNeighbours(part, subparts);
         }
         int partsCount = subparts.size();
         double partValue = graphValue/ getPartsCount();
         while (partsCount > getPartsCount()){
-            for (Part part : subparts) {
-                if (((part.value - epsilon) < partValue) && (partValue < (part.value + epsilon))) {
-                    continue;
-                }
-                for (Part neighbour : part.neighbourParts) {
-                    double value = part.value + neighbour.value;
-                    if (value < (partValue + epsilon)){
-                       part.getVertices().putAll(neighbour.getVertices());
-                       part.value += neighbour.value;
-                       subparts.remove(neighbour);
+            for (Graph graph: subparts) {
+                if(graph instanceof Part) {
+                    Part part = (Part) graph;
+                    if (((part.value - epsilon) < partValue) && (partValue < (part.value + epsilon))) {
+                        continue;
                     }
+                    for (Part neighbour : part.neighbourParts) {
+                        double value = part.value + neighbour.value;
+                        if (value < (partValue + epsilon)) {
+                            part.getVertices().putAll(neighbour.getVertices());
+                            part.value += neighbour.value;
+                            subparts.remove(neighbour);
+                        }
+                    }
+                    break;
                 }
-                break;
             }
             partsCount = subparts.size();
         }
@@ -224,10 +189,14 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     /**
      * Gets all neighbour parts of one given part.
-     * @param part      given part.
+     * @param graph      given part.
      * @param subparts  all parts and subparts.
      */
-    private void getPartNeighbours(Part part, List<Part> subparts) {
+    private void getPartNeighbours(Graph graph, List<Graph> subparts) {
+        if(!(graph instanceof Part)) {
+            return;
+        }
+        Part part = (Part) graph;
         List<Part> neighbours = new ArrayList<>();
         for (Vertex vertex: part.getVertices().values()) {
             for (Edge edge: vertex.getStartingEdges()) {
@@ -260,10 +229,10 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param subParts  list of subparts and parts.
      * @return part/subpart where vertex belongs.
      */
-    private Part getVertexPart(Vertex v, List<Part> subParts) {
-        for (Part subPart : subParts) {
+    private Part getVertexPart(Vertex v, List<Graph> subParts) {
+        for (Graph subPart : subParts) {
             if (subPart.getVertices().containsValue(v)){
-                return subPart;
+                return (Part) subPart;
             }
         }
         return null;
@@ -554,8 +523,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * Computes connected subgraphs.
      * @param parts  parts to be computed.
      */
-    private List<Part> computeConnectedSubgraphs(List<Part> parts) {
-        List<Part> subgraphs = new ArrayList<>();
+    private List<Graph> computeConnectedSubgraphs(List<Part> parts) {
+        List<Graph> subgraphs = new ArrayList<>();
         for (Part part: parts) {
             List<Vertex> visitedVertices = new ArrayList<>();
             int i = 0;

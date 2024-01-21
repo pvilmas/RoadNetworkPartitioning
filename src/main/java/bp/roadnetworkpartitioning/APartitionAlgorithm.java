@@ -131,4 +131,36 @@ public abstract class APartitionAlgorithm {
      * @return description of the algorithm for graph (traffic network) partition.
      */
     public abstract String getDescription();
+
+    /**
+     *
+     * @return
+     */
+    public int getCutEdgesCount(){
+        return -1;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getBalance(){
+        return -1;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getMaxNeighbours(){
+        return -1;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public long getTime(){
+        return -1;
+    }
 }
