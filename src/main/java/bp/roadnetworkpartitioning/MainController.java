@@ -14,7 +14,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Objects;
 
 
 /**
@@ -239,7 +238,7 @@ public class MainController {
         }
         else {
             for (int i = 0; i < colors.length; i++) {
-                drawGraph(group, graphPartition.getVerticesPlacements().get(i), colors[i]);
+                drawGraph(group, graphPartition.getGraphComponents().get(i), colors[i]);
             }
         }
         scrollPane.setPrefSize(1000, 1000);

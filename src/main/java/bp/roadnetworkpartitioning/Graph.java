@@ -1,6 +1,7 @@
 package bp.roadnetworkpartitioning;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -133,4 +134,15 @@ public class Graph {
         return s;
     }
 
+    public List<Edge> getCutEndingEdges() {
+        return null;
+    }
+
+    public List<Edge> getCutStartingEdges() {
+        return null;
+    }
+
+    public double getValue() {
+        return 0;
+    }
 }
