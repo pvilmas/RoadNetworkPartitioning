@@ -14,14 +14,12 @@ public class PunchAlgorithm extends APartitionAlgorithm {
     private Map<Vertex, Integer> verticesParts = null;
     private int sizeLimit = 1;
 
+
     @Override
-    public GraphPartition getGraphPartition(Graph graph) {
-        if (verticesParts == null && this.getGraph() != null) {
-            verticesParts = new HashMap<>();
-            filter();
-            assembly();
-        }
-        return new GraphPartition(verticesParts);
+    public GraphPartition getGraphPartition(Graph graph, int partsCount) {
+        filter();
+        assembly();
+        return null;
     }
 
     @Override

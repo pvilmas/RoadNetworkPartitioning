@@ -1,5 +1,6 @@
 package bp.roadnetworkpartitioning;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -13,6 +14,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -53,6 +55,7 @@ public class MainController {
     private Graph graph = null;
     /** Computed partition of the graph. */
     private GraphPartition graphPartition = null;
+    private Map<String, APartitionAlgorithm> algorithms = new HashMap<>();
 
     /**
      * Gets positive integer from string.
@@ -81,7 +84,7 @@ public class MainController {
      * Displays all available graph partitioning algorithms.
      */
     public void setAlgorithms(){
-        Map<String, APartitionAlgorithm> algorithms = AlgorithmsLoader.findAlgorithms();
+        algorithms = AlgorithmsLoader.findAlgorithms();
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
             HBox hBox = new HBox(10);
             RadioButton radioButton = new RadioButton();
@@ -163,6 +166,17 @@ public class MainController {
             dialog.showAndWait().ifPresent(pickedColors -> {
                 colors = pickedColors;
                 visualizeGraph();
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void onShowStatisticsButtonClick() {
+        try {
+            StatisticsDialogController dialog = new StatisticsDialogController(stage, algorithms);
+            dialog.showAndWait().ifPresent(pickedColors -> {
             });
         } catch (Exception e){
             e.printStackTrace();

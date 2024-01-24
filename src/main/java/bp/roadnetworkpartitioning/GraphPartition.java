@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Instance of this class represents partition of a graph.
  * @author Lucie Roy
- * @version 27-03-2023
+ * @version 24-01-2023
  */
 public class GraphPartition {
     /**
@@ -117,14 +117,18 @@ public class GraphPartition {
     }
 
     /**
-     *
-     * @return
+     * Gets computing time in milliseconds for achieving this partition.
+     * @return time in milliseconds.
      */
     public long getTime(){
         return time;
     }
 
-    public void setTime(long time){
+    /**
+     * Sets computing time in milliseconds for achieving this partition.
+     * @param time  computing time in milliseconds for achieving this partition.
+     */
+    protected void setTime(long time){
         if(time >= 0){
             this.time = time;
         }

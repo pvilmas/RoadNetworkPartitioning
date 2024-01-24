@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="400.0" prefWidth="600.0">
+    <content>
+        <VBox spacing="5" alignment="CENTER">
+            <TableView fx:id="tableView">
+                <columns>
+                    <TableColumn text="Algorithms/Values">
+                    </TableColumn>
+                    <TableColumn text="Time">
+                    </TableColumn>
+                    <TableColumn text="Balance">
+                    </TableColumn>
+                    <TableColumn text="Number of Cut edges">
+                    </TableColumn>
+                    <TableColumn text="Max number of neighbours">
+                    </TableColumn>
+                </columns>
+            </TableView>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="statisticsButtonType" text="Close" buttonData="OK_DONE"/>
+</DialogPane>

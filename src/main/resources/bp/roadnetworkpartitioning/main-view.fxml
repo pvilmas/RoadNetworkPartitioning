@@ -50,6 +50,8 @@
                 </Spinner>
                 <Button styleClass="btn, btn-success" text="Pick colors" prefHeight="30" prefWidth="100"
                         onAction="#onPickColorsButtonClick"/>
+                <Button styleClass="btn, btn-primary" text="Show Statistics" prefHeight="30" prefWidth="100"
+                        onAction="#onShowStatisticsButtonClick"/>
             </VBox>
             <VBox fx:id="vboxRadioBtn" alignment="CENTER">
                 <spacing>10</spacing>

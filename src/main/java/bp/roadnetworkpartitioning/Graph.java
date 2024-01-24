@@ -1,5 +1,6 @@
 package bp.roadnetworkpartitioning;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,26 +124,50 @@ public class Graph {
 
     @Override
     public String toString(){
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (Vertex v: vertices.values()) {
-            s += v.toString() +"\n";
+            s.append(v.toString()).append("\n");
         }
 
         for (Edge e: edges.values()) {
-            s += e.toString() +"\n";
+            s.append(e.toString()).append("\n");
         }
-        return s;
+        return s.toString();
     }
 
-    public List<Edge> getCutEndingEdges() {
-        return null;
+    protected List<Edge> getCutEndingEdges() {
+        List<Edge> cutEdges = new ArrayList<>();
+        for(Vertex vertex: vertices.values()) {
+            for(Edge edge: vertex.getEndingEdges()){
+                if(!vertices.containsKey(edge.getStartpoint().getId())){
+                    cutEdges.add(edge);
+                }
+            }
+        }
+        return cutEdges;
     }
 
-    public List<Edge> getCutStartingEdges() {
-        return null;
+    protected List<Edge> getCutStartingEdges() {
+        List<Edge> cutEdges = new ArrayList<>();
+        for(Vertex vertex: vertices.values()) {
+            for(Edge edge: vertex.getStartingEdges()){
+                if(!vertices.containsKey(edge.getEndpoint().getId())){
+                    cutEdges.add(edge);
+                }
+            }
+        }
+        return cutEdges;
     }
 
     public double getValue() {
-        return 0;
+        double value = 0;
+        for(Vertex vertex: vertices.values()) {
+            value += vertex.getValue();
+            for(Edge edge: vertex.getStartingEdges()){
+
+                value += edge.getWeight();
+            }
+        }
+        return value;
     }
 }
