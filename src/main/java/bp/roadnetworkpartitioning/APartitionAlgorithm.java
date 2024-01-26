@@ -33,7 +33,7 @@ public abstract class APartitionAlgorithm {
      * @return instance representing graph division (partition).
      */
     public GraphPartition getGraphPartition(){
-        return  this.graphPartition;
+        return this.graphPartition;
     }
 
     /**

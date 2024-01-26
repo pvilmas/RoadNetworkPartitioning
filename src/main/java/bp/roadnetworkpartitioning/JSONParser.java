@@ -73,6 +73,8 @@ public class JSONParser {
                     k++;
                 }
             }
+            bw.flush();
+            bw.close();
             System.out.println("DONE");
             return true;
         }catch(Exception e) {

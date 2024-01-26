@@ -10,7 +10,7 @@
         <VBox spacing="5" alignment="CENTER">
             <TableView fx:id="tableView">
                 <columns>
-                    <TableColumn text="Algorithms/Values">
+                    <TableColumn text="Algorithm">
                     </TableColumn>
                     <TableColumn text="Time">
                     </TableColumn>
@@ -22,6 +22,7 @@
                     </TableColumn>
                 </columns>
             </TableView>
+            <Button fx:id="exportCSVButtonType" styleClass="btn, btn-primary" text="Export to CSV"/>
         </VBox>
     </content>
 
