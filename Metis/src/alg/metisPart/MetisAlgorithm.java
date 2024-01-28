@@ -66,14 +66,14 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         int[] match = new int[sortedVertices.length];
         for (Vertex sortedVertex : sortedVertices) {
             int vID = sortedVertex.getId();
-            if (match[vID] == 0) {
+            if (match[vID - 1] == 0) {
                 double maxWeight = -1;
                 int maxID = -1;
                 Vertex maxVertex = null;
                 for (Edge e : sortedVertex.getStartingEdges()) {
                     Vertex maxV= e.getEndpoint();
                     double weight = e.getLength();
-                    if (match[maxV.getId()] == 0) {
+                    if (match[maxV.getId() -1] == 0) {
                         for (Edge edge : sortedVertex.getEndingEdges()) {
                             if (edge.getStartpoint().equals(maxV)) {
                                 weight += edge.getLength();
@@ -84,15 +84,15 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                             maxID = maxV.getId();
                             maxVertex = maxV;
                             maxWeight = weight;
-                            match[vID] = 1;
+                            match[vID-1] = 1;
                         }
                     }
                 }
                 if (maxID > -1) {
-                    match[maxID] = 1;
+                    match[maxID-1] = 1;
                     reduceGraph(vertices, sortedVertex, maxVertex, maxWeight);
                 } else {
-                    match[vID] = 1;
+                    match[vID-1] = 1;
                     reduceGraph(vertices, sortedVertex, sortedVertex, maxWeight);
                 }
             }
@@ -323,7 +323,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             vList.remove(0);
         }
         for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices)) {
-            if(!part.contains(metisVertex) && vList.contains(metisVertex)){
+            if(!part.contains(metisVertex))
+                if( !vList.contains(metisVertex)){
                 insertionSort(vList, metisVertex, part, metisVertices);
             }
         }

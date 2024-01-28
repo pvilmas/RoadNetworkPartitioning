@@ -18,15 +18,34 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ *
+ */
 public class StatisticsDialogController extends Dialog<Boolean> {
 
+    /**
+     *
+     */
     private static class Data{
+        /**  */
         private final SimpleStringProperty algorithmName = new SimpleStringProperty("");
+        /**  */
         private final SimpleLongProperty algorithmTime = new SimpleLongProperty(0);
+        /**  */
         private final SimpleDoubleProperty algorithmBalance = new SimpleDoubleProperty(0);
+        /**  */
         private final SimpleIntegerProperty algorithmNumberOfCutEdges = new SimpleIntegerProperty(0);
+        /**  */
         private final SimpleIntegerProperty algorithmMaxNumberOfNeighbours = new SimpleIntegerProperty(0);
 
+        /**
+         *
+         * @param algorithmName
+         * @param algorithmTime
+         * @param algorithmBalance
+         * @param numberOfCutEdges
+         * @param maxNumberOfNeighbours
+         */
         private Data(String algorithmName, long algorithmTime, double algorithmBalance, int numberOfCutEdges, int maxNumberOfNeighbours){
             this.algorithmName.set(algorithmName);
             this.algorithmTime.set(algorithmTime);
@@ -34,16 +53,87 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             this.algorithmNumberOfCutEdges.set(numberOfCutEdges);
             this.algorithmMaxNumberOfNeighbours.set(maxNumberOfNeighbours);
         }
+
+        public String getAlgorithmName() {
+            return algorithmName.get();
+        }
+
+        public SimpleStringProperty algorithmNameProperty() {
+            return algorithmName;
+        }
+
+        public void setAlgorithmName(String algorithmName) {
+            this.algorithmName.set(algorithmName);
+        }
+
+        public long getAlgorithmTime() {
+            return algorithmTime.get();
+        }
+
+        public SimpleLongProperty algorithmTimeProperty() {
+            return algorithmTime;
+        }
+
+        public void setAlgorithmTime(long algorithmTime) {
+            this.algorithmTime.set(algorithmTime);
+        }
+
+        public double getAlgorithmBalance() {
+            return algorithmBalance.get();
+        }
+
+        public SimpleDoubleProperty algorithmBalanceProperty() {
+            return algorithmBalance;
+        }
+
+        public void setAlgorithmBalance(double algorithmBalance) {
+            this.algorithmBalance.set(algorithmBalance);
+        }
+
+        public int getAlgorithmNumberOfCutEdges() {
+            return algorithmNumberOfCutEdges.get();
+        }
+
+        public SimpleIntegerProperty algorithmNumberOfCutEdgesProperty() {
+            return algorithmNumberOfCutEdges;
+        }
+
+        public void setAlgorithmNumberOfCutEdges(int algorithmNumberOfCutEdges) {
+            this.algorithmNumberOfCutEdges.set(algorithmNumberOfCutEdges);
+        }
+
+        public int getAlgorithmMaxNumberOfNeighbours() {
+            return algorithmMaxNumberOfNeighbours.get();
+        }
+
+        public SimpleIntegerProperty algorithmMaxNumberOfNeighboursProperty() {
+            return algorithmMaxNumberOfNeighbours;
+        }
+
+        public void setAlgorithmMaxNumberOfNeighbours(int algorithmMaxNumberOfNeighbours) {
+            this.algorithmMaxNumberOfNeighbours.set(algorithmMaxNumberOfNeighbours);
+        }
+
     }
 
+    /**  */
     private final Map<String, APartitionAlgorithm> algorithms;
+    /**  */
     @FXML
     private ButtonType statisticsButtonType;
+    /**  */
     @FXML
     private Button exportCSVButtonType;
+    /**  */
     @FXML
     private TableView<Data> tableView;
 
+    /**
+     *
+     * @param window
+     * @param algorithms
+     * @throws IOException
+     */
     public StatisticsDialogController(Window window, Map<String, APartitionAlgorithm> algorithms) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("statistics_dialog.fxml"));
@@ -68,18 +158,9 @@ public class StatisticsDialogController extends Dialog<Boolean> {
         addRows();
     }
 
-    private void addRows() {
-        ObservableList<Data> data = tableView.getItems();
-        for(Map.Entry<String, APartitionAlgorithm> algorithmEntry: algorithms.entrySet()){
-            GraphPartition partition = algorithmEntry.getValue().getGraphPartition();
-            if (partition != null){
-                data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getBalance(),
-                        partition.getCutEdgesCount(), partition.getMaxNeighbours()));
-
-            }
-        }
-    }
-
+    /**
+     *
+     */
     @FXML
     protected void onExportToCSVButtonClick() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("results.csv"))) {
@@ -101,6 +182,25 @@ public class StatisticsDialogController extends Dialog<Boolean> {
         }
     }
 
+    /**
+     *
+     * @param event
+     */
     @FXML
     protected void onCloseButtonClick(ActionEvent event) {}
+
+    /**
+     *
+     */
+    private void addRows() {
+        ObservableList<Data> data = tableView.getItems();
+        for(Map.Entry<String, APartitionAlgorithm> algorithmEntry: algorithms.entrySet()){
+            GraphPartition partition = algorithmEntry.getValue().getGraphPartition();
+            if (partition != null){
+                data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getBalance(),
+                        partition.getCutEdgesCount(), partition.getMaxNeighbours()));
+
+            }
+        }
+    }
 }

@@ -105,6 +105,7 @@ public class MainController {
                 APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
                 graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
                 visualizeGraph();
+                System.out.println("done");
             }
 
         });

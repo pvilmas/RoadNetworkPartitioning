@@ -3,22 +3,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <DialogPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             prefHeight="400.0" prefWidth="600.0">
     <content>
         <VBox spacing="5" alignment="CENTER">
-            <TableView fx:id="tableView">
+            <TableView fx:id="tableView" editable="false">
                 <columns>
                     <TableColumn text="Algorithm">
+                        <cellValueFactory><PropertyValueFactory property="algorithmName" /></cellValueFactory>
                     </TableColumn>
                     <TableColumn text="Time">
+                        <cellValueFactory><PropertyValueFactory property="algorithmTime" /></cellValueFactory>
                     </TableColumn>
                     <TableColumn text="Balance">
+                        <cellValueFactory><PropertyValueFactory property="algorithmBalance" /></cellValueFactory>
                     </TableColumn>
                     <TableColumn text="Number of Cut edges">
+                        <cellValueFactory><PropertyValueFactory property="algorithmNumberOfCutEdges" /></cellValueFactory>
                     </TableColumn>
                     <TableColumn text="Max number of neighbours">
+                        <cellValueFactory><PropertyValueFactory property="algorithmMaxNumberOfNeighbours" /></cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableView>

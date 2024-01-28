@@ -4,6 +4,7 @@ import bp.roadnetworkpartitioning.Edge;
 import bp.roadnetworkpartitioning.Vertex;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -69,20 +70,23 @@ public class MetisVertex {
                         neighbourVertices.add(v);
                     }
                 }
-                for (Edge edge : vertex.getStartingEdges()) {
+                for (Edge edge : vertex.getEndingEdges()) {
                     Vertex v = edge.getStartpoint();
                     if (!containingVertices.contains(v) && !neighbourVertices.contains(v)) {
                         neighbourVertices.add(v);
                     }
                 }
             }
-            for (MetisVertex metisVertex : vertices) {
-                for (Vertex v : neighbourVertices) {
+            for (Iterator<Vertex> it = neighbourVertices.iterator(); it.hasNext(); ) {
+                Vertex v = it.next();
+                for (MetisVertex metisVertex : vertices) {
                     if (metisVertex.containingVertices.contains(v)) {
                         if (!this.neighbourVertices.contains(metisVertex)) {
+
                             this.neighbourVertices.add(metisVertex);
                         }
-                        neighbourVertices.remove(v);
+                        it.remove();
+                        //neighbourVertices.remove(v);
                         if (neighbourVertices.size() == 0) {
                             return this.neighbourVertices;
                         }

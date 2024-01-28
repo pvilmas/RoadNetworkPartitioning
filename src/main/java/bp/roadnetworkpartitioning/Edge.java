@@ -13,7 +13,7 @@ public class Edge {
     /** Length of edge (no specific units). */
     private double length;
     /** Weight of edge (no specific units). */
-    private double weight = 0;
+    private double weight = length;
     /** Endpoint of edge (start point has reference of this edge). */
     private Vertex endpoint;
     /** Startpoint of edge (start point has reference of this edge). */
