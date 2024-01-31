@@ -257,6 +257,13 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         return graphComponents;
     }
 
+    /**
+     *
+     * @param cutVerticesList
+     * @param part
+     * @param vertex
+     * @param metisVertices
+     */
     private void adjustCutVertices(List<MetisVertex> cutVerticesList, Set<MetisVertex> part,
                                    MetisVertex vertex, Set<MetisVertex> metisVertices) {
         cutVerticesList.remove(vertex);
@@ -411,17 +418,25 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                     verticesParts.get(abValue[0]).getVertices().put(b.getId(), b);
                 }
             }
-        }while (gMax > 0);
+            // TODO
+        }while (gMax == 0);
 
         return verticesParts;
     }
 
+    /**
+     *
+     * @param a
+     * @param b
+     * @param verticesParts
+     * @return
+     */
     private int[] getAandBPartNumbers(Vertex a, Vertex b, List<Graph> verticesParts) {
         int[] abValue = {-1, -1};
         int i = 0;
         for(Graph graph: verticesParts){
             for(Vertex v: graph.getVertices().values()){
-                if(abValue[0] + abValue[1] >= 0){
+                if((abValue[0] > -1) && (abValue[1] > -1)){
                     return abValue;
                 }
                 if(v.equals(a)){
@@ -470,18 +485,18 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         int partNumber = vertexPart.getValue();
         for(Edge edge: vertex.getStartingEdges()){
             if(verticesParts.get(edge.getEndpoint()) != partNumber){
-                edgesWeights[0] += edge.getWeight();
+                edgesWeights[0] += edge.getLength();
             }
             else{
-                edgesWeights[1] += edge.getWeight();
+                edgesWeights[1] += edge.getLength();
             }
         }
         for(Edge edge: vertex.getEndingEdges()){
             if(verticesParts.get(edge.getStartpoint()) != partNumber){
-                edgesWeights[0] += edge.getWeight();
+                edgesWeights[0] += edge.getLength();
             }
             else{
-                edgesWeights[1] += edge.getWeight();
+                edgesWeights[1] += edge.getLength();
             }
         }
     }
