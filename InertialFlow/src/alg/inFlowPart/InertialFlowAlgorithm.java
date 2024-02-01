@@ -119,18 +119,19 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private void createSecondGraphComponent(List<Graph> graphComponents, Graph graph) {
         Graph graphComponent = graphComponents.get(graphComponents.size()-1);
         Map<Integer, Vertex> vertices = new HashMap<>();
-        Map<Integer, Edge> edges = new HashMap<>();
+        //Map<Integer, Edge> edges = new HashMap<>();
         for (Vertex vertex: graph.getVertices().values()) {
             if(!graphComponent.getVertices().containsValue(vertex)) {
                 vertices.put(vertex.getId(), vertex);
             }
         }
+        /*
         for (Edge edge: graph.getEdges().values()) {
             if(!graphComponent.getEdges().containsValue(edge)) {
                 edges.put(edge.getId(), edge);
             }
-        }
-        graphComponents.add(new Graph(vertices, edges));
+        }*/
+        graphComponents.add(new Graph(vertices, null));
     }
 
     /**
@@ -159,11 +160,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         List<Point> pointOrder = new ArrayList<>();
         double a = A.x - B.x;
         double b = A.y - B.y;
-        double c = -A.y + B.y;
-        double d = A.x - B.x;
+        double c = -a;
         for (Vertex v: getGraph().getVertices().values()) {
-            double y = (((-c)*A.x) - ((c*b*A.y)/a) + c*v.getXCoordinate() + d*v.getYCoordinate())/(((-b*c)/a) + d);
-            double x = (-b*y + a*A.x + b*A.y)/(a);
+            double x = b + v.getXCoordinate();
+            double y = c + v.getYCoordinate();
             Point point = new Point(x, y);
             if(vertexOrder.size() > 0){
                 insertionSort(v, point, pointOrder);
@@ -347,27 +347,25 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private void createFirstGraphComponent(List<Graph> graphComponents) {
         List<IFVertex> visitedVertices = new ArrayList<>();
         Map<Integer, Vertex> vertices = new HashMap<>();
-        Map<Integer, Edge> edges = new HashMap<>();
+        //Map<Integer, Edge> edges = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
-        for(Vertex vertex: graphVertices.get(0).getVertexList()) {
-            vertices.put(vertex.getId(), vertex);
-        }
         while(!stack.empty()) {
-            IFVertex s = stack.peek();
-            stack.pop();
+            IFVertex s = stack.pop();
             if(!visitedVertices.contains(s)) {
                 visitedVertices.add(s);
-                vertices.put(s.getVertexList().get(0).getId(), s.getVertexList().get(0));
+                for(Vertex vertex: s.getVertexList()) {
+                    vertices.put(vertex.getId(), vertex);
+                }
             }
             for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
                 IFVertex v = ifEdge.endpoint;
-                if (!visitedVertices.contains(v))
-                    edges.put(ifEdge.edge.getId(), ifEdge.edge);
+                if (!visitedVertices.contains(v) && !stack.contains(v))
+                    //edges.put(ifEdge.edge.getId(), ifEdge.edge);
                     stack.push(v);
             }
 
         }
-        graphComponents.add(new Graph(vertices, edges));
+        graphComponents.add(new Graph(vertices, null));
     }
 }
