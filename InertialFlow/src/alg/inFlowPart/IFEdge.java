@@ -13,9 +13,9 @@ public class IFEdge {
     /** Instance of IF vertex where edge ends. */
     public final IFVertex endpoint;
     /** Inertial flow in edge. */
-    private int flow = 0;
+    private double flow = 0;
     /** Capacity of the edge. */
-    private int capacity = 1;
+    private double capacity = 1;
 
     /**
      * Constructor of an edge in IF.
@@ -24,6 +24,7 @@ public class IFEdge {
      */
     public IFEdge(Edge edge, IFVertex endpoint) {
         this.edge = edge;
+        this.capacity = edge.getLength();
         this.endpoint = endpoint;
     }
 
@@ -31,7 +32,7 @@ public class IFEdge {
      * Getter of inertial flow in edge.
      * @return flow in edge.
      */
-    public int getFlow() {
+    public double getFlow() {
         return flow;
     }
 
@@ -39,7 +40,7 @@ public class IFEdge {
      * Setter of inertial flow in edge.
      * @param flow     Inertial flow in edge.
      */
-    public void setFlow(int flow) {
+    public void setFlow(double flow) {
         this.flow = flow;
     }
 
@@ -47,7 +48,7 @@ public class IFEdge {
      * Getter of capacity of the edge.
      * @return capacity of the edge.
      */
-    public int getCapacity() {
+    public double getCapacity() {
         return capacity;
     }
 
@@ -55,7 +56,7 @@ public class IFEdge {
      * Setter of capacity of the edge.
      * @param capacity  capacity of the edge.
      */
-    public void setCapacity(int capacity) {
+    public void setCapacity(double capacity) {
         this.capacity = capacity;
     }
 

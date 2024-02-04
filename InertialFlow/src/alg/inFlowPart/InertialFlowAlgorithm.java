@@ -106,9 +106,24 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private void divide(List<Graph> graphComponents) {
         Graph graph = graphComponents.remove(0);
-        computeMaxFlowBetweenST(graph);
-        createFirstGraphComponent(graphComponents);
-        createSecondGraphComponent(graphComponents, graph);
+        double maxFlow = computeMaxFlowBetweenST(graph);
+        createMinimumSTCut(graphComponents, maxFlow);
+        //createFirstGraphComponent(graphComponents, maxFlow);
+        //createSecondGraphComponent(graphComponents, graph);
+    }
+
+    private void createMinimumSTCut(List<Graph> graphComponents, double maxFlow) {
+        Map<Integer, Vertex> vertices1 = new HashMap<>();
+        Map<Integer, Vertex> vertices2 = new HashMap<>();
+        for(Vertex vertex: graphVertices.get(0).getVertexList()) {
+            vertices1.put(vertex.getId(), vertex);
+        }
+        for(Vertex vertex: graphVertices.get(graphVertices.size() - 1).getVertexList()) {
+            vertices2.put(vertex.getId(), vertex);
+        }
+
+        graphComponents.add(new Graph(vertices1, null));
+        graphComponents.add(new Graph(vertices2, null));
     }
 
     /**
@@ -160,10 +175,15 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         List<Point> pointOrder = new ArrayList<>();
         double a = A.x - B.x;
         double b = A.y - B.y;
-        double c = -a;
+        double c = b;
+        double d = -a;
         for (Vertex v: getGraph().getVertices().values()) {
-            double x = b + v.getXCoordinate();
-            double y = c + v.getYCoordinate();
+            double Cx = c + v.getXCoordinate();
+            double Cy = d + v.getYCoordinate();
+            double c1 = -(a*A.x + b*A.y);
+            double c2 = -(c*Cx + d*Cy);
+            double x = (d*c1 - c2*b)/(c*b-a*d);
+            double y = (c*c1 - c2*a)/(a*d-c*b);
             Point point = new Point(x, y);
             if(vertexOrder.size() > 0){
                 insertionSort(v, point, pointOrder);
@@ -257,19 +277,19 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      *               from vertex.
      * @return flow.
      */
-    private int sendFlow(IFVertex u, int flow, IFVertex t, Map<IFVertex, Integer> startMap) {
+    private double sendFlow(IFVertex u, double flow, IFVertex t, Map<IFVertex, Integer> startMap) {
         if (u == t) {
             return flow;
         }
         for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
             IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
             if (e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
-                int curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
-                int temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap);
+                double curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
+                double temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap);
                 if (temp_flow > 0) {
                     e.setFlow(e.getFlow() + temp_flow);
                     IFEdge reverseEdge = e.endpoint.getReverseEdge(this, u);
-                    int reverseFlow = reverseEdge.getFlow();
+                    double reverseFlow = reverseEdge.getFlow();
                     reverseEdge.setFlow(reverseFlow - temp_flow);
                     return temp_flow;
                 }
@@ -282,7 +302,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Computes a maximum flow between source s and sink t.
      * @param graph     graph to be divided.
      */
-    private void computeMaxFlowBetweenST(Graph graph){
+    private double computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){
             balance = Double.parseDouble(getParameters().get("Balance"));
         }
@@ -316,7 +336,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         }
         IFVertex t = new IFVertex(0, sinkVertices);
         graphVertices.add(t);
-        dinicMaxflow(s, t);
+        return dinicMaxflow(s, t);
     }
 
     /**
@@ -324,30 +344,35 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * @param s     source vertex.
      * @param t     sink vertex.
      */
-    private void dinicMaxflow(IFVertex s, IFVertex t) {
+    private double dinicMaxflow(IFVertex s, IFVertex t) {
         if (s == t) {
-            return;
+            return -1;
         }
-        int flow;
+        double total = 0;
+        double flow;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
             for (IFVertex graphVertex : graphVertices) {
                 startMap.put(graphVertex, 0);
             }
-            do {
+            while (true) {
                 flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
-            } while (flow != 0);
+                if (flow == 0) {
+                    break;
+                }
+                total += flow;
+            }
         }
+        return total;
     }
 
     /**
      * Finds minimal source and sink cut and creates first half of the graph.
      * @param graphComponents   all graph components.
      */
-    private void createFirstGraphComponent(List<Graph> graphComponents) {
+    private void createFirstGraphComponent(List<Graph> graphComponents, double maxFlow) {
         List<IFVertex> visitedVertices = new ArrayList<>();
         Map<Integer, Vertex> vertices = new HashMap<>();
-        //Map<Integer, Edge> edges = new HashMap<>();
         Stack<IFVertex> stack = new Stack<>();
         stack.push(graphVertices.get(0));
         while(!stack.empty()) {
@@ -361,7 +386,6 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
                 IFVertex v = ifEdge.endpoint;
                 if (!visitedVertices.contains(v) && !stack.contains(v))
-                    //edges.put(ifEdge.edge.getId(), ifEdge.edge);
                     stack.push(v);
             }
 

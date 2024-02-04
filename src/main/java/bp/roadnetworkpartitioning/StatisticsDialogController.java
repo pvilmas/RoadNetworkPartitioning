@@ -26,7 +26,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
     /**
      *
      */
-    private static class Data{
+    public static class Data{
         /**  */
         private final SimpleStringProperty algorithmName = new SimpleStringProperty("");
         /**  */
@@ -54,63 +54,63 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             this.algorithmMaxNumberOfNeighbours.set(maxNumberOfNeighbours);
         }
 
-        public String getAlgorithmName() {
+        public final String getAlgorithmName() {
             return algorithmName.get();
         }
 
-        public SimpleStringProperty algorithmNameProperty() {
+        public final SimpleStringProperty algorithmNameProperty() {
             return algorithmName;
         }
 
-        public void setAlgorithmName(String algorithmName) {
+        public final void setAlgorithmName(String algorithmName) {
             this.algorithmName.set(algorithmName);
         }
 
-        public long getAlgorithmTime() {
+        public final long getAlgorithmTime() {
             return algorithmTime.get();
         }
 
-        public SimpleLongProperty algorithmTimeProperty() {
+        public final SimpleLongProperty algorithmTimeProperty() {
             return algorithmTime;
         }
 
-        public void setAlgorithmTime(long algorithmTime) {
+        public final void setAlgorithmTime(long algorithmTime) {
             this.algorithmTime.set(algorithmTime);
         }
 
-        public double getAlgorithmBalance() {
+        public final double getAlgorithmBalance() {
             return algorithmBalance.get();
         }
 
-        public SimpleDoubleProperty algorithmBalanceProperty() {
+        public final SimpleDoubleProperty algorithmBalanceProperty() {
             return algorithmBalance;
         }
 
-        public void setAlgorithmBalance(double algorithmBalance) {
+        public final void setAlgorithmBalance(double algorithmBalance) {
             this.algorithmBalance.set(algorithmBalance);
         }
 
-        public int getAlgorithmNumberOfCutEdges() {
+        public final int getAlgorithmNumberOfCutEdges() {
             return algorithmNumberOfCutEdges.get();
         }
 
-        public SimpleIntegerProperty algorithmNumberOfCutEdgesProperty() {
+        public final SimpleIntegerProperty algorithmNumberOfCutEdgesProperty() {
             return algorithmNumberOfCutEdges;
         }
 
-        public void setAlgorithmNumberOfCutEdges(int algorithmNumberOfCutEdges) {
+        public final void setAlgorithmNumberOfCutEdges(int algorithmNumberOfCutEdges) {
             this.algorithmNumberOfCutEdges.set(algorithmNumberOfCutEdges);
         }
 
-        public int getAlgorithmMaxNumberOfNeighbours() {
+        public final int getAlgorithmMaxNumberOfNeighbours() {
             return algorithmMaxNumberOfNeighbours.get();
         }
 
-        public SimpleIntegerProperty algorithmMaxNumberOfNeighboursProperty() {
+        public final SimpleIntegerProperty algorithmMaxNumberOfNeighboursProperty() {
             return algorithmMaxNumberOfNeighbours;
         }
 
-        public void setAlgorithmMaxNumberOfNeighbours(int algorithmMaxNumberOfNeighbours) {
+        public final void setAlgorithmMaxNumberOfNeighbours(int algorithmMaxNumberOfNeighbours) {
             this.algorithmMaxNumberOfNeighbours.set(algorithmMaxNumberOfNeighbours);
         }
 
