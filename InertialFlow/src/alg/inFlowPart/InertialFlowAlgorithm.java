@@ -106,20 +106,26 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private void divide(List<Graph> graphComponents) {
         Graph graph = graphComponents.remove(0);
-        double maxFlow = computeMaxFlowBetweenST(graph);
-        createMinimumSTCut(graphComponents, maxFlow);
+        List<Double> flowList = computeMaxFlowBetweenST(graph);
+        createMinimumSTCut(graphComponents, flowList, graph);
         //createFirstGraphComponent(graphComponents, maxFlow);
         //createSecondGraphComponent(graphComponents, graph);
     }
 
-    private void createMinimumSTCut(List<Graph> graphComponents, double maxFlow) {
+    private void createMinimumSTCut(List<Graph> graphComponents, List<Double> flowList, Graph graph) {
         Map<Integer, Vertex> vertices1 = new HashMap<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
+        double value1 = 0;
+        double value2 = 0;
+        double graphValue = graph.getValue();
+        double halfGraph = graphValue/2;
         for(Vertex vertex: graphVertices.get(0).getVertexList()) {
             vertices1.put(vertex.getId(), vertex);
+            value1 += vertex.getValue();
         }
         for(Vertex vertex: graphVertices.get(graphVertices.size() - 1).getVertexList()) {
             vertices2.put(vertex.getId(), vertex);
+            value2 += vertex.getValue();
         }
 
         graphComponents.add(new Graph(vertices1, null));
@@ -302,7 +308,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Computes a maximum flow between source s and sink t.
      * @param graph     graph to be divided.
      */
-    private double computeMaxFlowBetweenST(Graph graph){
+    private List<Double> computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){
             balance = Double.parseDouble(getParameters().get("Balance"));
         }
@@ -344,9 +350,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * @param s     source vertex.
      * @param t     sink vertex.
      */
-    private double dinicMaxflow(IFVertex s, IFVertex t) {
+    private List<Double> dinicMaxflow(IFVertex s, IFVertex t) {
+        List<Double> flowList = new ArrayList<>();
         if (s == t) {
-            return -1;
+            return flowList;
         }
         double total = 0;
         double flow;
@@ -361,9 +368,11 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     break;
                 }
                 total += flow;
+                flowList.add(flow);
             }
         }
-        return total;
+        flowList.add(total);
+        return flowList;
     }
 
     /**
