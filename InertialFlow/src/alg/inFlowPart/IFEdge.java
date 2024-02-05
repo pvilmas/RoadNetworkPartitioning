@@ -16,6 +16,7 @@ public class IFEdge {
     private double flow = 0;
     /** Capacity of the edge. */
     private double capacity = 1;
+    public int flowListIndex = -1;
 
     /**
      * Constructor of an edge in IF.

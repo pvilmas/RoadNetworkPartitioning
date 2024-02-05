@@ -283,15 +283,16 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      *               from vertex.
      * @return flow.
      */
-    private double sendFlow(IFVertex u, double flow, IFVertex t, Map<IFVertex, Integer> startMap) {
+    private double sendFlow(IFVertex u, double flow, IFVertex t, Map<IFVertex, Integer> startMap, int i) {
         if (u == t) {
             return flow;
         }
         for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
             IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
             if (e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
+                e.flowListIndex = i;
                 double curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
-                double temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap);
+                double temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap, i);
                 if (temp_flow > 0) {
                     e.setFlow(e.getFlow() + temp_flow);
                     IFEdge reverseEdge = e.endpoint.getReverseEdge(this, u);
@@ -355,7 +356,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         if (s == t) {
             return flowList;
         }
-        double total = 0;
+        int i = 0;
         double flow;
         while (bfs(s, t)) {
             Map<IFVertex, Integer> startMap = new HashMap<>();
@@ -363,15 +364,14 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 startMap.put(graphVertex, 0);
             }
             while (true) {
-                flow = sendFlow(s, Integer.MAX_VALUE, t, startMap);
+                flow = sendFlow(s, Integer.MAX_VALUE, t, startMap, i);
                 if (flow == 0) {
                     break;
                 }
-                total += flow;
+                i++;
                 flowList.add(flow);
             }
         }
-        flowList.add(total);
         return flowList;
     }
 
