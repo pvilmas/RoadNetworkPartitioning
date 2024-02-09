@@ -108,51 +108,40 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         Graph graph = graphComponents.remove(0);
         List<Double> flowList = computeMaxFlowBetweenST(graph);
         createMinimumSTCut(graphComponents, flowList, graph);
-        //createFirstGraphComponent(graphComponents, maxFlow);
-        //createSecondGraphComponent(graphComponents, graph);
     }
 
     private void createMinimumSTCut(List<Graph> graphComponents, List<Double> flowList, Graph graph) {
         Map<Integer, Vertex> vertices1 = new HashMap<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
-        double value1 = 0;
-        double value2 = 0;
         double graphValue = graph.getValue();
         double halfGraph = graphValue/2;
-        for(Vertex vertex: graphVertices.get(0).getVertexList()) {
-            vertices1.put(vertex.getId(), vertex);
-            value1 += vertex.getValue();
-        }
-        for(Vertex vertex: graphVertices.get(graphVertices.size() - 1).getVertexList()) {
-            vertices2.put(vertex.getId(), vertex);
-            value2 += vertex.getValue();
-        }
+        findBetterHalf(halfGraph, vertices1);
+// prochazet grafem BFS a hledat nejlepsi polovinu s tim ze kazde reseni bude mit minimalni rez
+
 
         graphComponents.add(new Graph(vertices1, null));
         graphComponents.add(new Graph(vertices2, null));
     }
 
-    /**
-     * Creates second graph component by checking what is not in first component.
-     * @param graphComponents   all graph parts.
-     * @param graph             current graph for partitioning.
-     */
-    private void createSecondGraphComponent(List<Graph> graphComponents, Graph graph) {
-        Graph graphComponent = graphComponents.get(graphComponents.size()-1);
-        Map<Integer, Vertex> vertices = new HashMap<>();
-        //Map<Integer, Edge> edges = new HashMap<>();
-        for (Vertex vertex: graph.getVertices().values()) {
-            if(!graphComponent.getVertices().containsValue(vertex)) {
-                vertices.put(vertex.getId(), vertex);
+    private void findBetterHalf(double graphHalfValue, Map<Integer, Vertex> vertices) {
+        LinkedList<IFVertex> q = new LinkedList<>();
+        double value = 0;
+        IFVertex s = graphVertices.get(0);
+        q.add(s);
+        for(Vertex vertex: s.getVertexList()) {
+            vertices.put(vertex.getId(), vertex);
+            value += vertex.getValue();
+
+        }
+        while (q.size() != 0) {
+            IFVertex u = q.poll();
+            for (IFEdge e: u.getAllStartingEdges(this)) {
+                q.add(e.endpoint);
+
+                if (e.endpoint.getLevel() > u.getLevel()) {
+                }
             }
         }
-        /*
-        for (Edge edge: graph.getEdges().values()) {
-            if(!graphComponent.getEdges().containsValue(edge)) {
-                edges.put(edge.getId(), edge);
-            }
-        }*/
-        graphComponents.add(new Graph(vertices, null));
     }
 
     /**
@@ -373,32 +362,5 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             }
         }
         return flowList;
-    }
-
-    /**
-     * Finds minimal source and sink cut and creates first half of the graph.
-     * @param graphComponents   all graph components.
-     */
-    private void createFirstGraphComponent(List<Graph> graphComponents, double maxFlow) {
-        List<IFVertex> visitedVertices = new ArrayList<>();
-        Map<Integer, Vertex> vertices = new HashMap<>();
-        Stack<IFVertex> stack = new Stack<>();
-        stack.push(graphVertices.get(0));
-        while(!stack.empty()) {
-            IFVertex s = stack.pop();
-            if(!visitedVertices.contains(s)) {
-                visitedVertices.add(s);
-                for(Vertex vertex: s.getVertexList()) {
-                    vertices.put(vertex.getId(), vertex);
-                }
-            }
-            for (IFEdge ifEdge : s.getAllStartingEdges(this)) {
-                IFVertex v = ifEdge.endpoint;
-                if (!visitedVertices.contains(v) && !stack.contains(v))
-                    stack.push(v);
-            }
-
-        }
-        graphComponents.add(new Graph(vertices, null));
     }
 }
