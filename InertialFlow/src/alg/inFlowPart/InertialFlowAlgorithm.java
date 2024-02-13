@@ -115,33 +115,58 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         Map<Integer, Vertex> vertices2 = new HashMap<>();
         double graphValue = graph.getValue();
         double halfGraph = graphValue/2;
-        findBetterHalf(halfGraph, vertices1);
-// prochazet grafem BFS a hledat nejlepsi polovinu s tim ze kazde reseni bude mit minimalni rez
-
+        findBetterHalf(halfGraph, flowList, vertices1, vertices2);
 
         graphComponents.add(new Graph(vertices1, null));
         graphComponents.add(new Graph(vertices2, null));
     }
 
-    private void findBetterHalf(double graphHalfValue, Map<Integer, Vertex> vertices) {
+    private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1,
+                                Map<Integer, Vertex> vertices2) {
         LinkedList<IFVertex> q = new LinkedList<>();
-        double value = 0;
+        double value1 = 0;
+        double value2 = 0;
         IFVertex s = graphVertices.get(0);
-        q.add(s);
+        q.push(s);
         for(Vertex vertex: s.getVertexList()) {
-            vertices.put(vertex.getId(), vertex);
-            value += vertex.getValue();
-
-        }
-        while (q.size() != 0) {
-            IFVertex u = q.poll();
-            for (IFEdge e: u.getAllStartingEdges(this)) {
-                q.add(e.endpoint);
-
-                if (e.endpoint.getLevel() > u.getLevel()) {
-                }
+            vertices1.put(vertex.getId(), vertex);
+            value1 += vertex.getValue();
+            for(Edge edge: vertex.getStartingEdges()){
+                value1 += edge.getLength();
+            }
+            for(Edge edge: vertex.getEndingEdges()){
+                value1 += edge.getLength();
             }
         }
+        double cutValue = 0;
+        List<Double> tempFlowList = new ArrayList<>(flowList);
+        double totalFlow = 0;
+        for (Double flow : flowList) {
+            totalFlow += flow;
+        }
+
+        while (q.size() != 0) {
+            IFVertex u = q.pop();
+            for (IFEdge e: u.getAllStartingEdges(this)) {
+                if (edgeNotMinCut(tempFlowList, e)){
+                    q.push(e.endpoint);
+                }
+                else if ((cutValue == totalFlow) && (hasFullWidth())) {
+
+                }
+                else {
+                    tempFlowList.set(e.flowListIndex, -1.0);
+                    cutValue += e.getCapacity();
+                }
+            }
+
+        }
+    }
+
+    private boolean edgeNotMinCut(List<Double> flowList, IFEdge edge) {
+        int flowNumber = edge.flowListIndex;
+        double epsilon = 0.00001;
+        return !(Math.abs(flowList.get(flowNumber) - edge.getCapacity()) < epsilon);
     }
 
     /**
