@@ -68,7 +68,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             graphComponents.add(graph);
             pickLine();
             projectAndSortVertices();
-            int numberOfParts = 0;
+            int numberOfParts = 1;
             while(numberOfParts < getPartsCount()){
                 divide(graphComponents);
                 numberOfParts++;
@@ -115,14 +115,18 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         Map<Integer, Vertex> vertices2 = new HashMap<>();
         double graphValue = graph.getValue();
         double halfGraph = graphValue/2;
-        findBetterHalf(halfGraph, flowList, vertices1, vertices2);
+        findBetterHalf(halfGraph, flowList, vertices1);
+        for (Map.Entry<Integer, Vertex> vertexEntry : graph.getVertices().entrySet()) {
+            if(!vertices1.containsKey(vertexEntry.getKey())){
+                vertices2.put(vertexEntry.getKey(), vertexEntry.getValue());
+            }
+        }
 
         graphComponents.add(new Graph(vertices1, null));
         graphComponents.add(new Graph(vertices2, null));
     }
 
-    private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1,
-                                Map<Integer, Vertex> vertices2) {
+    private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1) {
         LinkedList<IFVertex> q = new LinkedList<>();
         double value1 = 0;
         double value2 = 0;
@@ -148,23 +152,37 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.pop();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                if (edgeNotMinCut(tempFlowList, e)){
-                    q.push(e.endpoint);
-                }
-                else if ((cutValue == totalFlow) && (hasFullWidth())) {
 
+                if (edgeNotMinCut(tempFlowList, e)){
+                    s = e.endpoint;
+                    q.push(s);
+                    for(Vertex vertex: s.getVertexList()) {
+                        vertices1.put(vertex.getId(), vertex);
+                        value1 += vertex.getValue();
+                        for(Edge edge: vertex.getStartingEdges()){
+                            value1 += edge.getLength();
+                        }
+                        for(Edge edge: vertex.getEndingEdges()){
+                            value1 += edge.getLength();
+                        }
+                    }
                 }
                 else {
                     tempFlowList.set(e.flowListIndex, -1.0);
                     cutValue += e.getCapacity();
                 }
             }
-
+            if ((cutValue == totalFlow)) {
+                break;
+            }
         }
     }
 
     private boolean edgeNotMinCut(List<Double> flowList, IFEdge edge) {
         int flowNumber = edge.flowListIndex;
+        if ((flowNumber == -1) || (flowNumber >= flowList.size())){
+            return true;
+        }
         double epsilon = 0.00001;
         return !(Math.abs(flowList.get(flowNumber) - edge.getCapacity()) < epsilon);
     }
@@ -275,7 +293,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.poll();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                if (e.endpoint.getLevel() < 0 && e.getFlow() < e.getCapacity()) {
+                if ((e.endpoint != null) && (e.endpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
                     e.endpoint.setLevel(u.getLevel() + 1);
                     q.add(e.endpoint);
                 }
@@ -303,7 +321,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         }
         for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
             IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
-            if (e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
+            if (e.endpoint != null && e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
                 e.flowListIndex = i;
                 double curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
                 double temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap, i);
