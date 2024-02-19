@@ -164,8 +164,10 @@ public class Graph {
         for(Vertex vertex: vertices.values()) {
             value += vertex.getValue();
             for(Edge edge: vertex.getStartingEdges()){
-
-                value += edge.getWeight();
+                value += edge.getLength()/2;
+            }
+            for(Edge edge: vertex.getEndingEdges()){
+                value += edge.getLength()/2;
             }
         }
         return value;

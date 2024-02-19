@@ -128,6 +128,8 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1) {
         LinkedList<IFVertex> q = new LinkedList<>();
+        LinkedList<IFVertex> q1 = new LinkedList<>();
+        Map<Integer, Vertex> vertices2 = new HashMap<>();
         double value1 = 0;
         double value2 = 0;
         IFVertex s = graphVertices.get(0);
@@ -136,10 +138,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             vertices1.put(vertex.getId(), vertex);
             value1 += vertex.getValue();
             for(Edge edge: vertex.getStartingEdges()){
-                value1 += edge.getLength();
+                value1 += edge.getLength()/2;
             }
             for(Edge edge: vertex.getEndingEdges()){
-                value1 += edge.getLength();
+                value1 += edge.getLength()/2;
             }
         }
         double cutValue = 0;
@@ -157,23 +159,38 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     s = e.endpoint;
                     q.push(s);
                     for(Vertex vertex: s.getVertexList()) {
-                        vertices1.put(vertex.getId(), vertex);
-                        value1 += vertex.getValue();
+                        vertices2.put(vertex.getId(), vertex);
+                        value2 += vertex.getValue();
                         for(Edge edge: vertex.getStartingEdges()){
-                            value1 += edge.getLength();
+                            value2 += edge.getLength()/2;
                         }
                         for(Edge edge: vertex.getEndingEdges()){
-                            value1 += edge.getLength();
+                            value2 += edge.getLength()/2;
                         }
                     }
                 }
                 else {
                     tempFlowList.set(e.flowListIndex, -1.0);
                     cutValue += e.getCapacity();
+                    q1.push(e.endpoint);
                 }
             }
-            if ((cutValue == totalFlow)) {
-                break;
+            if (cutValue == totalFlow) {
+                tempFlowList = new ArrayList<>(flowList);
+                cutValue = 0;
+                if (value1 + value2 <= graphHalfValue) {
+                    if (q.size() == 0) {
+                        vertices1.putAll(vertices2);
+                        value1 += value2;
+                        value2 = 0;
+                        vertices2 = new HashMap<>();
+                        q.addAll(q1);
+                        q1 = new LinkedList<>();
+                    }
+                }
+                else {
+                   break;
+                }
             }
         }
     }
