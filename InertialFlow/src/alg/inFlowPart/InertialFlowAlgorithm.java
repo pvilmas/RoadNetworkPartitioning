@@ -130,10 +130,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         LinkedList<IFVertex> q = new LinkedList<>();
         LinkedList<IFVertex> q1 = new LinkedList<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
+        List<IFVertex> visitedVertices = new ArrayList<>();
         double value1 = 0;
         double value2 = 0;
         IFVertex s = graphVertices.get(0);
         q.push(s);
+        visitedVertices.add(s);
         for(Vertex vertex: s.getVertexList()) {
             vertices1.put(vertex.getId(), vertex);
             value1 += vertex.getValue();
@@ -157,15 +159,18 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
                 if (edgeNotMinCut(tempFlowList, e)){
                     s = e.endpoint;
-                    q.push(s);
-                    for(Vertex vertex: s.getVertexList()) {
-                        vertices2.put(vertex.getId(), vertex);
-                        value2 += vertex.getValue();
-                        for(Edge edge: vertex.getStartingEdges()){
-                            value2 += edge.getLength()/2;
-                        }
-                        for(Edge edge: vertex.getEndingEdges()){
-                            value2 += edge.getLength()/2;
+                    if (!visitedVertices.contains(s)) {
+                        q.push(s);
+                        visitedVertices.add(s);
+                        for (Vertex vertex : s.getVertexList()) {
+                            vertices2.put(vertex.getId(), vertex);
+                            value2 += vertex.getValue();
+                            for (Edge edge : vertex.getStartingEdges()) {
+                                value2 += edge.getLength() / 2;
+                            }
+                            for (Edge edge : vertex.getEndingEdges()) {
+                                value2 += edge.getLength() / 2;
+                            }
                         }
                     }
                 }
