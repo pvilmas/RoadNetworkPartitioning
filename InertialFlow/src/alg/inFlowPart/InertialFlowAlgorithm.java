@@ -146,18 +146,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 value1 += edge.getLength()/2;
             }
         }
-        double cutValue = 0;
         List<Double> tempFlowList = new ArrayList<>(flowList);
-        double totalFlow = 0;
-        for (Double flow : flowList) {
-            totalFlow += flow;
-        }
-
+        boolean useFlowList = false;
         while (q.size() != 0) {
             IFVertex u = q.pop();
             for (IFEdge e: u.getAllStartingEdges(this)) {
 
-                if (edgeNotMinCut(tempFlowList, e)){
+                if (edgeNotMinCut(useFlowList ? flowList : tempFlowList, e)){
                     s = e.endpoint;
                     if (!visitedVertices.contains(s)) {
                         q.push(s);
@@ -176,26 +171,28 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 }
                 else {
                     tempFlowList.set(e.flowListIndex, -1.0);
-                    cutValue += e.getCapacity();
                     q1.push(e.endpoint);
                 }
             }
-            if (cutValue == totalFlow) {
+            if (q.size() == 0) {
                 tempFlowList = new ArrayList<>(flowList);
-                cutValue = 0;
+                useFlowList = false;
                 if (value1 + value2 <= graphHalfValue) {
-                    if (q.size() == 0) {
                         vertices1.putAll(vertices2);
                         value1 += value2;
                         value2 = 0;
                         vertices2 = new HashMap<>();
-                        q.addAll(q1);
+                        q.addAll(0, q1);
                         q1 = new LinkedList<>();
-                    }
+
                 }
                 else {
                    break;
                 }
+            } else if (tempFlowList.stream().allMatch(i -> i == -1.0)){
+                useFlowList = true;
+                //q.addAll(0, q1);
+                //q1 = new LinkedList<>();
             }
         }
     }
