@@ -128,7 +128,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1) {
         LinkedList<IFVertex> q = new LinkedList<>();
-        LinkedList<IFVertex> q1 = new LinkedList<>();
+        LinkedList<IFEdge> q1 = new LinkedList<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
         List<IFVertex> visitedVertices = new ArrayList<>();
         double value1 = 0;
@@ -169,9 +169,18 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                         }
                     }
                 }
-                else {
+                else if (!useFlowList) {
                     tempFlowList.set(e.flowListIndex, -1.0);
-                    q1.push(e.endpoint);
+                    q1.push(e);
+                }
+                else {
+                    useFlowList = false;
+                    tempFlowList.set(e.flowListIndex, e.getCapacity());
+                    IFEdge edge = getEdgeWithFlowListIndex(e.flowListIndex, q1);
+                    if (edge != null) {
+                        q.push(edge.endpoint);
+                        q1.remove(edge);
+                    }
                 }
             }
             if (q.size() == 0) {
@@ -182,19 +191,27 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                         value1 += value2;
                         value2 = 0;
                         vertices2 = new HashMap<>();
-                        q.addAll(0, q1);
-                        q1 = new LinkedList<>();
-
+                        IFEdge edge = q1.removeLast();
+                        tempFlowList.set(edge.flowListIndex, edge.getCapacity());
+                        q.push(edge.endpoint);
+                        q1.remove(edge);
                 }
                 else {
                    break;
                 }
             } else if (tempFlowList.stream().allMatch(i -> i == -1.0)){
                 useFlowList = true;
-                //q.addAll(0, q1);
-                //q1 = new LinkedList<>();
             }
         }
+    }
+
+    private IFEdge getEdgeWithFlowListIndex(int flowListIndex, LinkedList<IFEdge> q1) {
+        for (IFEdge edge : q1) {
+            if (edge.flowListIndex == flowListIndex){
+                return edge;
+            }
+        }
+        return null;
     }
 
     private boolean edgeNotMinCut(List<Double> flowList, IFEdge edge) {
