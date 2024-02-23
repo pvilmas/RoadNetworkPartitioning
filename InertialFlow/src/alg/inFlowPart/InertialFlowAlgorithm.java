@@ -150,6 +150,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         boolean useFlowList = false;
         while (q.size() != 0) {
             IFVertex u = q.pop();
+            // TODO if path between part 1 and 2 exists even thought all min cut edges are found.
             for (IFEdge e: u.getAllStartingEdges(this)) {
 
                 if (edgeNotMinCut(useFlowList ? flowList : tempFlowList, e)){
@@ -179,6 +180,17 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     IFEdge edge = getEdgeWithFlowListIndex(e.flowListIndex, q1);
                     if (edge != null) {
                         q.push(edge.endpoint);
+                        visitedVertices.add(edge.endpoint);
+                        for (Vertex vertex : edge.endpoint.getVertexList()) {
+                            vertices2.put(vertex.getId(), vertex);
+                            value2 += vertex.getValue();
+                            for (Edge edge1 : vertex.getStartingEdges()) {
+                                value2 += edge1.getLength() / 2;
+                            }
+                            for (Edge edge1 : vertex.getEndingEdges()) {
+                                value2 += edge1.getLength() / 2;
+                            }
+                        }
                         q1.remove(edge);
                     }
                 }
