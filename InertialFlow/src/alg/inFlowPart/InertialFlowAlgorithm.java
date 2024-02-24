@@ -253,7 +253,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             return true;
         }
         double epsilon = 0.00001;
-        return !(Math.abs(flowList.get(flowNumber) - edge.getCapacity()) < epsilon);
+        return !(Math.abs(flowList.get(flowNumber) - edge.getFlow()) < epsilon);
     }
 
     /**
