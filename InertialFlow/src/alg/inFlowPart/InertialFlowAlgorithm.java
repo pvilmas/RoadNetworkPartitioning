@@ -121,7 +121,6 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 vertices2.put(vertexEntry.getKey(), vertexEntry.getValue());
             }
         }
-
         graphComponents.add(new Graph(vertices1, null));
         graphComponents.add(new Graph(vertices2, null));
     }
@@ -419,28 +418,32 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         List<Vertex> sourceVertices = new ArrayList<>();
         List<Vertex> sinkVertices = new ArrayList<>();
         int i = 0;
+        int j = 0;
         while(i < verticesCount) {
-            if(graph.getVertices().containsValue(vertexOrder.get(i))){
-                sourceVertices.add(vertexOrder.get(i));
+            if(graph.getVertices().containsValue(vertexOrder.get(j))){
+                sourceVertices.add(vertexOrder.get(j));
                 i++;
             }
+            j++;
         }
         IFVertex s = new IFVertex(0, sourceVertices);
         graphVertices.add(s);
         int verticesSize = graph.getVertices().size();
         i = verticesCount;
         while(i < verticesSize - verticesCount) {
-            if(graph.getVertices().containsValue(vertexOrder.get(i))) {
-                graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(i))));
+            if(graph.getVertices().containsValue(vertexOrder.get(j))) {
+                graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(j))));
                 i++;
             }
+            j++;
         }
         i = verticesSize - verticesCount;
-        while(i < verticesSize) {
-            if(graph.getVertices().containsValue(vertexOrder.get(i))) {
-                sinkVertices.add(vertexOrder.get(i));
+        while(j < vertexOrder.size()) {
+            if(graph.getVertices().containsValue(vertexOrder.get(j))) {
+                sinkVertices.add(vertexOrder.get(j));
                 i++;
             }
+            j++;
         }
         IFVertex t = new IFVertex(0, sinkVertices);
         graphVertices.add(t);

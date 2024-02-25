@@ -49,8 +49,10 @@ public class IFVertex {
                                 break;
                             }
                         }
-                        IFEdge edge = new IFEdge(e, endpoint);
-                        allStartingEdges.add(edge);
+                        if (endpoint != null) {
+                            IFEdge edge = new IFEdge(e, endpoint);
+                            allStartingEdges.add(edge);
+                        }
                     }
                 }
             }
