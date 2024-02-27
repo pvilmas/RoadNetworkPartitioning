@@ -14,7 +14,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     /**
      * Implementation of one part of a graph.
      */
-    private static class Part extends Graph{
+    private static class Part extends Graph {
+
         /** Value of the part. */
         private double value = 0.0;
         /** List of parts beside this part. */
@@ -27,6 +28,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         private Part(Map<Integer, Vertex> vertices){
             super(vertices, null);
         }
+
     }
 
     /**  Total value of the graph. */
@@ -54,7 +56,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             int[] stop = initialise(parts, verticesParts);
             growRegions(parts, verticesParts, stop);
             balancePartitioning(parts, verticesParts);
-            // Ensure connectivity
             List<Graph> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
             setGraphPartition(new GraphPartition(subgraphs));
