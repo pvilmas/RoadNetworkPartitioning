@@ -110,6 +110,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         createMinimumSTCut(graphComponents, flowList, graph);
     }
 
+    /**
+     *
+     * @param graphComponents
+     * @param flowList
+     * @param graph
+     */
     private void createMinimumSTCut(List<Graph> graphComponents, List<Double> flowList, Graph graph) {
         Map<Integer, Vertex> vertices1 = new HashMap<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
@@ -125,26 +131,20 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         graphComponents.add(new Graph(vertices2, null));
     }
 
+    /**
+     *
+     * @param graphHalfValue
+     * @param flowList
+     * @param vertices1
+     */
     private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1) {
         LinkedList<IFVertex> q = new LinkedList<>();
         LinkedList<IFEdge> q1 = new LinkedList<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
         List<IFVertex> visitedVertices = new ArrayList<>();
-        double value1 = 0;
         double value2 = 0;
         IFVertex s = graphVertices.get(0);
-        q.push(s);
-        visitedVertices.add(s);
-        for(Vertex vertex: s.getVertexList()) {
-            vertices1.put(vertex.getId(), vertex);
-            value1 += vertex.getValue();
-            for(Edge edge: vertex.getStartingEdges()){
-                value1 += edge.getLength()/2;
-            }
-            for(Edge edge: vertex.getEndingEdges()){
-                value1 += edge.getLength()/2;
-            }
-        }
+        double value1 = addToGraphComponent(s, vertices1, q, visitedVertices, 0);
         List<Double> tempFlowList = new ArrayList<>(flowList);
         boolean useFlowList = false;
         while (q.size() != 0) {
@@ -153,18 +153,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 s = e.endpoint;
                 if (!visitedVertices.contains(s)) {
                     if (edgeNotMinCut(useFlowList ? flowList : tempFlowList, e)) {
-                        q.push(s);
-                        visitedVertices.add(s);
-                        for (Vertex vertex : s.getVertexList()) {
-                            vertices2.put(vertex.getId(), vertex);
-                            value2 += vertex.getValue();
-                            for (Edge edge : vertex.getStartingEdges()) {
-                                value2 += edge.getLength() / 2;
-                            }
-                            for (Edge edge : vertex.getEndingEdges()) {
-                                value2 += edge.getLength() / 2;
-                            }
-                        }
+                        value2 = addToGraphComponent(s, vertices2, q, visitedVertices, value2);
                         IFEdge minCutEdge = vertexEdgesNotMinCut(s, q1);
                         if (minCutEdge != null) {
                             tempFlowList.set(minCutEdge.flowListIndex, minCutEdge.getCapacity());
@@ -179,18 +168,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                         tempFlowList.set(e.flowListIndex, e.getCapacity());
                         IFEdge edge = getEdgeWithFlowListIndex(e.flowListIndex, q1);
                         if (edge != null) {
-                            q.push(edge.endpoint);
-                            visitedVertices.add(edge.endpoint);
-                            for (Vertex vertex : edge.endpoint.getVertexList()) {
-                                vertices2.put(vertex.getId(), vertex);
-                                value2 += vertex.getValue();
-                                for (Edge edge1 : vertex.getStartingEdges()) {
-                                    value2 += edge1.getLength() / 2;
-                                }
-                                for (Edge edge1 : vertex.getEndingEdges()) {
-                                    value2 += edge1.getLength() / 2;
-                                }
-                            }
+                            value2 = addToGraphComponent(edge.endpoint, vertices2, q, visitedVertices, value2);
                             q1.remove(edge);
                         }
                     }
@@ -199,25 +177,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             if (q.size() == 0) {
                 tempFlowList = new ArrayList<>(flowList);
                 useFlowList = false;
-                if (value1 + value2 <= graphHalfValue) {
+                if (value1 + value2 <= graphHalfValue+35) {
                     vertices1.putAll(vertices2);
                     value1 += value2;
-                    value2 = 0;
                     vertices2 = new HashMap<>();
                     IFEdge edge = q1.removeLast();
                     tempFlowList.set(edge.flowListIndex, edge.getCapacity());
-                    q.push(edge.endpoint);
-                    visitedVertices.add(edge.endpoint);
-                    for (Vertex vertex : edge.endpoint.getVertexList()) {
-                        vertices2.put(vertex.getId(), vertex);
-                        value2 += vertex.getValue();
-                        for (Edge edge1 : vertex.getStartingEdges()) {
-                            value2 += edge1.getLength() / 2;
-                        }
-                        for (Edge edge1 : vertex.getEndingEdges()) {
-                            value2 += edge1.getLength() / 2;
-                        }
-                    }
+                    value2 = addToGraphComponent(edge.endpoint, vertices2, q, visitedVertices, 0);
                 }
                 else {
                    break;
@@ -228,6 +194,38 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         }
     }
 
+    /**
+     *
+     * @param iFVertex
+     * @param vertices
+     * @param queue
+     * @param visitedVertices
+     * @param value
+     * @return
+     */
+    private double addToGraphComponent(IFVertex iFVertex, Map<Integer, Vertex> vertices, LinkedList<IFVertex> queue,
+                                       List<IFVertex> visitedVertices, double value) {
+        queue.push(iFVertex);
+        visitedVertices.add(iFVertex);
+        for (Vertex vertex : iFVertex.getVertexList()) {
+            vertices.put(vertex.getId(), vertex);
+            value += vertex.getValue();
+            for (Edge edge : vertex.getStartingEdges()) {
+                value += edge.getLength() / 2;
+            }
+            for (Edge edge : vertex.getEndingEdges()) {
+                value += edge.getLength() / 2;
+            }
+        }
+        return value;
+    }
+
+    /**
+     *
+     * @param s
+     * @param q1
+     * @return
+     */
     private IFEdge vertexEdgesNotMinCut(IFVertex s, LinkedList<IFEdge> q1) {
         for (IFEdge edge : q1) {
             if (edge.endpoint == s){
@@ -237,6 +235,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         return null;
     }
 
+    /**
+     *
+     * @param flowListIndex
+     * @param q1
+     * @return
+     */
     private IFEdge getEdgeWithFlowListIndex(int flowListIndex, LinkedList<IFEdge> q1) {
         for (IFEdge edge : q1) {
             if (edge.flowListIndex == flowListIndex){
@@ -246,6 +250,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         return null;
     }
 
+    /**
+     *
+     * @param flowList
+     * @param edge
+     * @return
+     */
     private boolean edgeNotMinCut(List<Double> flowList, IFEdge edge) {
         int flowNumber = edge.flowListIndex;
         if ((flowNumber == -1) || (flowNumber >= flowList.size())){
@@ -269,7 +279,6 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             double By = Double.parseDouble(parameters.get("Line By"));
             B = new Point(Bx, By);
         }
-
     }
 
     /**
@@ -312,37 +321,45 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         if(vertexOrder.size() == 1){
             if(abs(pointOrder.get(0).x - point.x) < epsilon){
                 if(pointOrder.get(0).y < point.y){
-                    pointOrder.add(point);
-                    vertexOrder.add(v);
-                }else{
-                    pointOrder.add(0, point);
-                    vertexOrder.add(0, v);
+                    addToOrderedLists(v, point, pointOrder, vertexOrder.size());
                 }
-            } else if(pointOrder.get(0).x < point.x){
-                pointOrder.add(point);
-                vertexOrder.add(v);
-            } else{
-                pointOrder.add(0, point);
-                vertexOrder.add(0, v);
+                else {
+                    addToOrderedLists(v, point, pointOrder, 0);
+                }
+            }
+            else if(pointOrder.get(0).x < point.x){
+                addToOrderedLists(v, point, pointOrder, vertexOrder.size());
+            }
+            else {
+                addToOrderedLists(v, point, pointOrder, 0);
             }
             return;
         }
-        for(int i = vertexOrder.size()-1; i > 0; i--){
+        for(int i = vertexOrder.size()-1; i > 0; i--) {
             if(abs(pointOrder.get(i).x - point.x) < epsilon){
                 if(pointOrder.get(i).y <= point.y){
-                    pointOrder.add(i+1, point);
-                    vertexOrder.add(i+1, v);
+                    addToOrderedLists(v, point, pointOrder, i+1);
                     return;
                 }
             }
-            else if(pointOrder.get(i).x < point.x){
-                pointOrder.add(i+1, point);
-                vertexOrder.add(i+1, v);
+            else if(pointOrder.get(i).x < point.x) {
+                addToOrderedLists(v, point, pointOrder, i+1);
                 return;
             }
         }
-        pointOrder.add(0, point);
-        vertexOrder.add(0, v);
+        addToOrderedLists(v, point, pointOrder, 0);
+    }
+
+    /**
+     *
+     * @param v
+     * @param point
+     * @param pointOrder
+     * @param index
+     */
+    private void addToOrderedLists(Vertex v, Point point, List<Point> pointOrder, int index) {
+        pointOrder.add(index, point);
+        vertexOrder.add(index, v);
     }
 
     /**
@@ -417,19 +434,11 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         graphVertices = new ArrayList<>();
         List<Vertex> sourceVertices = new ArrayList<>();
         List<Vertex> sinkVertices = new ArrayList<>();
-        int i = 0;
-        int j = 0;
-        while(i < verticesCount) {
-            if(graph.getVertices().containsValue(vertexOrder.get(j))){
-                sourceVertices.add(vertexOrder.get(j));
-                i++;
-            }
-            j++;
-        }
+        int j = addToVertexList(graph, 0, 0, verticesCount, sourceVertices);
         IFVertex s = new IFVertex(0, sourceVertices);
         graphVertices.add(s);
         int verticesSize = graph.getVertices().size();
-        i = verticesCount;
+        int i = verticesCount;
         while(i < verticesSize - verticesCount) {
             if(graph.getVertices().containsValue(vertexOrder.get(j))) {
                 graphVertices.add(new IFVertex(0, List.of(vertexOrder.get(j))));
@@ -437,21 +446,25 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             }
             j++;
         }
-        i = verticesSize - verticesCount;
-        while(j < vertexOrder.size()) {
-            if(graph.getVertices().containsValue(vertexOrder.get(j))) {
-                sinkVertices.add(vertexOrder.get(j));
-                i++;
-            }
-            j++;
-        }
+        addToVertexList(graph, j, j, vertexOrder.size(), sinkVertices);
         IFVertex t = new IFVertex(0, sinkVertices);
         graphVertices.add(t);
         return dinicMaxflow(s, t);
     }
 
+    private int addToVertexList(Graph graph, int i, int j, int limit, List<Vertex> vertexList) {
+        while((i < limit) && (j < vertexOrder.size()))  {
+            if(graph.getVertices().containsValue(vertexOrder.get(j))){
+                vertexList.add(vertexOrder.get(j));
+                i++;
+            }
+            j++;
+        }
+        return j;
+    }
+
     /**
-     * Implementation of dinic's max flow.
+     * Implementation of Dinic's max flow.
      * @param s     source vertex.
      * @param t     sink vertex.
      */
