@@ -529,7 +529,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         for (Part part: parts) {
             List<Vertex> visitedVertices = new ArrayList<>();
             int i = 0;
-            Vertex[] vertices = (Vertex[]) part.getVertices().values().stream().toArray();
+            Vertex[] vertices = new Vertex[part.getVertices().size()];
+            for (Vertex vertex : part.getVertices().values()) {
+                vertices[i] = vertex;
+                i++;
+            }
+            i = 0;
             while(vertices.length > visitedVertices.size()){
                 for(; i < vertices.length; i++){
                     if(!visitedVertices.contains(part.getVertices().get(i))){
@@ -612,9 +617,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             Vertex maxVertex = getGraph().getVertices().get(maxVertexID);
             part.getVertices().put(maxVertexID, maxVertex);
             part.value += maxVertex.getValue();
-            //part.value += maxValue;
             graphValue += maxVertex.getValue();
-            //graphValue += maxValue;
             verticesParts.put(maxVertex, i);
         }
         return hasGrown;
