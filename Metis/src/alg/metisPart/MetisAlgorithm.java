@@ -225,12 +225,18 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             int index = new Random(System.nanoTime()).nextInt(metisVertices.size());
             MetisVertex vertex = (MetisVertex) metisVertices.toArray()[index];
             double verticesWeight = vertex.getWeight();
+            for (Edge startingEdge : vertex.getAllStartingEdges()) {
+                verticesWeight += startingEdge.getLength()/2;
+            }
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
-            List<MetisVertex> vList = new ArrayList<>();
             List<MetisVertex> cutVerticesList = new ArrayList<>();
             while (verticesWeight < (totalVWeight / 2)) {
+                List<MetisVertex> vList = new ArrayList<>();
                 addNeighbours(part, vList, vertex, metisVertices);
+                if (vList.size() == 0) {
+                    break;
+                }
                 vertex = vList.get(0);
                 adjustCutVertices(cutVerticesList, part, vertex, metisVertices);
                 part.add(vertex);
@@ -329,9 +335,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param metisVertices
      */
     private void addNeighbours(Set<MetisVertex> part, List<MetisVertex> vList, MetisVertex vertex, Set<MetisVertex> metisVertices){
-        if(vList.size() > 0){
-            vList.remove(0);
-        }
         for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices)) {
             if(!part.contains(metisVertex)) {
                 if( !vList.contains(metisVertex)) {
