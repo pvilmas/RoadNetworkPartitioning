@@ -63,17 +63,15 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             j++;
         }
         bubbleSort(sortedVertices, edgesCount);
-        int[] match = new int[sortedVertices.length];
+        List<Vertex> matchedVertices = new ArrayList<>();
         for (Vertex sortedVertex : sortedVertices) {
-            int vID = sortedVertex.getId();
-            if (match[vID - 1] == 0) {
+            if (!matchedVertices.contains(sortedVertex)) {
                 double maxWeight = -1;
-                int maxID = -1;
                 Vertex maxVertex = null;
                 for (Edge e : sortedVertex.getStartingEdges()) {
                     Vertex maxV= e.getEndpoint();
                     double weight = e.getLength();
-                    if (match[maxV.getId() -1] == 0) {
+                    if (!matchedVertices.contains(maxV)) {
                         for (Edge edge : sortedVertex.getEndingEdges()) {
                             if (edge.getStartpoint().equals(maxV)) {
                                 weight += edge.getLength();
@@ -81,20 +79,21 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                             }
                         }
                         if (maxWeight < weight) {
-                            maxID = maxV.getId();
                             maxVertex = maxV;
                             maxWeight = weight;
-                            match[vID-1] = 1;
+                            matchedVertices.add(sortedVertex);
                         }
                     }
                 }
-                if (maxID > -1) {
-                    match[maxID-1] = 1;
+                if (maxVertex != null) {
+                    matchedVertices.add(maxVertex);
                     reduceGraph(vertices, sortedVertex, maxVertex, maxWeight);
-                } else {
-                    match[vID-1] = 1;
-                    reduceGraph(vertices, sortedVertex, sortedVertex, maxWeight);
                 }
+            }
+        }
+        for (Vertex sortedVertex : sortedVertices) {
+            if (!matchedVertices.contains(sortedVertex)) {
+                reduceGraph(vertices, sortedVertex, sortedVertex, 0);
             }
         }
         return vertices;
@@ -236,6 +235,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 adjustCutVertices(cutVerticesList, part, vertex, metisVertices);
                 part.add(vertex);
                 verticesWeight += vertex.getWeight();
+                for (Edge startingEdge : vertex.getAllStartingEdges()) {
+                    verticesWeight += startingEdge.getLength()/2;
+                }
             }
             int score = cutVerticesList.size();
             if (score > currentScore) {
@@ -248,7 +250,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         for (MetisVertex v: metisVertices) {
             if(bestPart.contains(v)){
                 vertices1.add(v);
-            }else{
+            }
+            else{
                 vertices2.add(v);
             }
         }
@@ -330,9 +333,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             vList.remove(0);
         }
         for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices)) {
-            if(!part.contains(metisVertex))
-                if( !vList.contains(metisVertex)){
-                insertionSort(vList, metisVertex, part, metisVertices);
+            if(!part.contains(metisVertex)) {
+                if( !vList.contains(metisVertex)) {
+                    insertionSort(vList, metisVertex, part, metisVertices);
+                }
             }
         }
     }
@@ -346,6 +350,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         double total = 0.0;
         for (MetisVertex vertex: metisVertices) {
             total += vertex.getWeight();
+            for (Edge edge : vertex.getAllStartingEdges()) {
+                total += edge.getLength();
+            }
         }
         return total;
     }

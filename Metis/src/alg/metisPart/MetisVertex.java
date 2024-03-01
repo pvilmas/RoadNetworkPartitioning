@@ -59,6 +59,19 @@ public class MetisVertex {
         return id;
     }
 
+    public List<Edge> getAllStartingEdges() {
+        List<Edge> startingEdges = new ArrayList<>();
+        for (Vertex vertex : this.containingVertices) {
+            for (Edge startingEdge : vertex.getStartingEdges()) {
+                if (!this.containingVertices.contains(startingEdge.getEndpoint())){
+                    startingEdges.add(startingEdge);
+                }
+            }
+
+        }
+        return startingEdges;
+    }
+
     public List<MetisVertex> getNeighbourVertices(Set<MetisVertex> vertices) {
         if(this.neighbourVertices == null) {
             this.neighbourVertices = new ArrayList<>();
@@ -77,18 +90,11 @@ public class MetisVertex {
                     }
                 }
             }
-            for (Iterator<Vertex> it = neighbourVertices.iterator(); it.hasNext(); ) {
-                Vertex v = it.next();
+            for (Vertex v : neighbourVertices) {
                 for (MetisVertex metisVertex : vertices) {
-                    if (metisVertex.containingVertices.contains(v)) {
+                    if (metisVertex != this && metisVertex.containingVertices.contains(v)) {
                         if (!this.neighbourVertices.contains(metisVertex)) {
-
                             this.neighbourVertices.add(metisVertex);
-                        }
-                        it.remove();
-                        //neighbourVertices.remove(v);
-                        if (neighbourVertices.size() == 0) {
-                            return this.neighbourVertices;
                         }
                     }
                 }
