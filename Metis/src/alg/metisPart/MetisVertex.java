@@ -72,6 +72,19 @@ public class MetisVertex {
         return startingEdges;
     }
 
+    public List<Edge> getAllEndingEdges() {
+        List<Edge> endingEdges = new ArrayList<>();
+        for (Vertex vertex : this.containingVertices) {
+            for (Edge endingEdge : vertex.getEndingEdges()) {
+                if (!this.containingVertices.contains(endingEdge.getEndpoint())){
+                    endingEdges.add(endingEdge);
+                }
+            }
+
+        }
+        return endingEdges;
+    }
+
     public List<MetisVertex> getNeighbourVertices(Set<MetisVertex> vertices) {
         if(this.neighbourVertices == null) {
             this.neighbourVertices = new ArrayList<>();

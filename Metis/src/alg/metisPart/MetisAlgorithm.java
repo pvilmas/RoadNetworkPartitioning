@@ -228,21 +228,28 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             for (Edge startingEdge : vertex.getAllStartingEdges()) {
                 verticesWeight += startingEdge.getLength()/2;
             }
+            for (Edge endingEdge : vertex.getAllEndingEdges()) {
+                verticesWeight += endingEdge.getLength()/2;
+            }
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
             List<MetisVertex> cutVerticesList = new ArrayList<>();
+            List<MetisVertex> vList = new ArrayList<>();
             while (verticesWeight < (totalVWeight / 2)) {
-                List<MetisVertex> vList = new ArrayList<>();
+                //List<MetisVertex> vList = new ArrayList<>();
                 addNeighbours(part, vList, vertex, metisVertices);
                 if (vList.size() == 0) {
                     break;
                 }
-                vertex = vList.get(0);
+                vertex = vList.remove(0);
                 adjustCutVertices(cutVerticesList, part, vertex, metisVertices);
                 part.add(vertex);
                 verticesWeight += vertex.getWeight();
                 for (Edge startingEdge : vertex.getAllStartingEdges()) {
                     verticesWeight += startingEdge.getLength()/2;
+                }
+                for (Edge endingEdge : vertex.getAllEndingEdges()) {
+                    verticesWeight += endingEdge.getLength()/2;
                 }
             }
             int score = cutVerticesList.size();
