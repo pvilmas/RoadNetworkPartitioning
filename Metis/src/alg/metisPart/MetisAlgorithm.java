@@ -382,8 +382,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             verticesParts.add(new Graph(vertices, null));
             p++;
         }
-        double gMax = 0;
+        double gMax;
         do {
+            gMax = 0;
             List<Double> gv = new ArrayList<>();
             List<Vertex> av = new ArrayList<>();
             List<Vertex> bv = new ArrayList<>();
@@ -403,12 +404,14 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                         }
                     }
                 }
-                gv.add(max);
-                av.add(a);
-                bv.add(b);
-                int[] abValue = getAandBPartNumbers(a, b, verticesParts);
-                verticesPartsDynamic.put(a, abValue[1]);
-                verticesPartsDynamic.put(b, abValue[0]);
+                if (a != null) {
+                    gv.add(max);
+                    av.add(a);
+                    bv.add(b);
+                    int[] abValue = getAandBPartNumbers(a, b, verticesParts);
+                    verticesPartsDynamic.put(a, abValue[1]);
+                    verticesPartsDynamic.put(b, abValue[0]);
+                }
             }
             int k = 0;
             double sum = 0;
@@ -428,8 +431,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                     verticesParts.get(abValue[0]).getVertices().put(b.getId(), b);
                 }
             }
-            // TODO
-        }while (gMax == 0);
+        }while (gMax > 0);
 
         return verticesParts;
     }
