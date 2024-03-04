@@ -233,16 +233,14 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             }
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
-            List<MetisVertex> cutVerticesList = new ArrayList<>();
             List<MetisVertex> vList = new ArrayList<>();
+            int cutEdges = 0;
             while (verticesWeight < (totalVWeight / 2)) {
-                //List<MetisVertex> vList = new ArrayList<>();
                 addNeighbours(part, vList, vertex, metisVertices);
                 if (vList.size() == 0) {
                     break;
                 }
                 vertex = vList.remove(0);
-                adjustCutVertices(cutVerticesList, part, vertex, metisVertices);
                 part.add(vertex);
                 verticesWeight += vertex.getWeight();
                 for (Edge startingEdge : vertex.getAllStartingEdges()) {
@@ -251,11 +249,12 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 for (Edge endingEdge : vertex.getAllEndingEdges()) {
                     verticesWeight += endingEdge.getLength()/2;
                 }
+                cutEdges = adjustCutVertices(part, vList);
             }
-            int score = cutVerticesList.size();
+            int score = cutEdges;
             if (score > currentScore) {
                 currentScore = score;
-                bestPart = part;
+                bestPart = new HashSet<>(part);
             }
         }
         Set<MetisVertex> vertices1 = new HashSet<>();
@@ -275,19 +274,31 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     /**
      *
-     * @param cutVerticesList
      * @param part
-     * @param vertex
-     * @param metisVertices
+     * @param vList
+     * @return
      */
-    private void adjustCutVertices(List<MetisVertex> cutVerticesList, Set<MetisVertex> part,
-                                   MetisVertex vertex, Set<MetisVertex> metisVertices) {
-        cutVerticesList.remove(vertex);
-        for(MetisVertex v: vertex.getNeighbourVertices(metisVertices)){
-            if(!part.contains(v)){
-                cutVerticesList.add(v);
+    private int adjustCutVertices(Set<MetisVertex> part, List<MetisVertex> vList) {
+        int cutEdges = 0;
+        for(MetisVertex vertex: vList) {
+            for (Edge edge: vertex.getAllStartingEdges()) {
+                for (MetisVertex metisVertex : part) {
+                    if (metisVertex.getContainingVertices().contains(edge.getEndpoint())) {
+                        cutEdges++;
+                        break;
+                    }
+                }
+            }
+            for (Edge edge: vertex.getAllEndingEdges()) {
+                for (MetisVertex metisVertex : part) {
+                    if (metisVertex.getContainingVertices().contains(edge.getEndpoint())) {
+                        cutEdges++;
+                        break;
+                    }
+                }
             }
         }
+        return cutEdges;
     }
 
     /**
@@ -389,6 +400,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             verticesParts.add(new Graph(vertices, null));
             p++;
         }
+
         double gMax;
         do {
             gMax = 0;
