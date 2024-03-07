@@ -219,7 +219,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     private List<Set<MetisVertex>> partitionGraph(Set<MetisVertex> metisVertices) {
         List<Set<MetisVertex>> graphComponents = new ArrayList<>();
         double totalVWeight = countTotalVWeight(metisVertices);
-        double currentScore = 0.0;
+        int currentScore = Integer.MAX_VALUE;
         Set<MetisVertex> bestPart = new HashSet<>();
         for (int i = 0; i < 4; i++) {
             int index = new Random(System.nanoTime()).nextInt(metisVertices.size());
@@ -234,7 +234,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
             List<MetisVertex> vList = new ArrayList<>();
-            int cutEdges = 0;
             while (verticesWeight < (totalVWeight / 2)) {
                 addNeighbours(part, vList, vertex, metisVertices);
                 if (vList.size() == 0) {
@@ -249,10 +248,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 for (Edge endingEdge : vertex.getAllEndingEdges()) {
                     verticesWeight += endingEdge.getLength()/2;
                 }
-                cutEdges = adjustCutVertices(part, vList);
             }
-            int score = cutEdges;
-            if (score > currentScore) {
+            addNeighbours(part, vList, vertex, metisVertices);
+            int score = adjustCutVertices(part, vList);
+            if (score < currentScore) {
                 currentScore = score;
                 bestPart = new HashSet<>(part);
             }
@@ -321,8 +320,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             }
             return;
         }
-        for(int i = vertexOrder.size()-1; i >= 0; i--){
-            if(getVertexEdgeCut(vertexOrder.get(i), part, metisVertices) < edgeCut){
+        for(int i = vertexOrder.size()-1; i > -1; i--){
+            if(getVertexEdgeCut(vertexOrder.get(i), part, metisVertices) <= edgeCut){
                 vertexOrder.add(i+1, v);
                 return;
             }
@@ -371,8 +370,11 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         double total = 0.0;
         for (MetisVertex vertex: metisVertices) {
             total += vertex.getWeight();
-            for (Edge edge : vertex.getAllStartingEdges()) {
-                total += edge.getLength();
+            for (Edge startingEdge : vertex.getAllStartingEdges()) {
+                total += startingEdge.getLength()/2;
+            }
+            for (Edge endingEdge : vertex.getAllEndingEdges()) {
+                total += endingEdge.getLength()/2;
             }
         }
         return total;
@@ -408,18 +410,19 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             List<Vertex> av = new ArrayList<>();
             List<Vertex> bv = new ArrayList<>();
             for(int n = 0; n < length/2; n++) {
-                Map<Integer, Map<Vertex, Double>> borderDValues = computeBorderDValues(verticesPartsDynamic);
-                List<Map<Vertex, Double>> list = new ArrayList<>(borderDValues.values());
+                List<Map<Vertex, Double>> list = new ArrayList<>(computeBorderDValues(verticesPartsDynamic).values());
                 double max = 0;
                 Vertex a = null;
                 Vertex b = null;
                 for (Map.Entry<Vertex, Double> i : list.get(0).entrySet()) {
                     for (Map.Entry<Vertex, Double> j : list.get(1).entrySet()) {
-                        double g = i.getValue() + j.getValue() - 2 * getCValue(i.getKey(), j.getKey());
-                        if(g >= max){
-                            max = g;
-                            a = i.getKey();
-                            b = j.getKey();
+                        if (verticesNotExchanged(i.getKey(), j.getKey(), av, bv)){
+                            double g = i.getValue() + j.getValue() - 2 * getCValue(i.getKey(), j.getKey());
+                            if(g >= max){
+                                max = g;
+                                a = i.getKey();
+                                b = j.getKey();
+                            }
                         }
                     }
                 }
@@ -453,6 +456,22 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         }while (gMax > 0);
 
         return verticesParts;
+    }
+
+    private boolean verticesNotExchanged(Vertex a, Vertex b, List<Vertex> av, List<Vertex> bv) {
+        int index = -1;
+        for (int i = 0; i < av.size(); i++) {
+            if ((av.get(i) == a) || (av.get(i) == b)) {
+                index = i;
+            }
+        }
+        if ((index == -1) || ((bv.get(index) != a) && (bv.get(index) != b))) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
     }
 
     /**
