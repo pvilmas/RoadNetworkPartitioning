@@ -8,10 +8,21 @@
             prefHeight="400.0" prefWidth="600.0">
     <content>
         <VBox fx:id="vBox" spacing="5" alignment="CENTER">
-
+            <Label text="Number of rounds"/>
+            <Spinner fx:id="spinnerRoundCount">
+                <valueFactory>
+                    <SpinnerValueFactory.IntegerSpinnerValueFactory min="1" max="1000" initialValue="1" amountToStepBy="1"/>
+                </valueFactory>
+            </Spinner>
+            <CheckBox fx:id="createCSVStatisticFile" text="Export statistics to CSV file" selected="true"/>
+            <CheckBox fx:id="exportResultingPartitions" text="Export resulting partitions to files for each graph component of each algorithm." selected="true"/>
+            <Button styleClass="btn, btn-primary" text="Start Testing" prefHeight="30" prefWidth="200"
+                    fx:id="startTestingButton"/>
+            <Label text="Progress:"/>
+            <TextArea fx:id="progressMessages"/>
         </VBox>
     </content>
 
-    <ButtonType fx:id="settingButtonType" text="Apply and close" buttonData="OK_DONE"/>
+    <ButtonType fx:id="testButtonType" text="Close" buttonData="OK_DONE"/>
 
 </DialogPane>

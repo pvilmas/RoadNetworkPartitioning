@@ -225,6 +225,7 @@ public class MainController {
         }
     }
 
+    @FXML
     protected void onTestMenuClick(ActionEvent actionEvent) {
         try {
             StatisticsDialogController dialog = new StatisticsDialogController(stage, algorithms);

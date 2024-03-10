@@ -1,6 +1,7 @@
 package bp.roadnetworkpartitioning;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -23,28 +24,37 @@ import java.util.Objects;
  */
 public class TestDialogController extends Dialog<Boolean> {
     /** Algorithm whose parameters are going to be set up. */
-    private final APartitionAlgorithm algorithm;
-    /** Mapping of label with parameter name and text field with parameter value. */
-    private final Map<Label, TextField> parameters = new HashMap<>();
+    private final Map<String, APartitionAlgorithm> algorithms;
+    private final Graph graph;
+    private final int partCount;
     /** Main button of the dialog with parameters setting. */
     @FXML
     private ButtonType testButtonType;
     /** VBox containing all parameters. */
     @FXML
     private VBox vBox;
+    @FXML
+    private Spinner<Integer> spinnerRoundCount;
+    @FXML
+    private CheckBox createCSVStatisticFile;
+    @FXML
+    private CheckBox exportResultingPartitions;
+    @FXML
+    private Button startTestingButton;
+    @FXML
+    private TextArea progressMessages;
 
     /**
      * Constructor of dialog for algorithm parameters setting with given stage/window and the algorithm instance for dialog.
      * @param window        stage/window hosting dialog.
-     * @param algorithm     algorithm whose parameters are going to be set up.
      * @throws IOException  when loading fxml.
      */
-    public TestDialogController(Window window, APartitionAlgorithm algorithm) throws IOException {
+    public TestDialogController(Window window, Map<String, APartitionAlgorithm> algorithms, Graph graph, int partCount) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("test-dialog.fxml"));
         fxmlLoader.setController(this);
         DialogPane dialogPane = fxmlLoader.load();
-        dialogPane.lookupButton(testButtonType).addEventFilter(ActionEvent.ANY, this::onApplyAndCloseButtonClick);
+        dialogPane.lookupButton(testButtonType).addEventFilter(ActionEvent.ANY, this::onCloseButtonClick);
         initOwner(window);
         initModality(Modality.APPLICATION_MODAL);
         setResizable(true);
@@ -57,65 +67,33 @@ public class TestDialogController extends Dialog<Boolean> {
             }
             return true;
         });
-        this.algorithm = algorithm;
-        showParameters();
+        this.algorithms = algorithms;
+        this.graph = graph;
+        this.partCount = partCount;
+        startTestingButton.setOnAction(e -> onStartTestingButtonClick());
     }
 
-    /**
-     * Saves changes when button "Apply and close" is clicked.
-     */
-    @FXML
-    protected void onApplyAndCloseButtonClick(ActionEvent event){
-        if (this.algorithm.getParameters() != null) {
-            for (Map.Entry<Label, TextField> parameter: this.parameters.entrySet()) {
-                this.algorithm.getParameters().put(parameter.getKey().getText(), parameter.getValue().getText());
+    private void onStartTestingButtonClick() {
+        for(APartitionAlgorithm algorithm : algorithms.values()) {
+            for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
+                GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
+                if (createCSVStatisticFile.isSelected()) {
+                    addToStatistics(algorithm, graphPartition);
+                }
+                if (exportResultingPartitions.isSelected()) {
+                    exportResultingPartition(algorithm, graphPartition);
+                }
             }
         }
     }
 
-    /**
-     * Adds one parameter info box.
-     * @param parameter             parameter to be displayed.
-     * @param parameterDescription  detailed description of the parameter.
-     */
-    private void addParameterHBox(Map.Entry<String, String> parameter, String parameterDescription) {
-        VBox valueBox1 = new VBox(3);
-        Label labelNameName = new Label("Parameter Name:");
-        Label labelName = new Label(parameter != null ? parameter.getKey() : "");
-        valueBox1.getChildren().addAll(labelNameName, labelName);
-        valueBox1.setAlignment(Pos.CENTER);
-        VBox valueBox2 = new VBox(3);
-        Label labelNameValue = new Label("Value:");
-        TextField fieldValue = new TextField(parameter != null ? parameter.getValue() : "");
-        valueBox2.getChildren().addAll(labelNameValue, fieldValue);
-        valueBox2.setAlignment(Pos.CENTER);
-        VBox valueBox3 = new VBox(3);
-        Label labelNameDescription = new Label("Detailed Description:");
-        Label labelDescription = new Label(parameterDescription != null ? parameterDescription : "");
-        valueBox3.getChildren().addAll(labelNameDescription, labelDescription);
-        valueBox3.setAlignment(Pos.CENTER);
-        parameters.put(labelName, fieldValue);
-        HBox hBox = new HBox(10);
-        hBox.setAlignment(Pos.CENTER);
-        hBox.getChildren().addAll(valueBox1, valueBox2, valueBox3);
-        vBox.getChildren().add(hBox);
+    private void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
     }
 
-    /**
-     * Loads and displays parameters of the algorithm.
-     */
-    private void showParameters() {
-        if (this.algorithm.getParameters() != null && this.algorithm.getParameters().size() > 0) {
-            for (Map.Entry<String, String> parameter : this.algorithm.getParameters().entrySet()) {
-                String parameterDescription = this.algorithm.getParametersDescription() != null ?
-                        this.algorithm.getParametersDescription().get(parameter.getKey()) : null;
-                addParameterHBox(parameter, parameterDescription);
-            }
-        }
-        else {
-            Label noParameters = new Label("No Parameters Available");
-            noParameters.setAlignment(Pos.CENTER);
-            vBox.getChildren().add(noParameters);
-        }
+    private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
     }
+
+    private <T extends Event> void onCloseButtonClick(T t) {
+    }
+
 }
