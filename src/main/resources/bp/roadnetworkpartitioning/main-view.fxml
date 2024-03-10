@@ -17,6 +17,9 @@
             <Menu text="Parser">
                 <MenuItem text="Create GeoJSON File" onAction="#onCreateJSONMenuClick"/>
             </Menu>
+            <Menu text="Testing">
+                <MenuItem text="Test" onAction="#onTestMenuClick"/>
+            </Menu>
             <Menu text="Help">
                 <MenuItem text="Manual"/>
                 <MenuItem text="About"/>

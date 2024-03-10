@@ -27,11 +27,9 @@ public class MainController {
     /** Instance of main stage. */
     private static Stage stage = null;
     /** Default zoom value. */
-    private static int zoom = 10;
-    /** Default size of vertex. */
-    private static final int size = 5;
+    private int zoom = 10;
     /** Stores color of each part. */
-    private static Color[] colors = {Color.BLUE, Color.RED};
+    private Color[] colors = {Color.BLUE, Color.RED};
     /** Sets number of parts. */
     @FXML
     private Spinner<Integer> spinnerPartCount;
@@ -41,8 +39,10 @@ public class MainController {
     /** TextField with zoom value. */
     @FXML
     private TextField textZoom;
-    /** VBox containing radio buttons of all available
-     * algorithms and buttons with their setting. */
+    /**
+     * VBox containing radio buttons of all available
+     * algorithms and buttons with their setting.
+     */
     @FXML
     private VBox vboxRadioBtn;
     /** Label with zoom value. */
@@ -55,6 +55,7 @@ public class MainController {
     private Graph graph = null;
     /** Computed partition of the graph. */
     private GraphPartition graphPartition = null;
+    /**  */
     private Map<String, APartitionAlgorithm> algorithms = new HashMap<>();
 
     /**
@@ -173,12 +174,14 @@ public class MainController {
         }
     }
 
+    /**
+     *
+     */
     @FXML
     protected void onShowStatisticsButtonClick() {
         try {
             StatisticsDialogController dialog = new StatisticsDialogController(stage, algorithms);
-            dialog.showAndWait().ifPresent(pickedColors -> {
-            });
+            dialog.showAndWait();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -222,6 +225,15 @@ public class MainController {
         }
     }
 
+    protected void onTestMenuClick(ActionEvent actionEvent) {
+        try {
+            StatisticsDialogController dialog = new StatisticsDialogController(stage, algorithms);
+            dialog.showAndWait();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Shows setting dialog of given algorithm.
      * @param algorithm   name of the algorithm.
@@ -252,8 +264,9 @@ public class MainController {
             drawGraph(group, this.graph, Color.BLACK);
         }
         else {
-            for (int i = 0; i < colors.length; i++) {
-                drawGraph(group, graphPartition.getGraphComponents().get(i), colors[i]);
+            for (int i = 0; i < spinnerPartCount.getValue(); i++) {
+                Color color = colors.length > i ? colors[i] : Color.BLACK;
+                drawGraph(group, graphPartition.getGraphComponents().get(i), color);
             }
         }
         scrollPane.setPrefSize(1000, 1000);
@@ -267,6 +280,7 @@ public class MainController {
      * @param color color of the graph.
      */
     private void drawGraph(Group group, Graph graph, Color color){
+        int size = 5;
         for(Vertex vertex: graph.getVertices().values()){
             Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
             circle.setStroke(color);

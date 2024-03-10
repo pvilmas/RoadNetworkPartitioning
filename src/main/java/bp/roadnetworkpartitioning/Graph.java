@@ -12,15 +12,15 @@ import java.util.Map;
  */
 public class Graph {
 
-    /** HashMap with all vertices of the graph. */
+    /** Map with all vertices of the graph. */
     private Map<Integer, Vertex> vertices;
-    /** HashMap with all edges of the graph. */
+    /** Map with all edges of the graph. */
     private Map<Integer, Edge> edges;
 
     /**
      * Constructor of graph.
-     * @param vertices      HashMap with all vertices of the graph.
-     * @param edges         HashMap with all edges of the graph.
+     * @param vertices      Map with all vertices of the graph.
+     * @param edges         Map with all edges of the graph.
      */
     public Graph(Map<Integer, Vertex> vertices, Map<Integer, Edge> edges){
         this.vertices = vertices;
