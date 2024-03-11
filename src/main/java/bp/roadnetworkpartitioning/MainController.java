@@ -228,7 +228,7 @@ public class MainController {
     @FXML
     protected void onTestMenuClick(ActionEvent actionEvent) {
         try {
-            StatisticsDialogController dialog = new StatisticsDialogController(stage, algorithms);
+            TestDialogController dialog = new TestDialogController(stage, algorithms, graph, spinnerPartCount.getValue());
             dialog.showAndWait();
         } catch (Exception e){
             e.printStackTrace();

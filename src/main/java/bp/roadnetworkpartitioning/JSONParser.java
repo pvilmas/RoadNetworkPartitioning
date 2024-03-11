@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Class with methods for creating and reading JSON files.
@@ -50,6 +47,15 @@ public class JSONParser {
         if(edges == null){
             return false;
         }
+        return writeJSONFile(jsonName, vertices, edges);
+    }
+
+    public static boolean writeJSONFile(String jsonName, Graph graph) {
+        return writeJSONFile(jsonName, graph.getVertices().values(), graph.getEdges().values());
+    }
+
+
+    public static boolean writeJSONFile(String jsonName, Collection<Vertex> vertices, Collection<Edge> edges) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(jsonName + EXTENSION))){
             bw.write("{\n \"type\": \"FeatureCollection\",\n \"features\": [\n");
             int k = 1;

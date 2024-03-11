@@ -168,7 +168,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             for(; i < tableView.getColumns().size() - 1; i++){
                 bw.write(tableView.getColumns().get(i).getText() + ",");
             }
-            bw.write(tableView.getColumns().get(tableView.getColumns().size() - 1).getText() + "\n");
+            bw.write(tableView.getColumns().get(i).getText() + "\n");
             for(Data data: tableView.getItems()){
                 bw.write(data.algorithmName.getValue() + ",");
                 bw.write(data.algorithmTime.getValue() + ",");

@@ -11,10 +11,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 /**
@@ -73,7 +75,63 @@ public class TestDialogController extends Dialog<Boolean> {
         startTestingButton.setOnAction(e -> onStartTestingButtonClick());
     }
 
+    private static class Statistics {
+        private int numberOfRounds = 1;
+        private boolean isAverageCalculated = false;
+        private final Map<String, Long> times = new HashMap<>();
+        private final Map<String, Double> balances = new HashMap<>();
+        private final Map<String, Integer> numberOfCutEdges = new HashMap<>();
+        private final Map<String, Integer> maxNumberOfNeighbours = new HashMap<>();
+        private final List<String> columnNames = new ArrayList<>();
+
+        private void addTime(String algorithmName, long time) {
+            times.putIfAbsent(algorithmName, 0L);
+            times.put(algorithmName, times.get(algorithmName) + time);
+        }
+
+        private void addBalance(String algorithmName, double balance) {
+            balances.putIfAbsent(algorithmName, 0.0);
+            balances.put(algorithmName, balances.get(algorithmName) + balance);
+        }
+
+        private void addNumberOfCutEdges(String algorithmName, int numberOfCutEdge) {
+            numberOfCutEdges.putIfAbsent(algorithmName, 0);
+            numberOfCutEdges.put(algorithmName, numberOfCutEdges.get(algorithmName) + numberOfCutEdge);
+        }
+
+        private void addMaxNumberOfNeighbours(String algorithmName, int maxNumberOfNeighbour) {
+            maxNumberOfNeighbours.putIfAbsent(algorithmName, 0);
+            maxNumberOfNeighbours.put(algorithmName, maxNumberOfNeighbours.get(algorithmName) + maxNumberOfNeighbour);
+        }
+
+        private void calculateAverage() {
+            if (isAverageCalculated) {
+                return;
+            }
+            isAverageCalculated = true;
+            for (Map.Entry<String, Long> timeEntry : times.entrySet()) {
+                timeEntry.setValue(timeEntry.getValue() / numberOfRounds);
+            }
+            for (Map.Entry<String, Double> balanceEntry : balances.entrySet()) {
+                balanceEntry.setValue(balanceEntry.getValue() / numberOfRounds);
+            }
+            for (Map.Entry<String, Integer> numberOfCutEdgeEntry : numberOfCutEdges.entrySet()) {
+                numberOfCutEdgeEntry.setValue(numberOfCutEdgeEntry.getValue() / numberOfRounds);
+            }
+            for (Map.Entry<String, Integer> maxNumberOfNeighbourEntry : maxNumberOfNeighbours.entrySet()) {
+                maxNumberOfNeighbourEntry.setValue(maxNumberOfNeighbourEntry.getValue() / numberOfRounds);
+            }
+            columnNames.add("Algorithm Name");
+            columnNames.add("Time");
+            columnNames.add("Balance");
+            columnNames.add("Number of Cut Edges");
+            columnNames.add("Maximal Number of Neighbours");
+        }
+    }
+    private final Statistics statistics = new Statistics();
+
     private void onStartTestingButtonClick() {
+        statistics.numberOfRounds = spinnerRoundCount.getValue();
         for(APartitionAlgorithm algorithm : algorithms.values()) {
             for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
                 GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
@@ -81,16 +139,51 @@ public class TestDialogController extends Dialog<Boolean> {
                     addToStatistics(algorithm, graphPartition);
                 }
                 if (exportResultingPartitions.isSelected()) {
-                    exportResultingPartition(algorithm, graphPartition);
+                    exportResultingPartition(algorithm, graphPartition, i);
                 }
+            }
+        }
+        if (createCSVStatisticFile.isSelected()) {
+            statistics.calculateAverage();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+            LocalDateTime now = LocalDateTime.now();
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + dtf.format(now) + ".csv"))) {
+                int i = 0;
+                for(; i < statistics.columnNames.size() - 1; i++){
+                    bw.write(statistics.columnNames.get(i) + ",");
+                }
+                bw.write(statistics.columnNames.get(i) + "\n");
+                for(String algorithmName : algorithms.keySet()) {
+                    bw.write(algorithmName + ",");
+                    bw.write(statistics.times.get(algorithmName) + ",");
+                    bw.write(statistics.balances.get(algorithmName) + ",");
+                    bw.write(statistics.numberOfCutEdges.get(algorithmName) + ",");
+                    bw.write(statistics.maxNumberOfNeighbours.get(algorithmName) + "\n");
+                }
+                bw.flush();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
+    private void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String jsonName = algorithm.getName() + dtf.format(now) + "_" + i;
+        int j = 0;
+        for (Graph graphComponent : graphPartition.getGraphComponents()) {
+            JSONParser.writeJSONFile(jsonName + "_" + j, graphComponent);
+            j++;
+        }
     }
 
     private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
+        statistics.addTime(algorithm.getName(), graphPartition.getTime());
+        statistics.addBalance(algorithm.getName(), graphPartition.getBalance());
+        statistics.addNumberOfCutEdges(algorithm.getName(), graphPartition.getCutEdgesCount());
+        statistics.addMaxNumberOfNeighbours(algorithm.getName(), graphPartition.getMaxNeighbours());
     }
 
     private <T extends Event> void onCloseButtonClick(T t) {
