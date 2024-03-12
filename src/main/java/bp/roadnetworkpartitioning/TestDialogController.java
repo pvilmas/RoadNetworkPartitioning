@@ -132,18 +132,28 @@ public class TestDialogController extends Dialog<Boolean> {
 
     private void onStartTestingButtonClick() {
         statistics.numberOfRounds = spinnerRoundCount.getValue();
+        progressMessages.setText("Testing started...\n");
         for(APartitionAlgorithm algorithm : algorithms.values()) {
+            progressMessages.setText(progressMessages.getText() + "Testing algorithm: " + algorithm.getName() + "\n");
             for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
+                progressMessages.setText(progressMessages.getText() + "Starting round " + i + "...\n");
+                progressMessages.setText(progressMessages.getText() + "Partitioning...\n");
                 GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
+                progressMessages.setText(progressMessages.getText() + "Partition was created.\n");
+
                 if (createCSVStatisticFile.isSelected()) {
+                    progressMessages.setText(progressMessages.getText() + "Adding to statistics...\n");
                     addToStatistics(algorithm, graphPartition);
                 }
                 if (exportResultingPartitions.isSelected()) {
+                    progressMessages.setText(progressMessages.getText() + "Recording result...\n");
                     exportResultingPartition(algorithm, graphPartition, i);
                 }
             }
+            progressMessages.setText(progressMessages.getText() + "Algorithm " + algorithm.getName() + " was tested.\n");
         }
         if (createCSVStatisticFile.isSelected()) {
+            progressMessages.setText(progressMessages.getText() + "Creating CSV statistics file...\n");
             statistics.calculateAverage();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
             LocalDateTime now = LocalDateTime.now();
@@ -161,11 +171,14 @@ public class TestDialogController extends Dialog<Boolean> {
                     bw.write(statistics.maxNumberOfNeighbours.get(algorithmName) + "\n");
                 }
                 bw.flush();
+                progressMessages.setText(progressMessages.getText() + "CSV file was created successfully.\n");
             }
             catch (IOException e) {
                 e.printStackTrace();
+                progressMessages.setText(progressMessages.getText() + "CSV file creation failed.\n");
             }
         }
+        progressMessages.setText(progressMessages.getText() + "Testing finished.\n");
     }
 
     private void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
