@@ -16,7 +16,7 @@ public class PunchAlgorithm extends APartitionAlgorithm {
 
 
     @Override
-    public GraphPartition getGraphPartition(Graph graph, int partsCount) {
+    public GraphPartition createGraphPartition(Graph graph, int partsCount) {
         filter();
         assembly();
         return null;

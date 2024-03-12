@@ -41,7 +41,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     private double epsilon = 10;
 
     @Override
-    public GraphPartition getGraphPartition(Graph graph, int partsCount) {
+    public GraphPartition createGraphPartition(Graph graph, int partsCount) {
         setPartsCount(partsCount);
         boolean isSame = false;
         if (graph != null) {
@@ -50,7 +50,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             }
             setGraph(graph);
         }
-        if ((getGraphPartition() == null || !isSame) && getGraph() != null) {
+        GraphPartition graphPartition = getGraphPartition();
+        if ((graphPartition == null || !isSame) && getGraph() != null) {
             Map<Vertex, Integer> verticesParts = new HashMap<>();
             List<Part> parts = new ArrayList<>(getPartsCount());
             int[] stop = initialise(parts, verticesParts);
@@ -58,9 +59,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             balancePartitioning(parts, verticesParts);
             List<Graph> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
-            setGraphPartition(new GraphPartition(subgraphs));
+            graphPartition = new GraphPartition(subgraphs);
         }
-        return getGraphPartition();
+        return graphPartition;
     }
 
     @Override

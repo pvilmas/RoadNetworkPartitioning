@@ -26,13 +26,20 @@ public abstract class APartitionAlgorithm {
      * @param graph         graph to be divided.
      * @param partsCount    number of parts.
      */
-    public abstract GraphPartition getGraphPartition(Graph graph, int partsCount);
+    public final GraphPartition getGraphPartition(Graph graph, int partsCount){
+        long time = System.nanoTime();
+        this.graphPartition = createGraphPartition(graph, partsCount);
+        this.graphPartition.setTime(time - System.nanoTime());
+        return this.graphPartition;
+    }
+
+    protected abstract GraphPartition createGraphPartition(Graph graph, int partsCount);
 
     /**
      * Gets graph partition.
      * @return instance representing graph division (partition).
      */
-    public GraphPartition getGraphPartition(){
+    public final GraphPartition getGraphPartition(){
         return this.graphPartition;
     }
 
@@ -40,7 +47,7 @@ public abstract class APartitionAlgorithm {
      * Sets graph partition.
      * @param graphPartition instance representing graph division (partition).
      */
-    public void setGraphPartition(GraphPartition graphPartition){
+    public final void setGraphPartition(GraphPartition graphPartition){
         this.graphPartition = graphPartition;
     }
 
@@ -48,7 +55,7 @@ public abstract class APartitionAlgorithm {
      * Sets algorithm parameters.
      * @param parameters Map where key is name of parameter and value is value of parameter.
      */
-    public void setParameters(Map<String, String> parameters){
+    public final void setParameters(Map<String, String> parameters){
         this.parameters = parameters;
     }
 
@@ -62,7 +69,7 @@ public abstract class APartitionAlgorithm {
      * Gets algorithm parameters.
      * @return Map where key is name of parameter and value is value of parameter.
      */
-    public Map<String, String> getParameters(){
+    public final Map<String, String> getParameters(){
         return this.parameters;
     }
 
@@ -70,7 +77,7 @@ public abstract class APartitionAlgorithm {
      * Gets algorithm parameters description.
      * @return Map where key is name of parameter and value is description of parameter.
      */
-    public Map<String, String> getParametersDescription(){
+    public final Map<String, String> getParametersDescription(){
         return parametersDescription;
     }
 
@@ -78,7 +85,7 @@ public abstract class APartitionAlgorithm {
      * Sets algorithm parameters description.
      * @param parametersDescription Map where key is name of parameter and value is description of parameter.
      */
-    public void setParametersDescriptions(Map<String, String> parametersDescription){
+    public final void setParametersDescriptions(Map<String, String> parametersDescription){
         this.parametersDescription = parametersDescription;
     }
 
@@ -92,7 +99,7 @@ public abstract class APartitionAlgorithm {
      * Sets graph to be divided.
      * @param graph instance of graph.
      */
-    public void setGraph(Graph graph){
+    public final void setGraph(Graph graph){
         this.graph = graph;
     }
 
@@ -100,7 +107,7 @@ public abstract class APartitionAlgorithm {
      * Gets graph to be divided.
      * @return instance of graph.
      */
-    public Graph getGraph(){
+    public final Graph getGraph(){
         return this.graph;
     }
 
@@ -108,7 +115,7 @@ public abstract class APartitionAlgorithm {
      * Sets number of parts a graph to be divided.
      * @param partsCount    number of parts a graph to be divided.
      */
-    public void setPartsCount(int partsCount){
+    public final void setPartsCount(int partsCount){
         this.partsCount = partsCount;
     }
 
@@ -116,7 +123,7 @@ public abstract class APartitionAlgorithm {
      * Gets number of parts a graph to be divided.
      * @return number of parts a graph to be divided.
      */
-    public int getPartsCount(){
+    public final int getPartsCount(){
         return this.partsCount;
     }
 
