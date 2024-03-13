@@ -535,7 +535,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         Vertex vertex = vertexPart.getKey();
         int partNumber = vertexPart.getValue();
         for(Edge edge: vertex.getStartingEdges()){
-            if(verticesParts.get(edge.getEndpoint()) != partNumber){
+            if((verticesParts.get(edge.getEndpoint()) != null) && (verticesParts.get(edge.getEndpoint())!= partNumber)){
                 edgesWeights[0] += edge.getLength();
             }
             else{
@@ -543,7 +543,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             }
         }
         for(Edge edge: vertex.getEndingEdges()){
-            if(verticesParts.get(edge.getStartpoint()) != partNumber){
+            if((verticesParts.get(edge.getStartpoint()) != null) && (verticesParts.get(edge.getStartpoint()) != partNumber)){
                 edgesWeights[0] += edge.getLength();
             }
             else{

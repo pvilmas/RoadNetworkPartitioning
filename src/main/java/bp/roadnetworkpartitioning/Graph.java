@@ -103,7 +103,10 @@ public class Graph {
      * @return graph edges.
      */
     public Map<Integer, Edge> getEdges(){
-        return this.edges;
+        if (this.edges != null) {
+            return this.edges;
+        }
+        return new HashMap<>();
     }
 
     /**
