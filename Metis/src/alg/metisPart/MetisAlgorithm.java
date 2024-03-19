@@ -53,22 +53,17 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      */
     private Set<MetisVertex> coarsenGraph(Graph graph) {
         Set<MetisVertex> vertices = new HashSet<>();
-        Vertex[] sortedVertices = sortVertices(graph);
-        int[] edgesCount = new int[sortedVertices.length];
-        int j = 0;
-        for (Vertex v : sortedVertices) {
-            int edgeCount = v.getStartingEdges().size();
-            int endCount = v.getEndingEdges().size();
-            int totalEdgeCount = edgeCount + endCount;
-            edgesCount[j] = totalEdgeCount;
-            j++;
+        for (Vertex vertex : graph.getVertices().values()) {
+            List<Vertex> containingVertices = new ArrayList<>();
+            containingVertices.add(vertex);
+            vertices.add(new MetisVertex(containingVertices, vertex.getValue()));
         }
-        bubbleSort(sortedVertices, edgesCount);
-        List<Vertex> matchedVertices = new ArrayList<>();
-        for (Vertex sortedVertex : sortedVertices) {
+        MetisVertex[] sortedVertices = sortVertices(vertices);
+        List<MetisVertex> matchedVertices = new ArrayList<>();
+        for (MetisVertex sortedVertex : sortedVertices) {
             if (!matchedVertices.contains(sortedVertex)) {
                 double maxWeight = -1;
-                Vertex maxVertex = null;
+                MetisVertex maxVertex = null;
                 for (Edge e : sortedVertex.getStartingEdges()) {
                     Vertex maxV= e.getEndpoint();
                     double weight = e.getLength();
@@ -104,11 +99,11 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Sorts vertices by their degree.
      * @return sorted array of vertices.
      */
-    private Vertex[] sortVertices(Graph graph) {
-        Vertex[] sortedVertices = graph.getVertices().values().toArray(new Vertex[0]);
-        Map<Vertex, Integer> vertexDegree = new HashMap<>();
-        for (Vertex vertex : graph.getVertices().values()) {
-            vertexDegree.put(vertex, vertex.getStartingEdges().size() + vertex.getEndingEdges().size());
+    private MetisVertex[] sortVertices(Set<MetisVertex> vertices) {
+        MetisVertex[] sortedVertices = vertices.toArray(new MetisVertex[0]);
+        Map<MetisVertex, Integer> vertexDegree = new HashMap<>();
+        for (MetisVertex vertex : vertices) {
+            vertexDegree.put(vertex, vertex.getVertexDegree());
         }
         quickSort(sortedVertices, vertexDegree);
         return sortedVertices;
@@ -119,7 +114,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param sortedVertices array to be sorted.
      * @param vertexDegree   degree of each vertex.
      */
-    private void quickSort(Vertex[] sortedVertices, Map<Vertex, Integer> vertexDegree) {
+    private void quickSort(MetisVertex[] sortedVertices, Map<MetisVertex, Integer> vertexDegree) {
         quickSort(sortedVertices, 0, sortedVertices.length - 1, vertexDegree);
     }
 
@@ -130,7 +125,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param end            ends with end index.
      * @param vertexDegree   degree of each vertex.
      */
-    private void quickSort(Vertex[] sortedVertices, int begin, int end, Map<Vertex, Integer> vertexDegree) {
+    private void quickSort(MetisVertex[] sortedVertices, int begin, int end, Map<MetisVertex, Integer> vertexDegree) {
         if (begin < end) {
             int partitionIndex = partition(sortedVertices, begin, end, vertexDegree);
 
@@ -147,21 +142,21 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param vertexDegree      Stores number of edges for each vertex.
      * @return index to continue.
      */
-    private int partition(Vertex[] sortedVertices, int begin, int end, Map<Vertex, Integer> vertexDegree) {
-        Vertex pivot = sortedVertices[end];
+    private int partition(MetisVertex[] sortedVertices, int begin, int end, Map<MetisVertex, Integer> vertexDegree) {
+        MetisVertex pivot = sortedVertices[end];
         int i = (begin - 1);
 
         for (int j = begin; j < end; j++) {
             if (vertexDegree.get(sortedVertices[j]) <= vertexDegree.get(pivot)) {
                 i++;
 
-                Vertex swapTemp = sortedVertices[i];
+                MetisVertex swapTemp = sortedVertices[i];
                 sortedVertices[i] = sortedVertices[j];
                 sortedVertices[j] = swapTemp;
             }
         }
 
-        Vertex swapTemp = sortedVertices[i + 1];
+        MetisVertex swapTemp = sortedVertices[i + 1];
         sortedVertices[i + 1] = sortedVertices[end];
         sortedVertices[end] = swapTemp;
 
@@ -175,12 +170,14 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param maxVertex    matched vertex.
      * @param weight       weight of the edges between joined vertices.
      */
-    private void reduceGraph(Set<MetisVertex> vertices, Vertex v,
-                             Vertex maxVertex, double weight) {
+    private void reduceGraph(Set<MetisVertex> vertices, MetisVertex v,
+                             MetisVertex maxVertex, double weight) {
         List<Vertex> containingVertices = new ArrayList<>();
-        containingVertices.add(v);
-        containingVertices.add(maxVertex);
-        weight += v.getValue() + maxVertex.getValue();
+        containingVertices.addAll(v.getContainingVertices());
+        containingVertices.addAll(maxVertex.getContainingVertices());
+        weight += v.getWeight() + maxVertex.getWeight();
+        vertices.remove(v);
+        vertices.remove(maxVertex);
         vertices.add(new MetisVertex(containingVertices, weight));
     }
 

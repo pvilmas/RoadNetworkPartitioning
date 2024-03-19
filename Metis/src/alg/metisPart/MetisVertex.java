@@ -116,4 +116,22 @@ public class MetisVertex {
         return this.neighbourVertices;
     }
 
+    public int getVertexDegree() {
+        int degree = 0;
+        for (Vertex vertex : this.containingVertices) {
+            for (Edge edge : vertex.getStartingEdges()) {
+                Vertex v = edge.getEndpoint();
+                if (!containingVertices.contains(v)) {
+                    degree++;
+                }
+            }
+            for (Edge edge : vertex.getEndingEdges()) {
+                Vertex v = edge.getStartpoint();
+                if (!containingVertices.contains(v)) {
+                    degree++;
+                }
+            }
+        }
+        return degree;
+    }
 }
