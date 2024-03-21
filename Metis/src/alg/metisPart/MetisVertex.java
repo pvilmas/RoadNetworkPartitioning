@@ -3,10 +3,7 @@ package alg.metisPart;
 import bp.roadnetworkpartitioning.Edge;
 import bp.roadnetworkpartitioning.Vertex;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of vertex in METIS algorithm.
@@ -21,7 +18,7 @@ public class MetisVertex {
     private final double weight;
     /** New ID of vertex. */
     private final int id;
-    private List<MetisVertex> neighbourVertices;
+    private Map<MetisVertex, Double> neighbourVertices;
 
     /**
      * Constructor of a vertex in IF.
@@ -85,34 +82,39 @@ public class MetisVertex {
         return endingEdges;
     }
 
-    public List<MetisVertex> getNeighbourVertices(Set<MetisVertex> vertices) {
-        if(this.neighbourVertices == null) {
-            this.neighbourVertices = new ArrayList<>();
-            List<Vertex> neighbourVertices = new ArrayList<>();
+    public Map<MetisVertex, Double> getNeighbourVertices(Set<MetisVertex> vertices) {
+        //if(this.neighbourVertices == null) {
+            this.neighbourVertices = new HashMap<>();
+            Map<Vertex, Double> neighbourVertices = new HashMap<>();
             for (Vertex vertex : this.containingVertices) {
                 for (Edge edge : vertex.getStartingEdges()) {
                     Vertex v = edge.getEndpoint();
-                    if (!containingVertices.contains(v) && !neighbourVertices.contains(v)) {
-                        neighbourVertices.add(v);
+                    if (!containingVertices.contains(v)) {
+                        neighbourVertices.computeIfAbsent(v, value -> 0.0);
+                        double value = neighbourVertices.get(v);
+                        neighbourVertices.put(v, value + edge.getLength());
                     }
                 }
                 for (Edge edge : vertex.getEndingEdges()) {
                     Vertex v = edge.getStartpoint();
-                    if (!containingVertices.contains(v) && !neighbourVertices.contains(v)) {
-                        neighbourVertices.add(v);
+                    if (!containingVertices.contains(v)) {
+                        neighbourVertices.computeIfAbsent(v, value -> 0.0);
+                        double value = neighbourVertices.get(v);
+                        neighbourVertices.put(v, value + edge.getLength());
                     }
                 }
             }
-            for (Vertex v : neighbourVertices) {
+            for (Vertex v : neighbourVertices.keySet()) {
                 for (MetisVertex metisVertex : vertices) {
                     if (metisVertex != this && metisVertex.containingVertices.contains(v)) {
-                        if (!this.neighbourVertices.contains(metisVertex)) {
-                            this.neighbourVertices.add(metisVertex);
-                        }
+                        this.neighbourVertices.computeIfAbsent(metisVertex, value -> 0.0);
+                        double value = neighbourVertices.get(v);
+                        double totalValue = this.neighbourVertices.get(metisVertex);
+                        this.neighbourVertices.put(metisVertex, value + totalValue);
                     }
                 }
             }
-        }
+        //}
         return this.neighbourVertices;
     }
 

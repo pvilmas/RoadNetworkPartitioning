@@ -58,38 +58,28 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             containingVertices.add(vertex);
             vertices.add(new MetisVertex(containingVertices, vertex.getValue()));
         }
-        MetisVertex[] sortedVertices = sortVertices(vertices);
-        List<MetisVertex> matchedVertices = new ArrayList<>();
-        for (MetisVertex sortedVertex : sortedVertices) {
-            if (!matchedVertices.contains(sortedVertex)) {
-                double maxWeight = -1;
-                MetisVertex maxVertex = null;
-                for (Edge e : sortedVertex.getStartingEdges()) {
-                    Vertex maxV= e.getEndpoint();
-                    double weight = e.getLength();
-                    if (!matchedVertices.contains(maxV)) {
-                        for (Edge edge : sortedVertex.getEndingEdges()) {
-                            if (edge.getStartpoint().equals(maxV)) {
-                                weight += edge.getLength();
-                                break;
+        while (vertices.size() > 100) {
+            MetisVertex[] sortedVertices = sortVertices(vertices);
+            List<MetisVertex> matchedVertices = new ArrayList<>();
+            for (MetisVertex sortedVertex : sortedVertices) {
+                if (!matchedVertices.contains(sortedVertex)) {
+                    double maxWeight = -1;
+                    MetisVertex maxVertex = null;
+                    for (Map.Entry<MetisVertex, Double> neighbour : sortedVertex.getNeighbourVertices(vertices).entrySet()) {
+                        if (!matchedVertices.contains(neighbour.getKey())) {
+                            if (neighbour.getValue() >= maxWeight) {
+                                maxWeight = neighbour.getValue();
+                                maxVertex = neighbour.getKey();
                             }
-                        }
-                        if (maxWeight < weight) {
-                            maxVertex = maxV;
-                            maxWeight = weight;
-                            matchedVertices.add(sortedVertex);
+
                         }
                     }
+                    if (maxVertex != null) {
+                        matchedVertices.add(maxVertex);
+                        matchedVertices.add(sortedVertex);
+                        reduceGraph(vertices, sortedVertex, maxVertex, maxWeight);
+                    }
                 }
-                if (maxVertex != null) {
-                    matchedVertices.add(maxVertex);
-                    reduceGraph(vertices, sortedVertex, maxVertex, maxWeight);
-                }
-            }
-        }
-        for (Vertex sortedVertex : sortedVertices) {
-            if (!matchedVertices.contains(sortedVertex)) {
-                reduceGraph(vertices, sortedVertex, sortedVertex, 0);
             }
         }
         return vertices;
@@ -335,7 +325,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      */
     private int getVertexEdgeCut(MetisVertex v, Set<MetisVertex> part, Set<MetisVertex> metisVertices){
         int edgeCut = 0;
-        for (MetisVertex vertex: v.getNeighbourVertices(metisVertices)) {
+        for (MetisVertex vertex: v.getNeighbourVertices(metisVertices).keySet()) {
             if(!part.contains(vertex)){
                 edgeCut++;
             }
@@ -350,7 +340,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param metisVertices
      */
     private void addNeighbours(Set<MetisVertex> part, List<MetisVertex> vList, MetisVertex vertex, Set<MetisVertex> metisVertices){
-        for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices)) {
+        for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices).keySet()) {
             if(!part.contains(metisVertex)) {
                 if( !vList.contains(metisVertex)) {
                     insertionSort(vList, metisVertex, part, metisVertices);
