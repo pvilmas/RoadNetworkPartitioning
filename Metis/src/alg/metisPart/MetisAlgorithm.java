@@ -51,7 +51,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Coarsens graph by Heavy Edge Matching.
      * @return graph with fewer vertices and edges.
      */
-    private Set<MetisVertex> coarsenGraph(Graph graph) {
+    protected Set<MetisVertex> coarsenGraph(Graph graph) {
         Set<MetisVertex> vertices = new HashSet<>();
         for (Vertex vertex : graph.getVertices().values()) {
             List<Vertex> containingVertices = new ArrayList<>();
@@ -373,7 +373,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param parts     partition of coarsen graph.
      * @return  partition of original graph.
      */
-    private List<Graph> uncoarsenGraph(List<Set<MetisVertex>> parts){
+    protected List<Graph> uncoarsenGraph(List<Set<MetisVertex>> parts){
         List<Graph> verticesParts = new ArrayList<>();
         Map<Vertex, Integer> verticesPartsDynamic = new HashMap<>();
         int length = 0;

@@ -94,7 +94,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param verticesParts     map where key is vertex and value is part number.
      * @return  array indicating if part has grown during last growing.
      */
-    private int[] initialise(List<Part> parts, Map<Vertex, Integer> verticesParts){
+    protected int[] initialise(List<Part> parts, Map<Vertex, Integer> verticesParts){
         int[] stop = new int[getPartsCount()];
         for (int i = 0; i < getPartsCount(); i++) {
             parts.add(new Part(new HashMap<>()));
@@ -114,7 +114,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param verticesParts     map where key is vertex and value is part number.
      * @param stop              array indicating if part has grown during last growing.
      */
-    private void growRegions(List<Part> parts, Map<Vertex, Integer> verticesParts, int[] stop){
+    protected void growRegions(List<Part> parts, Map<Vertex, Integer> verticesParts, int[] stop){
         while (!isZero(stop)) {
             for (int i = 0; i < getPartsCount(); i++) {
                 if (stop[i] != 0) {
@@ -132,7 +132,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param parts             list of parts.
      * @param verticesParts     map where key is vertex and value is part number.
      */
-    private void balancePartitioning(List<Part> parts, Map<Vertex, Integer> verticesParts){
+    protected void balancePartitioning(List<Part> parts, Map<Vertex, Integer> verticesParts){
         boolean balanced = false;
         int enoughIterations = 50;
         int i = 0;
@@ -158,7 +158,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * so it has given part count.
      * @param subparts  All parts and subparts previously created.
      */
-    private void attach(List<Graph> subparts){
+    protected void attach(List<Graph> subparts){
         if(subparts.size() == getPartsCount()){
             return;
         }
