@@ -94,7 +94,6 @@ public class JSONParser {
      * @return  created graph or null if not successful.
      */
     public static Graph readFile(File graphFile){
-        //TODO getGraphPartition this method
         try (Scanner sc = new Scanner(graphFile)){
             HashMap<Integer,Vertex> vertices = new HashMap<>();
             HashMap<Integer,Edge> edges = new HashMap<>();
@@ -111,24 +110,28 @@ public class JSONParser {
                 double vertexY1 = Double.NaN;
                 double vertexX2 = Double.NaN;
                 double vertexY2 = Double.NaN;
-                //TODO make safe method for parsing double and integer
                 if(line.contains("LineString")) {
                     for (int i = 0; i < details.length-1; i++) {
-                        if (details[i].contains("init_node")) {
-                            vertexId1 = Integer.parseInt(details[i+1].trim().split("[}, ]")[0]);
+                        try {
+                            if (details[i].contains("init_node")) {
+                                vertexId1 = Integer.parseInt(details[i + 1].trim().split("[}, ]")[0]);
+                            }
+                            if (details[i].contains("term_node")) {
+                                vertexId2 = Integer.parseInt(details[i + 1].trim().split("[}, ]")[0]);
+                            }
+                            if (details[i].contains("length")) {
+                                length = Double.parseDouble(details[i + 1].trim().split("[}, ]")[0]);
+                            }
+                            if (details[i].contains("coordinates")) {
+                                String[] coordinates = details[i + 1].trim().split("[}, \\[\\]]");
+                                vertexX1 = Double.parseDouble(coordinates[4].trim());
+                                vertexY1 = Double.parseDouble(coordinates[6].trim());
+                                vertexX2 = Double.parseDouble(coordinates[12].trim());
+                                vertexY2 = Double.parseDouble(coordinates[14].trim());
+                            }
                         }
-                        if (details[i].contains("term_node")) {
-                            vertexId2 = Integer.parseInt(details[i+1].trim().split("[}, ]")[0]);
-                        }
-                        if (details[i].contains("length")) {
-                            length = Double.parseDouble(details[i+1].trim().split("[}, ]")[0]);
-                        }
-                        if (details[i].contains("coordinates")) {
-                            String[] coordinates = details[i+1].trim().split("[}, \\[\\]]");
-                            vertexX1 = Double.parseDouble(coordinates[4].trim());
-                            vertexY1 = Double.parseDouble(coordinates[6].trim());
-                            vertexX2 = Double.parseDouble(coordinates[12].trim());
-                            vertexY2 = Double.parseDouble(coordinates[14].trim());
+                        catch (Exception e) {
+                            System.out.println("Could not parse " + details[i]);
                         }
                     }
 
@@ -152,16 +155,6 @@ public class JSONParser {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Creates files each with one part of graph divided by some method.
-     * @param graph     Divided graph.
-     * @return 0 if everything went well, 1 if error.
-     */
-    public static int createFiles(Graph graph){
-        //TODO body of this method
-        return 1;
     }
 
     /**

@@ -11,10 +11,6 @@ class GraphTest {
     }
 
     @Test
-    void testToString() {
-    }
-
-    @Test
     void getCutEndingEdges() {
     }
 
