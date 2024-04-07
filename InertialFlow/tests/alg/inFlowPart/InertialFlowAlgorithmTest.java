@@ -1,14 +1,15 @@
 package alg.inFlowPart;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InertialFlowAlgorithmTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void projectAndSortVertices() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void dinicMaxflow() {
     }
 }

@@ -1,22 +1,24 @@
 package alg.spartsimPart;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpartsimAlgorithmTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void initialise() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void growRegions() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void balancePartitioning() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void attach() {
     }
 }

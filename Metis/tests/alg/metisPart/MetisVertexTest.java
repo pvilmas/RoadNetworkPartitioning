@@ -1,22 +1,24 @@
 package alg.metisPart;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MetisVertexTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getAllStartingEdges() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getAllEndingEdges() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getNeighbourVertices() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getVertexDegree() {
     }
 }
