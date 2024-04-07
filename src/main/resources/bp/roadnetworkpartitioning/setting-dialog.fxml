@@ -13,5 +13,5 @@
     </content>
 
     <ButtonType fx:id="settingButtonType" text="Apply and close" buttonData="OK_DONE"/>
-
+    <ButtonType fx:id="cancelButtonType" text="Cancel" buttonData="CANCEL_CLOSE"/>
 </DialogPane>

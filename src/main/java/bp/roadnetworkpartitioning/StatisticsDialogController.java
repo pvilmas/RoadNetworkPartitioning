@@ -139,19 +139,13 @@ public class StatisticsDialogController extends Dialog<Boolean> {
         fxmlLoader.setLocation(getClass().getResource("statistics_dialog.fxml"));
         fxmlLoader.setController(this);
         DialogPane dialogPane = fxmlLoader.load();
-        dialogPane.lookupButton(statisticsButtonType).addEventFilter(ActionEvent.ANY, this::onCloseButtonClick);
         initOwner(window);
         initModality(Modality.APPLICATION_MODAL);
         setResizable(true);
         setTitle("Statistics");
         setHeaderText("Results:");
         setDialogPane(dialogPane);
-        setResultConverter(buttonType -> {
-            if(!Objects.equals(ButtonBar.ButtonData.OK_DONE, buttonType.getButtonData())) {
-                return null;
-            }
-            return true;
-        });
+        setResultConverter(buttonType -> true);
         exportCSVButtonType.setOnAction(e -> onExportToCSVButtonClick());
         this.algorithms = algorithms;
         tableView.setEditable(false);
@@ -181,13 +175,6 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             e.printStackTrace();
         }
     }
-
-    /**
-     *
-     * @param event
-     */
-    @FXML
-    protected void onCloseButtonClick(ActionEvent event) {}
 
     /**
      *

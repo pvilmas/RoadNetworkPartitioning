@@ -18,4 +18,5 @@
     </content>
 
     <ButtonType fx:id="createButtonType" text="Create graph!" buttonData="OK_DONE"/>
+    <ButtonType fx:id="cancelButtonType" text="Cancel" buttonData="CANCEL_CLOSE"/>
 </DialogPane>

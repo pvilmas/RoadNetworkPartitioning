@@ -56,19 +56,13 @@ public class TestDialogController extends Dialog<Boolean> {
         fxmlLoader.setLocation(getClass().getResource("test-dialog.fxml"));
         fxmlLoader.setController(this);
         DialogPane dialogPane = fxmlLoader.load();
-        dialogPane.lookupButton(testButtonType).addEventFilter(ActionEvent.ANY, this::onCloseButtonClick);
         initOwner(window);
         initModality(Modality.APPLICATION_MODAL);
         setResizable(true);
         setTitle("Parameters setting of the algorithm");
         setHeaderText("Insert parameters of the algorithm:");
         setDialogPane(dialogPane);
-        setResultConverter(buttonType -> {
-            if(!Objects.equals(ButtonBar.ButtonData.OK_DONE, buttonType.getButtonData())) {
-                return null;
-            }
-            return true;
-        });
+        setResultConverter(buttonType -> true);
         this.algorithms = algorithms;
         this.graph = graph;
         this.partCount = partCount;
@@ -199,7 +193,5 @@ public class TestDialogController extends Dialog<Boolean> {
         statistics.addMaxNumberOfNeighbours(algorithm.getName(), graphPartition.getMaxNeighbours());
     }
 
-    private <T extends Event> void onCloseButtonClick(T t) {
-    }
 
 }

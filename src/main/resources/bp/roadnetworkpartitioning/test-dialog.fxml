@@ -23,6 +23,6 @@
         </VBox>
     </content>
 
-    <ButtonType fx:id="testButtonType" text="Close" buttonData="OK_DONE"/>
+    <ButtonType fx:id="testButtonType" text="Close" buttonData="CANCEL_CLOSE"/>
 
 </DialogPane>
