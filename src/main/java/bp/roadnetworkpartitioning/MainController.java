@@ -297,4 +297,21 @@ public class MainController {
             }
         }
     }
+
+    protected void onAddGraphJSONMenuClick(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        Graph graphComponent = JSONParser.readFile(selectedFile);
+        if (this.graph == null) {
+            this.graph = graphComponent;
+        }
+        else {
+            Graph mergedGraph = Graph.mergeGraphs(this.graph, graphComponent);
+            if (mergedGraph != null) {
+                this.graph = mergedGraph;
+            }
+        }
+        visualizeGraph();
+    }
+
 }

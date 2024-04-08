@@ -90,6 +90,34 @@ public class Graph {
         return id;
     }
 
+    public static Graph mergeGraphs(Graph firstGraph, Graph secondGraph) {
+        Graph newGraph = null;
+        boolean isCompatible = false;
+        for (Map.Entry<Integer, Vertex> idVertexEntry : firstGraph.getVertices().entrySet()) {
+            if (secondGraph.getVertices().containsKey(idVertexEntry.getKey()) && secondGraph.getVertices().get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
+                isCompatible = true;
+                break;
+            }
+        }
+        if (isCompatible) {
+            Map<Integer, Vertex> vertices = firstGraph.getVertices();
+            Map<Integer, Edge> edges = firstGraph.getEdges();
+            for (Map.Entry<Integer, Vertex> idVertexEntry : secondGraph.getVertices().entrySet()) {
+                if (vertices.containsKey(idVertexEntry.getKey()) && vertices.get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
+                    //Edge edge1 = new Edge();
+                    //Edge edge2 = new Edge();
+                }
+                else {
+                    vertices.put(idVertexEntry.getKey(), idVertexEntry.getValue());
+
+                }
+            }
+            newGraph = new Graph(vertices, edges);
+        }
+
+        return newGraph;
+    }
+
     /**
      * Getter of graph vertices.
      * @return graph vertices.
