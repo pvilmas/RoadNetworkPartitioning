@@ -298,7 +298,8 @@ public class MainController {
         }
     }
 
-    protected void onAddGraphJSONMenuClick(ActionEvent actionEvent) {
+    @FXML
+    protected void onAddGraphJSONMenuClick() {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
         Graph graphComponent = JSONParser.readFile(selectedFile);
