@@ -36,7 +36,7 @@ public class Vertex extends Point2D {
      */
     public Vertex(int id, double x, double y) {
         super(x, y);
-        setId(id);
+        this.id = id;
     }
 
     /**

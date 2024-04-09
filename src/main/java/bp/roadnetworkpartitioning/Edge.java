@@ -34,6 +34,20 @@ public class Edge {
     }
 
     /**
+     * Constructor of edge with given endpoint and length.
+     * @param startpoint  Startpoint of edge (start point has reference of this edge).
+     * @param endpoint  Endpoint of edge (start point has reference of this edge).
+     * @param length    Length of edge (no specific units).
+     */
+    public Edge(int id, Vertex startpoint, Vertex endpoint, double length){
+        this.startpoint = startpoint;
+        this.endpoint = endpoint;
+        this.length = length;
+        count++;
+        this.id = id;
+    }
+
+    /**
      * Gets attribute count.
      * @return  count (number of existing instances of edge).
      */
@@ -136,7 +150,7 @@ public class Edge {
         if(!(o instanceof Edge)){
             return false;
         }
-        return (((Edge) o).getId() == this.id);
+        return ((((Edge) o).getStartpoint() == this.startpoint) && (((Edge) o).getEndpoint() == this.endpoint));
     }
 
     @Override

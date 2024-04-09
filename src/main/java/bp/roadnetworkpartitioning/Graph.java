@@ -128,6 +128,7 @@ public class Graph {
                         edges.remove(v2.getEndingEdges().get(0).getId());
                         secondGraph.getEdges().remove(v1.getStartingEdges().get(0).getId());
                     }
+                    vertices.remove(v2.getId());
                 }
                 else {
                     vertices.put(idVertexEntry.getKey(), idVertexEntry.getValue());
