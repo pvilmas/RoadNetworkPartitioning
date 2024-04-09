@@ -150,7 +150,7 @@ public class Edge {
         if(!(o instanceof Edge)){
             return false;
         }
-        return ((((Edge) o).getStartpoint() == this.startpoint) && (((Edge) o).getEndpoint() == this.endpoint));
+        return ((((Edge) o).getStartpoint().equals(this.startpoint)) && (((Edge) o).getEndpoint().equals(this.endpoint)));
     }
 
     @Override

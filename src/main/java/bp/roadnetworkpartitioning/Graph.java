@@ -115,9 +115,10 @@ public class Graph {
                         v4.getEndingEdges().remove(v2.getStartingEdges().get(0));
                         v4.getEndingEdges().add(edge1);
                         edges.remove(v2.getStartingEdges().get(0).getId());
+                        edges.put(edge1.getId(), edge1);
                         secondGraph.getEdges().remove(v1.getEndingEdges().get(0).getId());
                     }
-                    else if ((v1.getStartingEdges().size() > 0) && (v2.getEndingEdges().size() > 0)) {
+                    if ((v1.getStartingEdges().size() > 0) && (v2.getEndingEdges().size() > 0)) {
                         Vertex v3 = v1.getStartingEdges().get(0).getEndpoint();
                         Vertex v4 = v2.getEndingEdges().get(0).getStartpoint();
                         Edge edge2 = new Edge(v4, v3, v2.getEndingEdges().get(0).getLength() + v1.getStartingEdges().get(0).getLength());
@@ -126,6 +127,7 @@ public class Graph {
                         v4.getStartingEdges().remove(v2.getEndingEdges().get(0));
                         v4.getStartingEdges().add(edge2);
                         edges.remove(v2.getEndingEdges().get(0).getId());
+                        edges.put(edge2.getId(), edge2);
                         secondGraph.getEdges().remove(v1.getStartingEdges().get(0).getId());
                     }
                     vertices.remove(v2.getId());
