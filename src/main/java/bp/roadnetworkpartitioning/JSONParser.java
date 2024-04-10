@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -48,6 +50,17 @@ public class JSONParser {
             return false;
         }
         return writeJSONFile(jsonName, vertices, edges);
+    }
+
+    public static void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String jsonName = algorithm.getName() + dtf.format(now) + "_" + i;
+        int j = 0;
+        for (Graph graphComponent : graphPartition.getGraphComponents()) {
+            JSONParser.writeJSONFile(jsonName + "_" + j, graphComponent);
+            j++;
+        }
     }
 
     public static boolean writeJSONFile(String jsonName, Graph graph) {

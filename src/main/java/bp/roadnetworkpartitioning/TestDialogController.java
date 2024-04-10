@@ -141,7 +141,7 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 if (exportResultingPartitions.isSelected()) {
                     progressMessages.setText(progressMessages.getText() + "Recording result...\n");
-                    exportResultingPartition(algorithm, graphPartition, i);
+                    JSONParser.exportResultingPartition(algorithm, graphPartition, i);
                 }
             }
             progressMessages.setText(progressMessages.getText() + "Algorithm " + algorithm.getName() + " was tested.\n");
@@ -173,17 +173,6 @@ public class TestDialogController extends Dialog<Boolean> {
             }
         }
         progressMessages.setText(progressMessages.getText() + "Testing finished.\n");
-    }
-
-    private void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
-        LocalDateTime now = LocalDateTime.now();
-        String jsonName = algorithm.getName() + dtf.format(now) + "_" + i;
-        int j = 0;
-        for (Graph graphComponent : graphPartition.getGraphComponents()) {
-            JSONParser.writeJSONFile(jsonName + "_" + j, graphComponent);
-            j++;
-        }
     }
 
     private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {

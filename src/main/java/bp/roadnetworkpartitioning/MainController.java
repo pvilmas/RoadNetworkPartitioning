@@ -14,6 +14,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -315,4 +317,19 @@ public class MainController {
         visualizeGraph();
     }
 
+    @FXML
+    protected void onExportToGeoJSONMenuClick() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String jsonName = "graph_" + dtf.format(now);
+        JSONParser.writeJSONFile(jsonName, this.graph);
+
+    }
+
+    @FXML
+    protected void onExportPartitionToGeoJSONMenuClick() {
+        for (APartitionAlgorithm algorithm : algorithms.values()) {
+            JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(), 0);
+        }
+    }
 }

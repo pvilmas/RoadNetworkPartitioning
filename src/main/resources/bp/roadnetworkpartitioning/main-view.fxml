@@ -11,7 +11,10 @@
                     <MenuItem text="Insert Graph" onAction="#onInsertGraphJSONMenuClick"/>
                     <MenuItem text="Add Graph Part" onAction="#onAddGraphJSONMenuClick"/>
                 </Menu>
-                <MenuItem text="Save"/>
+                <Menu text="Save">
+                    <MenuItem text="Export Graph to GeoJSON" onAction="#onExportToGeoJSONMenuClick"/>
+                    <MenuItem text="Export Graph Partition to GeoJSON" onAction="#onExportPartitionToGeoJSONMenuClick"/>
+                </Menu>
                 <SeparatorMenuItem/>
                 <MenuItem text="Exit"/>
             </Menu>
