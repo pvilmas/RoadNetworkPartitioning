@@ -73,7 +73,7 @@ public class IFVertex {
                 return edge;
             }
         }
-        IFEdge edge = new IFEdge(null, vertex);
+        IFEdge edge = new IFEdge(new Edge(this.getVertexList().get(0), vertex.getVertexList().get(0), 0), vertex);
         allStartingEdges.add(edge);
         return edge;
     }
