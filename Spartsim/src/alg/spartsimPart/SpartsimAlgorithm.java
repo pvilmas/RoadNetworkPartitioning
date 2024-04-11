@@ -195,16 +195,15 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                     }
                 }
             }
-            for(Edge edge: getGraph().getEdges().values()){
-                if(edge.getEndpoint().equals(vertex)){
-                    Vertex neighbour = edge.getStartpoint();
-                    if(!part.getVertices().containsValue(neighbour)){
-                        SpartsimPart neighbourPart = getVertexPart(neighbour, subparts);
-                        if(!neighbours.contains(neighbourPart)){
-                            neighbours.add(neighbourPart);
-                        }
+            for(Edge edge: vertex.getEndingEdges()){
+                Vertex neighbour = edge.getStartpoint();
+                if(!part.getVertices().containsValue(neighbour)){
+                    SpartsimPart neighbourPart = getVertexPart(neighbour, subparts);
+                    if(!neighbours.contains(neighbourPart)){
+                        neighbours.add(neighbourPart);
                     }
                 }
+
             }
         }
         part.setNeighbourParts(neighbours);

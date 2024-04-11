@@ -14,10 +14,15 @@ import java.util.List;
 public class IFVertex {
     /** List of original graph vertices that are represented by this instance. */
     private final List<Vertex> vertexList;
-    /** All starting edges coming from this IFVertex to another IFVertices.
-     *  These are computed from all original graph vertices in verticesList.
+    /**
+     * All starting edges coming from this IFVertex to another IFVertices.
+     * These are computed from all original graph vertices in verticesList.
      */
     private final List<IFEdge> allStartingEdges = new ArrayList<>();
+    /**
+     *
+     */
+    private final List<IFEdge> allEndingEdges = new ArrayList<>();
     /** Vertex level in graph. */
     private int level;
 
@@ -58,6 +63,35 @@ public class IFVertex {
             }
         }
         return allStartingEdges;
+    }
+
+    /**
+     * Gets all starting edges of the IFVertex computed from all original vertices
+     * included in this instance.
+     * @param iFA   Instance of IF algorithm.
+     * @return  all starting edges of the IFVertex.
+     */
+    public List<IFEdge> getAllEndingEdges(InertialFlowAlgorithm iFA) {
+        if(allEndingEdges.size() == 0) {
+            for (Vertex v: vertexList) {
+                for (Edge e : v.getEndingEdges()) {
+                    if (!vertexList.contains(e.getStartpoint())) {
+                        IFVertex startpoint = null;
+                        for (IFVertex iFVertex : iFA.graphVertices) {
+                            if (iFVertex.getVertexList().contains(e.getStartpoint())) {
+                                startpoint = iFVertex;
+                                break;
+                            }
+                        }
+                        if (startpoint != null) {
+                            IFEdge edge = new IFEdge(e, startpoint);
+                            allEndingEdges.add(edge);
+                        }
+                    }
+                }
+            }
+        }
+        return allEndingEdges;
     }
 
     /**
