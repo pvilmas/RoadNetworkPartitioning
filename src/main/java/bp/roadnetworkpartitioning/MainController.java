@@ -28,6 +28,8 @@ import java.util.Map;
 public class MainController {
     /** Instance of main stage. */
     private static Stage stage = null;
+    @FXML
+    private TextArea progressMessages;
     /** Default zoom value. */
     private int zoom = 10;
     /** Stores color of each part. */
@@ -106,9 +108,11 @@ public class MainController {
 
             if (group.getSelectedToggle() != null) {
                 APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
-                graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
-                visualizeGraph();
-                System.out.println("done");
+                graphPartition = algorithm.getGraphPartition();
+                if (graphPartition != null) {
+                    visualizeGraph();
+                    System.out.println("done");
+                }
             }
 
         });
@@ -330,6 +334,12 @@ public class MainController {
     protected void onExportPartitionToGeoJSONMenuClick() {
         for (APartitionAlgorithm algorithm : algorithms.values()) {
             JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(), 0);
+        }
+    }
+
+    public void onRecalculateButtonClick(ActionEvent actionEvent) {
+        for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
+            algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
         }
     }
 }

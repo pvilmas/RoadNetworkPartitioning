@@ -103,7 +103,12 @@ public class IFVertex {
     public IFEdge getReverseEdge(InertialFlowAlgorithm iFA, IFVertex vertex) {
         getAllStartingEdges(iFA);
         for(IFEdge edge: allStartingEdges){
-            if(edge.endpoint == vertex){
+            if(edge.otherpoint == vertex){
+                return edge;
+            }
+        }
+        for(IFEdge edge: allEndingEdges){
+            if(edge.otherpoint == vertex){
                 return edge;
             }
         }

@@ -55,15 +55,9 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     @Override
     protected GraphPartition createGraphPartition(Graph graph, int partsCount) {
         setPartsCount(partsCount);
-        boolean isSame = false;
-        if (graph != null) {
-            if (getGraph() == graph) {
-                isSame = true;
-            }
-            setGraph(graph);
-        }
-        GraphPartition graphPartition = getGraphPartition();
-        if ((graphPartition == null || !isSame) && getGraph() != null) {
+        setGraph(graph);
+        GraphPartition graphPartition = null;
+        if (getGraph() != null) {
             List<Graph> graphComponents = new ArrayList<>();
             graphPartition = new GraphPartition(graphComponents);
             graphComponents.add(graph);
@@ -74,6 +68,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 divide(graphComponents);
                 numberOfParts++;
             }
+            setGraphPartition(graphPartition);
         }
         return graphPartition;
     }
@@ -151,7 +146,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.pop();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                s = e.endpoint;
+                s = e.otherpoint;
                 if (!visitedVertices.contains(s)) {
                     if (edgeNotMinCut(useFlowList ? flowList : tempFlowList, e)) {
                         value2 = addToGraphComponent(s, vertices2, q, visitedVertices, value2);
@@ -169,7 +164,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                         tempFlowList.set(e.flowListIndex, e.getCapacity());
                         IFEdge edge = getEdgeWithFlowListIndex(e.flowListIndex, q1);
                         if (edge != null) {
-                            value2 = addToGraphComponent(edge.endpoint, vertices2, q, visitedVertices, value2);
+                            value2 = addToGraphComponent(edge.otherpoint, vertices2, q, visitedVertices, value2);
                             q1.remove(edge);
                         }
                     }
@@ -184,7 +179,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     vertices2 = new HashMap<>();
                     IFEdge edge = q1.removeLast();
                     tempFlowList.set(edge.flowListIndex, edge.getCapacity());
-                    value2 = addToGraphComponent(edge.endpoint, vertices2, q, visitedVertices, 0);
+                    value2 = addToGraphComponent(edge.otherpoint, vertices2, q, visitedVertices, 0);
                 }
                 else {
                    break;
@@ -229,7 +224,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private IFEdge vertexEdgesNotMinCut(IFVertex s, LinkedList<IFEdge> q1) {
         for (IFEdge edge : q1) {
-            if (edge.endpoint == s){
+            if (edge.otherpoint == s){
                 return edge;
             }
         }
@@ -379,9 +374,9 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.poll();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                if ((e.endpoint != null) && (e.endpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
-                    e.endpoint.setLevel(u.getLevel() + 1);
-                    q.add(e.endpoint);
+                if ((e.otherpoint != null) && (e.otherpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
+                    e.otherpoint.setLevel(u.getLevel() + 1);
+                    q.add(e.otherpoint);
                 }
             }
         }
@@ -405,15 +400,23 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         if (u == t) {
             return flow;
         }
-        for (; startMap.get(u) < u.getAllStartingEdges(this).size(); startMap.put(u, startMap.get(u) + 1)) {
-            IFEdge e = u.getAllStartingEdges(this).get(startMap.get(u));
-            if (e.endpoint != null && e.endpoint.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
+        for (; startMap.get(u) < (u.getAllStartingEdges(this).size() + u.getAllEndingEdges(this).size()); startMap.put(u, startMap.get(u) + 1)) {
+            IFEdge e;
+            IFVertex v;
+            if (startMap.get(u) < u.getAllStartingEdges(this).size()) {
+                e = u.getAllStartingEdges(this).get(startMap.get(u));
+            }
+            else {
+                e = u.getAllEndingEdges(this).get(startMap.get(u) - u.getAllStartingEdges(this).size());
+            }
+            v = e.otherpoint;
+            if (v != null && v.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
                 e.flowListIndex = i;
                 double curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
-                double temp_flow = sendFlow(e.endpoint, curr_flow, t, startMap, i);
+                double temp_flow = sendFlow(e.otherpoint, curr_flow, t, startMap, i);
                 if (temp_flow > 0) {
                     e.setFlow(e.getFlow() + temp_flow);
-                    IFEdge reverseEdge = e.endpoint.getReverseEdge(this, u);
+                    IFEdge reverseEdge = e.otherpoint.getReverseEdge(this, u);
                     double reverseFlow = reverseEdge.getFlow();
                     reverseEdge.setFlow(reverseFlow - temp_flow);
                     return temp_flow;

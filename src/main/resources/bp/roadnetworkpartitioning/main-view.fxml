@@ -33,6 +33,7 @@
                AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" dividerPositions="0.3492462311557789"
                focusTraversable="true" prefHeight="160.0" prefWidth="200.0">
         <ScrollPane fx:id="scrollPane"/>
+        <ScrollPane fitToWidth="true" fitToHeight="true">
         <VBox alignment="CENTER">
             <spacing>15</spacing>
             <HBox spacing="10" alignment="CENTER">
@@ -67,6 +68,14 @@
                 </fx:define>
 
             </VBox>
+            <VBox alignment="CENTER" style="-fx-padding: 10 50 10 50;">
+                <spacing>10</spacing>
+                <Button styleClass="btn, btn-success" text="Recalculate" prefHeight="30" prefWidth="200"
+                    onAction="#onRecalculateButtonClick"/>
+                <Label text="Progress:"/>
+                <TextArea fx:id="progressMessages" prefColumnCount="100"/>
+            </VBox>
         </VBox>
+        </ScrollPane>
     </SplitPane>
 </AnchorPane>

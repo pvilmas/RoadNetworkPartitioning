@@ -11,7 +11,7 @@ public class IFEdge {
     /** Instance of original edge. */
     public final Edge edge;
     /** Instance of IF vertex where edge ends. */
-    public final IFVertex endpoint;
+    public final IFVertex otherpoint;
     /** Inertial flow in edge. */
     private double flow = 0;
     /** Capacity of the edge. */
@@ -21,12 +21,12 @@ public class IFEdge {
     /**
      * Constructor of an edge in IF.
      * @param edge      Instance of original edge.
-     * @param endpoint  Instance of IF vertex where edge ends.
+     * @param otherpoint  Instance of IF vertex where edge ends.
      */
-    public IFEdge(Edge edge, IFVertex endpoint) {
+    public IFEdge(Edge edge, IFVertex otherpoint) {
         this.edge = edge;
         this.capacity = edge.getLength();
-        this.endpoint = endpoint;
+        this.otherpoint = otherpoint;
     }
 
     /**
