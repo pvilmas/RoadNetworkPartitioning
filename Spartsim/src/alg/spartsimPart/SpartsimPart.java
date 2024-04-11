@@ -8,8 +8,6 @@ import java.util.Map;
 
 public class SpartsimPart extends Graph {
 
-    /** Value of the part. */
-    private double value = 0.0;
     /** List of parts beside this part. */
     private List<SpartsimPart> neighbourParts = null;
 
@@ -19,15 +17,6 @@ public class SpartsimPart extends Graph {
      */
     public SpartsimPart(Map<Integer, Vertex> vertices){
         super(vertices, null);
-    }
-
-    @Override
-    public double getValue() {
-        return value;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
     }
 
     public List<SpartsimPart> getNeighbourParts() {

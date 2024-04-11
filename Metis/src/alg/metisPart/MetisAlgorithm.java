@@ -402,6 +402,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 double max = 0;
                 Vertex a = null;
                 Vertex b = null;
+                if (list.size() == 0) {
+                    break;
+                }
                 for (Map.Entry<Vertex, Double> i : list.get(0).entrySet()) {
                     for (Map.Entry<Vertex, Double> j : list.get(1).entrySet()) {
                         if (verticesNotExchanged(i.getKey(), j.getKey(), av, bv)){
