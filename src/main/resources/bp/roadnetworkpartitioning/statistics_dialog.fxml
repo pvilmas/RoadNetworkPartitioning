@@ -14,17 +14,23 @@
                     <TableColumn text="Algorithm">
                         <cellValueFactory><PropertyValueFactory property="algorithmName" /></cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Time">
+                    <TableColumn text="Time [ms]">
                         <cellValueFactory><PropertyValueFactory property="algorithmTime" /></cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Balance">
-                        <cellValueFactory><PropertyValueFactory property="algorithmBalance" /></cellValueFactory>
+                    <TableColumn text="Relative Standard Deviation [%]">
+                        <cellValueFactory><PropertyValueFactory property="algorithmDeviation" /></cellValueFactory>
                     </TableColumn>
                     <TableColumn text="Number of Cut edges">
                         <cellValueFactory><PropertyValueFactory property="algorithmNumberOfCutEdges" /></cellValueFactory>
                     </TableColumn>
+                    <TableColumn text="Min number of neighbours">
+                        <cellValueFactory><PropertyValueFactory property="algorithmMinNumberOfNeighbours" /></cellValueFactory>
+                    </TableColumn>
                     <TableColumn text="Max number of neighbours">
                         <cellValueFactory><PropertyValueFactory property="algorithmMaxNumberOfNeighbours" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Average number of neighbours">
+                        <cellValueFactory><PropertyValueFactory property="algorithmAverageNumberOfNeighbours" /></cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableView>

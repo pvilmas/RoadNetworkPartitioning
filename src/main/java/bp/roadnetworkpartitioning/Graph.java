@@ -157,10 +157,15 @@ public class Graph {
      * @return graph edges.
      */
     public Map<Integer, Edge> getEdges(){
-        if (this.edges != null) {
-            return this.edges;
+        if (this.edges == null) {
+            this.edges = new HashMap<>();
+            for (Vertex vertex : getVertices().values()) {
+                for (Edge edge : vertex.getStartingEdges()) {
+                    this.edges.put(edge.getId(), edge);
+                }
+            }
         }
-        return new HashMap<>();
+        return this.edges;
     }
 
     /**

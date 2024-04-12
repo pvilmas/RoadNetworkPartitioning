@@ -287,12 +287,14 @@ public class MainController {
         }
         Group group = new Group();
         if (graphPartition == null) {
-            progressMessages.appendText("No Graph Partition available, visualizing plain graph.\n");
+            progressMessages.appendText("No Graph Partition available, visualizing plain graph with "
+                    + this.graph.getVertices().size() + " vertices and " + this.graph.getEdges().size() + " edges.\n");
             drawGraph(group, this.graph, Color.BLACK);
 
         }
         else {
-            progressMessages.appendText("Visualizing Graph Partition...\n");
+            progressMessages.appendText("Visualizing Graph Partition with " +
+                     this.graph.getVertices().size() + " vertices and " + this.graph.getEdges().size() + " edges...\n");
 
             for (int i = 0; i < spinnerPartCount.getValue(); i++) {
                 Color color = colors.length > i ? colors[i] : Color.BLACK;

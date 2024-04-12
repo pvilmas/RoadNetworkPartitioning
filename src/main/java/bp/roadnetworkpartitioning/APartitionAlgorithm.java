@@ -27,9 +27,9 @@ public abstract class APartitionAlgorithm {
      * @param partsCount    number of parts.
      */
     public final GraphPartition getGraphPartition(Graph graph, int partsCount){
-        long time = System.nanoTime();
+        long time = System.currentTimeMillis();
         this.graphPartition = createGraphPartition(graph, partsCount);
-        this.graphPartition.setTime(System.nanoTime() - time);
+        this.graphPartition.setTime(System.currentTimeMillis() - time);
         return this.graphPartition;
     }
 

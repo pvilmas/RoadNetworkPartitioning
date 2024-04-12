@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -16,7 +15,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  *
@@ -32,26 +30,33 @@ public class StatisticsDialogController extends Dialog<Boolean> {
         /**  */
         private final SimpleLongProperty algorithmTime = new SimpleLongProperty(0);
         /**  */
-        private final SimpleDoubleProperty algorithmBalance = new SimpleDoubleProperty(0);
+        private final SimpleDoubleProperty algorithmDeviation = new SimpleDoubleProperty(0);
         /**  */
         private final SimpleIntegerProperty algorithmNumberOfCutEdges = new SimpleIntegerProperty(0);
         /**  */
+        private final SimpleIntegerProperty algorithmMinNumberOfNeighbours = new SimpleIntegerProperty(0);
+        /**  */
         private final SimpleIntegerProperty algorithmMaxNumberOfNeighbours = new SimpleIntegerProperty(0);
+        /**  */
+        private final SimpleDoubleProperty algorithmAverageNumberOfNeighbours = new SimpleDoubleProperty(0);
 
         /**
          *
          * @param algorithmName
          * @param algorithmTime
-         * @param algorithmBalance
+         * @param algorithmDeviation
          * @param numberOfCutEdges
          * @param maxNumberOfNeighbours
          */
-        private Data(String algorithmName, long algorithmTime, double algorithmBalance, int numberOfCutEdges, int maxNumberOfNeighbours){
+        private Data(String algorithmName, long algorithmTime, double algorithmDeviation, int numberOfCutEdges,
+                     int minNumberOfNeighbours, int maxNumberOfNeighbours, double averageNumberOfNeighbours){
             this.algorithmName.set(algorithmName);
             this.algorithmTime.set(algorithmTime);
-            this.algorithmBalance.set(algorithmBalance);
+            this.algorithmDeviation.set(algorithmDeviation);
             this.algorithmNumberOfCutEdges.set(numberOfCutEdges);
+            this.algorithmMinNumberOfNeighbours.set(minNumberOfNeighbours);
             this.algorithmMaxNumberOfNeighbours.set(maxNumberOfNeighbours);
+            this.algorithmAverageNumberOfNeighbours.set(averageNumberOfNeighbours);
         }
 
         public final String getAlgorithmName() {
@@ -78,16 +83,16 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             this.algorithmTime.set(algorithmTime);
         }
 
-        public final double getAlgorithmBalance() {
-            return algorithmBalance.get();
+        public final double getAlgorithmDeviation() {
+            return algorithmDeviation.get();
         }
 
-        public final SimpleDoubleProperty algorithmBalanceProperty() {
-            return algorithmBalance;
+        public final SimpleDoubleProperty algorithmDeviationProperty() {
+            return algorithmDeviation;
         }
 
-        public final void setAlgorithmBalance(double algorithmBalance) {
-            this.algorithmBalance.set(algorithmBalance);
+        public final void setAlgorithmDeviation(double algorithmDeviation) {
+            this.algorithmDeviation.set(algorithmDeviation);
         }
 
         public final int getAlgorithmNumberOfCutEdges() {
@@ -100,6 +105,30 @@ public class StatisticsDialogController extends Dialog<Boolean> {
 
         public final void setAlgorithmNumberOfCutEdges(int algorithmNumberOfCutEdges) {
             this.algorithmNumberOfCutEdges.set(algorithmNumberOfCutEdges);
+        }
+
+        public final int getAlgorithmMinNumberOfNeighbours() {
+            return algorithmMinNumberOfNeighbours.get();
+        }
+
+        public final SimpleIntegerProperty algorithmMinNumberOfNeighboursProperty() {
+            return algorithmMinNumberOfNeighbours;
+        }
+
+        public final void setAlgorithmMinNumberOfNeighbours(int algorithmMinNumberOfNeighbours) {
+            this.algorithmMinNumberOfNeighbours.set(algorithmMinNumberOfNeighbours);
+        }
+
+        public final double getAlgorithmAverageNumberOfNeighbours() {
+            return algorithmAverageNumberOfNeighbours.get();
+        }
+
+        public final SimpleDoubleProperty algorithmAverageNumberOfNeighboursProperty() {
+            return algorithmAverageNumberOfNeighbours;
+        }
+
+        public final void setAlgorithmAverageNumberOfNeighbours(int algorithmAverageNumberOfNeighbours) {
+            this.algorithmAverageNumberOfNeighbours.set(algorithmAverageNumberOfNeighbours);
         }
 
         public final int getAlgorithmMaxNumberOfNeighbours() {
@@ -166,7 +195,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             for(Data data: tableView.getItems()){
                 bw.write(data.algorithmName.getValue() + ",");
                 bw.write(data.algorithmTime.getValue() + ",");
-                bw.write(data.algorithmBalance.getValue() + ",");
+                bw.write(data.algorithmDeviation.getValue() + ",");
                 bw.write(data.algorithmNumberOfCutEdges.getValue() + ",");
                 bw.write(data.algorithmMaxNumberOfNeighbours.getValue() + "\n");
             }
@@ -185,7 +214,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
             GraphPartition partition = algorithmEntry.getValue().getGraphPartition();
             if (partition != null){
                 data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getRelativeStandartDeviation(),
-                        partition.getCutEdgesCount(), partition.getMaxNeighbours()));
+                        partition.getCutEdgesCount(), partition.getMinNeighbours(), partition.getMaxNeighbours(), partition.getAverageNeighbours()));
 
             }
         }

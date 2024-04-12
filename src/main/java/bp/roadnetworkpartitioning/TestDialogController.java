@@ -1,12 +1,8 @@
 package bp.roadnetworkpartitioning;
 
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -72,30 +68,42 @@ public class TestDialogController extends Dialog<Boolean> {
     private static class Statistics {
         private int numberOfRounds = 1;
         private boolean isAverageCalculated = false;
-        private final Map<String, Long> times = new HashMap<>();
-        private final Map<String, Double> balances = new HashMap<>();
-        private final Map<String, Integer> numberOfCutEdges = new HashMap<>();
-        private final Map<String, Integer> maxNumberOfNeighbours = new HashMap<>();
+        private final Map<String, List<Long>> times = new HashMap<>();
+        private final Map<String, List<Double>> deviations = new HashMap<>();
+        private final Map<String, List<Integer>> numberOfCutEdges = new HashMap<>();
+        private final Map<String, List<Integer>> minNumberOfNeighbours = new HashMap<>();
+        private final Map<String, List<Integer>> maxNumberOfNeighbours = new HashMap<>();
+        private final Map<String, List<Double>> averageNumberOfNeighbours = new HashMap<>();
         private final List<String> columnNames = new ArrayList<>();
 
         private void addTime(String algorithmName, long time) {
-            times.putIfAbsent(algorithmName, 0L);
-            times.put(algorithmName, times.get(algorithmName) + time);
+            times.putIfAbsent(algorithmName, new ArrayList<>(12));
+            times.get(algorithmName).add(time);
         }
 
-        private void addBalance(String algorithmName, double balance) {
-            balances.putIfAbsent(algorithmName, 0.0);
-            balances.put(algorithmName, balances.get(algorithmName) + balance);
+        private void addDeviation(String algorithmName, double deviation) {
+            deviations.putIfAbsent(algorithmName, new ArrayList<>(12));
+            deviations.get(algorithmName).add(deviation);
         }
 
         private void addNumberOfCutEdges(String algorithmName, int numberOfCutEdge) {
-            numberOfCutEdges.putIfAbsent(algorithmName, 0);
-            numberOfCutEdges.put(algorithmName, numberOfCutEdges.get(algorithmName) + numberOfCutEdge);
+            numberOfCutEdges.putIfAbsent(algorithmName, new ArrayList<>(12));
+            numberOfCutEdges.get(algorithmName).add(numberOfCutEdge);
+        }
+
+        private void addMinNumberOfNeighbours(String algorithmName, int minNumberOfNeighbour) {
+            minNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
+            minNumberOfNeighbours.get(algorithmName).add(minNumberOfNeighbour);
         }
 
         private void addMaxNumberOfNeighbours(String algorithmName, int maxNumberOfNeighbour) {
-            maxNumberOfNeighbours.putIfAbsent(algorithmName, 0);
-            maxNumberOfNeighbours.put(algorithmName, maxNumberOfNeighbours.get(algorithmName) + maxNumberOfNeighbour);
+            maxNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
+            maxNumberOfNeighbours.get(algorithmName).add(maxNumberOfNeighbour);
+        }
+
+        private void addAverageNumberOfNeighbours(String algorithmName, double averageNumberOfNeighbour) {
+            averageNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
+            averageNumberOfNeighbours.get(algorithmName).add(averageNumberOfNeighbour);
         }
 
         private void calculateAverage() {
@@ -103,51 +111,114 @@ public class TestDialogController extends Dialog<Boolean> {
                 return;
             }
             isAverageCalculated = true;
-            for (Map.Entry<String, Long> timeEntry : times.entrySet()) {
-                timeEntry.setValue(timeEntry.getValue() / numberOfRounds);
+            int n = numberOfRounds - 2;
+            for (Map.Entry<String, List<Long>> timeEntry : this.times.entrySet()) {
+                List<Long> times = timeEntry.getValue();
+                prepareList(times);
+                long totalTime = 0;
+                for (Long time: times) {
+                    totalTime += time;
+                }
+                timeEntry.setValue(new ArrayList<>(1));
+                timeEntry.getValue().add(totalTime/n);
             }
-            for (Map.Entry<String, Double> balanceEntry : balances.entrySet()) {
-                balanceEntry.setValue(balanceEntry.getValue() / numberOfRounds);
+            for (Map.Entry<String, List<Double>> deviationEntry : this.deviations.entrySet()) {
+                List<Double> deviations = deviationEntry.getValue();
+                prepareList(deviations);
+                double totalDeviation = 0;
+                for (Double deviation: deviations) {
+                    totalDeviation += deviation;
+                }
+                deviationEntry.setValue(new ArrayList<>(1));
+                deviationEntry.getValue().add(totalDeviation/n);
+                deviationEntry.setValue(new ArrayList<>(1));
             }
-            for (Map.Entry<String, Integer> numberOfCutEdgeEntry : numberOfCutEdges.entrySet()) {
-                numberOfCutEdgeEntry.setValue(numberOfCutEdgeEntry.getValue() / numberOfRounds);
+            for (Map.Entry<String, List<Integer>> numberOfCutEdgeEntry : this.numberOfCutEdges.entrySet()) {
+                List<Integer> numberOfCutEdges = numberOfCutEdgeEntry.getValue();
+                prepareList(numberOfCutEdges);
+                int totalNumberOfCutEdges = 0;
+                for (Integer numberOfCutEdge: numberOfCutEdges) {
+                    totalNumberOfCutEdges += numberOfCutEdge;
+                }
+                numberOfCutEdgeEntry.setValue(new ArrayList<>(1));
+                numberOfCutEdgeEntry.getValue().add(totalNumberOfCutEdges/n);
+                numberOfCutEdgeEntry.setValue(new ArrayList<>(1));
             }
-            for (Map.Entry<String, Integer> maxNumberOfNeighbourEntry : maxNumberOfNeighbours.entrySet()) {
-                maxNumberOfNeighbourEntry.setValue(maxNumberOfNeighbourEntry.getValue() / numberOfRounds);
+            for (Map.Entry<String, List<Integer>> minNumberOfNeighbourEntry : this.minNumberOfNeighbours.entrySet()) {
+                List<Integer> minNumberOfNeighbours = minNumberOfNeighbourEntry.getValue();
+                prepareList(minNumberOfNeighbours);
+                int totalMinNumberOfNeighbours = 0;
+                for (Integer minNumberOfNeighbour: minNumberOfNeighbours) {
+                    totalMinNumberOfNeighbours += minNumberOfNeighbour;
+                }
+                minNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
+                minNumberOfNeighbourEntry.getValue().add(totalMinNumberOfNeighbours/n);
+                minNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
             }
+            for (Map.Entry<String, List<Integer>> maxNumberOfNeighbourEntry : this.maxNumberOfNeighbours.entrySet()) {
+                List<Integer> maxNumberOfNeighbours = maxNumberOfNeighbourEntry.getValue();
+                prepareList(maxNumberOfNeighbours);
+                int totalMaxNumberOfNeighbours = 0;
+                for (Integer maxNumberOfNeighbour: maxNumberOfNeighbours) {
+                    totalMaxNumberOfNeighbours += maxNumberOfNeighbour;
+                }
+                maxNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
+                maxNumberOfNeighbourEntry.getValue().add(totalMaxNumberOfNeighbours/n);
+                maxNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
+            }
+            for (Map.Entry<String, List<Double>> averageNumberOfNeighbourEntry : this.averageNumberOfNeighbours.entrySet()) {
+                List<Double> averageNumberOfNeighbours = averageNumberOfNeighbourEntry.getValue();
+                prepareList(averageNumberOfNeighbours);
+                double totalAverageNumberOfNeighbours = 0;
+                for (Double averageNumberOfNeighbour: averageNumberOfNeighbours) {
+                    totalAverageNumberOfNeighbours += averageNumberOfNeighbour;
+                }
+                averageNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
+                averageNumberOfNeighbourEntry.getValue().add(totalAverageNumberOfNeighbours/n);
+                averageNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
+            }
+
             columnNames.add("Algorithm Name");
-            columnNames.add("Time");
-            columnNames.add("Balance");
+            columnNames.add("Time [ms]");
+            columnNames.add("Relative Standard Deviation [%]");
             columnNames.add("Number of Cut Edges");
+            columnNames.add("Minimal Number of Neighbours");
             columnNames.add("Maximal Number of Neighbours");
+            columnNames.add("Average Number of Neighbours");
+        }
+
+        private void prepareList(List attributes) {
+            attributes.sort(null);
+            attributes.remove(0);
+            attributes.remove(times.size() - 1);
         }
     }
     private final Statistics statistics = new Statistics();
 
     private void onStartTestingButtonClick() {
         statistics.numberOfRounds = spinnerRoundCount.getValue();
-        progressMessages.setText("Testing started...\n");
+        progressMessages.appendText("Testing started...\n");
         for(APartitionAlgorithm algorithm : algorithms.values()) {
-            progressMessages.setText(progressMessages.getText() + "Testing algorithm: " + algorithm.getName() + "\n");
+            progressMessages.appendText(progressMessages.getText() + "Testing algorithm: " + algorithm.getName() + "\n");
             for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
-                progressMessages.setText(progressMessages.getText() + "Starting round " + i + "...\n");
-                progressMessages.setText(progressMessages.getText() + "Partitioning...\n");
+                progressMessages.appendText("Starting round " + i + "...\n");
+                progressMessages.appendText("Partitioning...\n");
                 GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
-                progressMessages.setText(progressMessages.getText() + "Partition was created.\n");
+                progressMessages.appendText("Partition was created.\n");
 
                 if (createCSVStatisticFile.isSelected()) {
-                    progressMessages.setText(progressMessages.getText() + "Adding to statistics...\n");
+                    progressMessages.appendText("Adding to statistics...\n");
                     addToStatistics(algorithm, graphPartition);
                 }
                 if (exportResultingPartitions.isSelected()) {
-                    progressMessages.setText(progressMessages.getText() + "Recording result...\n");
+                    progressMessages.appendText("Recording result...\n");
                     JSONParser.exportResultingPartition(algorithm, graphPartition, i);
                 }
             }
-            progressMessages.setText(progressMessages.getText() + "Algorithm " + algorithm.getName() + " was tested.\n");
+            progressMessages.appendText("Algorithm " + algorithm.getName() + " was tested.\n");
         }
         if (createCSVStatisticFile.isSelected()) {
-            progressMessages.setText(progressMessages.getText() + "Creating CSV statistics file...\n");
+            progressMessages.appendText("Creating CSV statistics file...\n");
             statistics.calculateAverage();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
             LocalDateTime now = LocalDateTime.now();
@@ -159,27 +230,32 @@ public class TestDialogController extends Dialog<Boolean> {
                 bw.write(statistics.columnNames.get(i) + "\n");
                 for(String algorithmName : algorithms.keySet()) {
                     bw.write(algorithmName + ",");
-                    bw.write(statistics.times.get(algorithmName) + ",");
-                    bw.write(statistics.balances.get(algorithmName) + ",");
-                    bw.write(statistics.numberOfCutEdges.get(algorithmName) + ",");
-                    bw.write(statistics.maxNumberOfNeighbours.get(algorithmName) + "\n");
+                    bw.write(statistics.times.get(algorithmName).get(0) + ",");
+                    bw.write(statistics.deviations.get(algorithmName).get(0) + ",");
+                    bw.write(statistics.numberOfCutEdges.get(algorithmName).get(0) + ",");
+                    bw.write(statistics.minNumberOfNeighbours.get(algorithmName).get(0) + ",");
+                    bw.write(statistics.maxNumberOfNeighbours.get(algorithmName).get(0) + ",");
+                    bw.write(statistics.averageNumberOfNeighbours.get(algorithmName).get(0) + "\n");
+
                 }
                 bw.flush();
-                progressMessages.setText(progressMessages.getText() + "CSV file was created successfully.\n");
+                progressMessages.appendText("CSV file was created successfully.\n");
             }
             catch (IOException e) {
                 e.printStackTrace();
-                progressMessages.setText(progressMessages.getText() + "CSV file creation failed.\n");
+                progressMessages.appendText("CSV file creation failed.\n");
             }
         }
-        progressMessages.setText(progressMessages.getText() + "Testing finished.\n");
+        progressMessages.appendText("Testing finished.\n");
     }
 
     private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
         statistics.addTime(algorithm.getName(), graphPartition.getTime());
-        statistics.addBalance(algorithm.getName(), graphPartition.getBalance());
+        statistics.addDeviation(algorithm.getName(), graphPartition.getRelativeStandartDeviation());
         statistics.addNumberOfCutEdges(algorithm.getName(), graphPartition.getCutEdgesCount());
+        statistics.addMinNumberOfNeighbours(algorithm.getName(), graphPartition.getMinNeighbours());
         statistics.addMaxNumberOfNeighbours(algorithm.getName(), graphPartition.getMaxNeighbours());
+        statistics.addAverageNumberOfNeighbours(algorithm.getName(), graphPartition.getAverageNeighbours());
     }
 
 
