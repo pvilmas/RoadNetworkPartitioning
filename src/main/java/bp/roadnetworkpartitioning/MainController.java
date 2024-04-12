@@ -212,15 +212,14 @@ public class MainController {
     @FXML
     protected void onCreateGraphMenuClick(){
         try {
-            progressMessages.appendText("lol\n");
             GraphDialogController dialog = new GraphDialogController(stage);
             dialog.showAndWait().ifPresent(graph -> {
                 this.graph = graph;
                 visualizeGraph();
             });
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Graph was successfully generated.\n");
         } catch (Exception e){
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Something went wrong when generating graph.\n");
             e.printStackTrace();
         }
     }
@@ -243,18 +242,18 @@ public class MainController {
                 }
             });
         } catch (Exception e){
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Something went wrong when creating JSON file.\n");
             e.printStackTrace();
         }
     }
 
     @FXML
-    protected void onTestMenuClick(ActionEvent actionEvent) {
+    protected void onTestMenuClick() {
         try {
             TestDialogController dialog = new TestDialogController(stage, algorithms, graph, spinnerPartCount.getValue());
             dialog.showAndWait();
         } catch (Exception e){
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Something went wrong when testing.\n");
             e.printStackTrace();
         }
     }
@@ -268,14 +267,12 @@ public class MainController {
             SettingDialogController dialog = new SettingDialogController(stage, algorithm);
             dialog.showAndWait().ifPresent(apply -> {
                 if (group.getSelectedToggle() != null) {
-                    progressMessages.appendText("lol\n");
                     graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
-                    progressMessages.appendText("lol\n");
                     visualizeGraph();
                 }
             });
         } catch (Exception e){
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Something went wrong when setting things up.\n");
             e.printStackTrace();
         }
     }
@@ -285,17 +282,17 @@ public class MainController {
      */
     private void visualizeGraph(){
         if (this.graph == null) {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("No graph to visualize.\n");
             return;
         }
         Group group = new Group();
         if (graphPartition == null) {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("No Graph Partition available, visualizing plain graph.\n");
             drawGraph(group, this.graph, Color.BLACK);
 
         }
         else {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Visualizing Graph Partition...\n");
 
             for (int i = 0; i < spinnerPartCount.getValue(); i++) {
                 Color color = colors.length > i ? colors[i] : Color.BLACK;
@@ -304,7 +301,7 @@ public class MainController {
         }
         scrollPane.setPrefSize(1000, 1000);
         scrollPane.setContent(group);
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Visualizing is done.\n");
 
     }
 
@@ -338,24 +335,23 @@ public class MainController {
         File selectedFile = fileChooser.showOpenDialog(stage);
         Graph graphComponent = JSONParser.readFile(selectedFile);
         if (this.graph == null) {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("No initial graph. Setting added graph as initial.\n");
             this.graph = graphComponent;
 
         }
         else {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Merging Graphs...\n");
 
             Graph mergedGraph = Graph.mergeGraphs(this.graph, graphComponent);
             if (mergedGraph != null) {
-                progressMessages.appendText("lol\n");
+                progressMessages.appendText("Merging completed.\n");
                 this.graph = mergedGraph;
-                progressMessages.appendText("lol\n");
             }
             else {
-                progressMessages.appendText("lol\n");
+                progressMessages.appendText("Graphs could not be merged.\n");
             }
         }
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Visualizing merged graphs...\n");
         visualizeGraph();
     }
 
@@ -364,32 +360,31 @@ public class MainController {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
         LocalDateTime now = LocalDateTime.now();
         String jsonName = "graph_" + dtf.format(now);
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Exporting to JSON file...\n");
         JSONParser.writeJSONFile(jsonName, this.graph);
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Export completed.\n");
 
     }
 
     @FXML
     protected void onExportPartitionToGeoJSONMenuClick() {
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Exporting partitions...\n");
 
         for (APartitionAlgorithm algorithm : algorithms.values()) {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Exporting to JSON file...\n");
             JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(), 0);
-            progressMessages.appendText("lol\n");
-
+            progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
         }
     }
 
     @FXML
     protected void onRecalculateButtonClick() {
-        progressMessages.appendText("lol\n");
+        progressMessages.appendText("Recalculating Partitions...\n");
 
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n");
             algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
-            progressMessages.appendText("lol\n");
+            progressMessages.appendText("Partitioning is done.\n");
 
         }
     }

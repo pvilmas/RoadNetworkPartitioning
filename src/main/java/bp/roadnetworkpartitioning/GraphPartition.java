@@ -17,8 +17,10 @@ public class GraphPartition {
 
     private int cutEdgesCount = -1;
 
-    private double balance = -1;
+    private double deviation = -1;
 
+    private int minNeighbours = -1;
+    private double averageNeighbours = -1;
     private int maxNeighbours = -1;
 
     private long time = -1;
@@ -62,21 +64,26 @@ public class GraphPartition {
      *
      * @return
      */
-    public double getBalance(){
-        if(balance == -1){
-            double minValue = Double.MAX_VALUE;
-            double maxValue = Double.MIN_VALUE;
+    public double getRelativeStandartDeviation(){
+        if(deviation == -1){
+            double graphValue = getGraphValue();
+            double averageGraphComponentValue = graphValue/graphComponents.size();
+            double sd = 0;
             for(Graph graph: graphComponents){
-                if(graph.getValue() < minValue){
-                    minValue = graph.getValue();
-                }
-                if(graph.getValue() > maxValue){
-                    maxValue = graph.getValue();
-                }
+                sd += (averageGraphComponentValue - graph.getValue())*(averageGraphComponentValue - graph.getValue());
             }
-            balance = maxValue - minValue;
+            deviation = (Math.sqrt(sd/graphComponents.size())/averageGraphComponentValue)*100;
         }
-        return balance;
+        return deviation;
+    }
+
+
+    private double getGraphValue(){
+        double value = 0;
+        for(Graph graph: graphComponents){
+            value += graph.getValue();
+        }
+        return value;
     }
 
     /**
@@ -114,6 +121,80 @@ public class GraphPartition {
             }
         }
         return maxNeighbours;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getMinNeighbours(){
+        if(minNeighbours == -1){
+            minNeighbours = graphComponents.size();
+            for(Graph graph: graphComponents){
+                List<Edge> cutEndingEdges = graph.getCutEndingEdges();
+                List<Edge> cutStartingEdges = graph.getCutStartingEdges();
+                List<Integer> neighbourNumbers = new ArrayList<>();
+                for(Edge edge: cutEndingEdges){
+                    for(int i = 0; i < graphComponents.size(); i++){
+                        if(graphComponents.get(i).getVertices().containsKey(edge.getStartpoint().getId())){
+                            if(!neighbourNumbers.contains(i)){
+                                neighbourNumbers.add(i);
+                            }
+                        }
+                    }
+                }
+                for(Edge edge: cutStartingEdges){
+                    for(int i = 0; i < graphComponents.size(); i++){
+                        if(graphComponents.get(i).getVertices().containsKey(edge.getEndpoint().getId())){
+                            if(!neighbourNumbers.contains(i)){
+                                neighbourNumbers.add(i);
+                            }
+                        }
+                    }
+                }
+                if(neighbourNumbers.size() < minNeighbours){
+                    minNeighbours = neighbourNumbers.size();
+                }
+            }
+        }
+        return minNeighbours;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getAverageNeighbours(){
+        if(averageNeighbours == -1){
+            averageNeighbours = 0;
+            for(Graph graph: graphComponents){
+                List<Edge> cutEndingEdges = graph.getCutEndingEdges();
+                List<Edge> cutStartingEdges = graph.getCutStartingEdges();
+                List<Integer> neighbourNumbers = new ArrayList<>();
+                for(Edge edge: cutEndingEdges){
+                    for(int i = 0; i < graphComponents.size(); i++){
+                        if(graphComponents.get(i).getVertices().containsKey(edge.getStartpoint().getId())){
+                            if(!neighbourNumbers.contains(i)){
+                                neighbourNumbers.add(i);
+                            }
+                        }
+                    }
+                }
+                for(Edge edge: cutStartingEdges){
+                    for(int i = 0; i < graphComponents.size(); i++){
+                        if(graphComponents.get(i).getVertices().containsKey(edge.getEndpoint().getId())){
+                            if(!neighbourNumbers.contains(i)){
+                                neighbourNumbers.add(i);
+                            }
+                        }
+                    }
+                }
+                averageNeighbours += neighbourNumbers.size();
+
+            }
+        }
+        averageNeighbours = averageNeighbours/(double)graphComponents.size();
+        return averageNeighbours;
     }
 
     /**
