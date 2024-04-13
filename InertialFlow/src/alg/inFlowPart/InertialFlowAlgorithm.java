@@ -37,6 +37,8 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private Point B = new Point(1.0, 0.0);
     /** Balance parameter that determining number of sources and sinks vertices. */
     private double balance = 0.25;
+    /** Balance parameter that determining number of sources and sinks vertices. */
+    private double tolerance = 35;
     /** Order of vertices orthographically projected on picked line. */
     private List<Vertex> vertexOrder;
     /** All IFVertices of the graph. */
@@ -81,6 +83,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         customParameters.put("Line Bx", "1.0");
         customParameters.put("Line By", "0.0");
         customParameters.put("Balance", "0.25");
+        customParameters.put("Tolerance", "35");
 
         return customParameters;
     }
@@ -88,11 +91,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     @Override
     public Map<String, String> getAllCustomParametersDescriptions() {
         Map<String, String> customParametersDescription = new TreeMap<>();
-        customParametersDescription.put("Line Ax", "X-coordinate of point A on picked line.");
-        customParametersDescription.put("Line Ay", "Y-coordinate of point A on picked line.");
-        customParametersDescription.put("Line Bx", "X-coordinate of point B on picked line.");
-        customParametersDescription.put("Line By", "Y-coordinate of point B on picked line.");
-        customParametersDescription.put("Balance", "Defines balance of the partition.");
+        customParametersDescription.put("Line Ax (double)", "X-coordinate of point A on picked line. Type double.");
+        customParametersDescription.put("Line Ay (double)", "Y-coordinate of point A on picked line. Type double.");
+        customParametersDescription.put("Line Bx (double)", "X-coordinate of point B on picked line. Type double.");
+        customParametersDescription.put("Line By (double)", "Y-coordinate of point B on picked line. Type double.");
+        customParametersDescription.put("Balance (double)", "Defines balance of the partition. Type double, < 0.5.");
+        customParametersDescription.put("Tolerance (double)", "Defines tolerance of the partition. Type double.");
         return customParametersDescription;
     }
 
@@ -138,10 +142,19 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         LinkedList<IFEdge> q1 = new LinkedList<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
         List<IFVertex> visitedVertices = new ArrayList<>();
+        if (getParameters() != null && getParameters().containsKey("Tolerance")){
+            try {
+                tolerance = Double.parseDouble(getParameters().get("Tolerance"));
+
+            } catch (Exception e){
+                System.out.println("Could not parse " + getParameters().get("Tolerance") + "to double." );
+            }
+        }
         double value2 = 0;
         IFVertex s = graphVertices.get(0);
         double value1 = addToGraphComponent(s, vertices1, q, visitedVertices, 0);
         List<Double> tempFlowList = new ArrayList<>(flowList);
+
         boolean useFlowList = false;
         while (q.size() != 0) {
             IFVertex u = q.pop();
@@ -173,7 +186,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             if (q.size() == 0) {
                 tempFlowList = new ArrayList<>(flowList);
                 useFlowList = false;
-                if (value1 + value2 <= graphHalfValue+35) {
+                if (value1 + value2 <= graphHalfValue + tolerance) {
                     vertices1.putAll(vertices2);
                     value1 += value2;
                     vertices2 = new HashMap<>();
@@ -268,12 +281,22 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         Map<String, String> parameters = getParameters();
         if(parameters != null && parameters.containsKey("Line Ax") && parameters.containsKey("Line Ay")
             && parameters.containsKey("Line Bx") && parameters.containsKey("Line By")){
-            double Ax = Double.parseDouble(parameters.get("Line Ax"));
-            double Ay = Double.parseDouble(parameters.get("Line Ay"));
-            A = new Point(Ax, Ay);
-            double Bx = Double.parseDouble(parameters.get("Line Bx"));
-            double By = Double.parseDouble(parameters.get("Line By"));
-            B = new Point(Bx, By);
+            Point inputA = null;
+            Point inputB = null;
+            try {
+                double Ax = Double.parseDouble(parameters.get("Line Ax"));
+                double Ay = Double.parseDouble(parameters.get("Line Ay"));
+                inputA = new Point(Ax, Ay);
+                double Bx = Double.parseDouble(parameters.get("Line Bx"));
+                double By = Double.parseDouble(parameters.get("Line By"));
+                inputB = new Point(Bx, By);
+            } catch (Exception e) {
+                System.out.println("Could not parse line coordinates.");
+            }
+            if ((inputA != null) && (inputB != null)) {
+                A = inputA;
+                B = inputB;
+            }
         }
     }
 
@@ -432,7 +455,14 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      */
     private List<Double> computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){
-            balance = Double.parseDouble(getParameters().get("Balance"));
+            try {
+                 double inputBalance = Double.parseDouble(getParameters().get("Balance"));
+                 if (inputBalance < 0.5) {
+                     balance = inputBalance;
+                 }
+            } catch (Exception e){
+                System.out.println("Could not parse " + getParameters().get("Balance") + "to double." );
+            }
         }
         int verticesCount = (int) (balance * graph.getVertices().size());
         graphVertices = new ArrayList<>();
