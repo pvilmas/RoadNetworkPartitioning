@@ -138,7 +138,7 @@ public class JSONDialogController extends Dialog<Boolean> {
         File selectedFile = fileChooser.showOpenDialog(stage);
         if(selectedFile != null) {
             coordinatesFile = selectedFile;
-            showFirstTwentyLinesOfFile(edgesFile, scrollPaneNode);
+            showFirstTwentyLinesOfFile(coordinatesFile, scrollPaneNode);
         }
     }
 

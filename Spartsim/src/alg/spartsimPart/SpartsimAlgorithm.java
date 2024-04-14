@@ -374,9 +374,11 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             for (Map.Entry< Integer, Double> neighbour: neighbours.entrySet()) {
                 Vertex adjacentNode = getGraph().getVertices().get(neighbour.getKey());
                 double edgeWeight = neighbour.getValue();
-                if (!settledNodes.contains(adjacentNode) && ((verticesParts.get(adjacentNode) != part) || minBorderPart.contains(adjacentNode))) {
-                    calculateMinimumDistance(adjacentNode, edgeWeight, currentNode, distances, shortestPaths);
-                    unsettledNodes.add(adjacentNode);
+                if (verticesParts.get(adjacentNode) != null) {
+                    if (!settledNodes.contains(adjacentNode) && ((verticesParts.get(adjacentNode) != part) || minBorderPart.contains(adjacentNode))) {
+                        calculateMinimumDistance(adjacentNode, edgeWeight, currentNode, distances, shortestPaths);
+                        unsettledNodes.add(adjacentNode);
+                    }
                 }
             }
             settledNodes.add(currentNode);
@@ -455,12 +457,10 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                     included = true;
                 }
             }
-            for(Edge edge: getGraph().getEdges().values()){
-                if(edge.getEndpoint().equals(vertex)){
-                    Vertex neighbour = edge.getStartpoint();
-                    if((verticesParts.get(neighbour) != index) && !included){
-                        borderPart.add(vertex);
-                    }
+            for(Edge edge: vertex.getEndingEdges()){
+                Vertex neighbour = edge.getStartpoint();
+                if((verticesParts.get(neighbour) != index) && !included){
+                    borderPart.add(vertex);
                 }
             }
         }
@@ -593,7 +593,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             Map<Integer, Double> neighbours = getVertexFreeNeighbours(vertex, verticesParts);
             for (Map.Entry<Integer, Double> neighbour: neighbours.entrySet()) {
                 double value = neighbour.getValue();
-                if(value > maxValue){
+                if(value >= maxValue){
                     maxVertexID = neighbour.getKey();
                     maxValue = value;
                     hasGrown = true;

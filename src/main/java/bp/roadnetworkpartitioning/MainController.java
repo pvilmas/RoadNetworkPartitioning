@@ -1,5 +1,6 @@
 package bp.roadnetworkpartitioning;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -101,7 +102,14 @@ public class MainController {
             Button btnSetting = new Button("Setting");
             btnSetting.getStyleClass().setAll("btn","btn-primary");
             btnSetting.setOnAction(e -> showSettingDialog(algorithm.getValue()));
-            hBox.getChildren().addAll(radioButton, btnSetting);
+            Button btnCalculate = new Button("Calculate");
+            btnCalculate.getStyleClass().setAll("btn","btn-success");
+            btnCalculate.setOnAction(e -> {Platform.runLater(() ->
+                    progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n"));
+                    algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
+                    Platform.runLater(() -> progressMessages.appendText("Partitioning is done.\n"));
+            });
+            hBox.getChildren().addAll(radioButton, btnSetting, btnCalculate);
             hBox.setAlignment(Pos.CENTER);
             vboxRadioBtn.getChildren().add(hBox);
         }
@@ -381,13 +389,13 @@ public class MainController {
 
     @FXML
     protected void onRecalculateButtonClick() {
-        progressMessages.appendText("Recalculating Partitions...\n");
-
+        Platform.runLater(() -> progressMessages.appendText("Recalculating Partitions...\n"));
         for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
-            progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n");
+            Platform.runLater(() -> progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n"));
             algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
-            progressMessages.appendText("Partitioning is done.\n");
+            Platform.runLater(() -> progressMessages.appendText("Partitioning is done.\n"));
 
         }
+        visualizeGraph();
     }
 }

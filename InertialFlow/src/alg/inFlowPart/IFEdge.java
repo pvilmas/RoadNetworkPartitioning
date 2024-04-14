@@ -5,12 +5,12 @@ import bp.roadnetworkpartitioning.Edge;
 /**
  * Implementation of edge in inertial flow algorithm.
  * @author Lucie Roy
- * @version 20-12-2023
+ * @version 13-04-2024
  */
 public class IFEdge {
     /** Instance of original edge. */
     public final Edge edge;
-    /** Instance of IF vertex where edge ends. */
+    /** Instance of second connected IF vertex. */
     public final IFVertex otherpoint;
     /** Inertial flow in edge. */
     private double flow = 0;
