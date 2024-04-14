@@ -242,7 +242,6 @@ public class JSONParser {
                 double y = sc.nextDouble();
                 vertex = new Vertex(id, x, y);
                 vertices.add(vertex);
-                //sc.next();
             }
             return vertices;
         } catch (FileNotFoundException e) {

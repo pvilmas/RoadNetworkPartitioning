@@ -14,6 +14,8 @@ import javafx.stage.Window;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -124,8 +126,10 @@ public class JSONDialogController extends Dialog<Boolean> {
         details[7] = MainController.getNumberFromString(textFieldColY.getText());
         String delimiterEdge = textFieldDelimiterEdge.getText();
         String delimiterVertex = textFieldDelimiterVertex.getText();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
         this.isCreated = JSONParser.createJSONFile(details, delimiterEdge, delimiterVertex,
-                coordinatesFile, edgesFile, "graph");
+                coordinatesFile, edgesFile, "graph_" + dtf.format(now));
     }
 
     /**

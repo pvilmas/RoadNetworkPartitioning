@@ -102,7 +102,7 @@ public class Vertex extends Point2D {
         if(!(o instanceof Vertex)){
             return false;
         }
-        return ((((Vertex) o).getX() == this.getX()) && (((Vertex) o).getY() == this.getY()));
+        return ((Vertex) o).getId() == this.getId();
     }
 
     @Override
