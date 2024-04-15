@@ -552,12 +552,12 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         double edgesWeight = 0;
         for(Edge edge: v1.getStartingEdges()){
             if(edge.getEndpoint().equals(v2)){
-                edgesWeight += edge.getWeight();
+                edgesWeight += edge.getCapacity();
             }
         }
         for(Edge edge: v2.getStartingEdges()){
             if(edge.getEndpoint().equals(v1)){
-                edgesWeight += edge.getWeight();
+                edgesWeight += edge.getCapacity();
             }
         }
         return edgesWeight;

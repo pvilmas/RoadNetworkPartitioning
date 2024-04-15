@@ -25,7 +25,7 @@ public class IFEdge {
      */
     public IFEdge(Edge edge, IFVertex otherpoint) {
         this.edge = edge;
-        this.capacity = edge.getLength();
+        this.capacity = edge.getCapacity() * edge.getLength();
         this.otherpoint = otherpoint;
     }
 

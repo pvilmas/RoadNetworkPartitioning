@@ -221,6 +221,20 @@ public class Graph {
         return cutEdges;
     }
 
+    public double getWeightValue() {
+        double value = 0;
+        for(Vertex vertex: vertices.values()) {
+            value += vertex.getValue();
+            for(Edge edge: vertex.getStartingEdges()){
+                value += edge.getWeight()/2;
+            }
+            for(Edge edge: vertex.getEndingEdges()){
+                value += edge.getWeight()/2;
+            }
+        }
+        return value;
+    }
+
     public double getValue() {
         double value = 0;
         for(Vertex vertex: vertices.values()) {

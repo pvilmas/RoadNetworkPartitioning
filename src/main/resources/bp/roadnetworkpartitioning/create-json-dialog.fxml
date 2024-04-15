@@ -21,6 +21,8 @@
                     <TextField fx:id="textFieldColStart"/>
                     <Label text="Column with endpoints in edge file:"/>
                     <TextField fx:id="textFieldColEnd"/>
+                    <Label text="Column with edge capacities in edge file:"/>
+                    <TextField fx:id="textFieldColCapacity"/>
                     <Label text="Column with lengths in edge file:"/>
                     <TextField fx:id="textFieldColLength"/>
                 </VBox>

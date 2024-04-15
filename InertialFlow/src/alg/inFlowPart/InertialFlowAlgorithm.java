@@ -119,7 +119,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private void createMinimumSTCut(List<Graph> graphComponents, List<Double> flowList, Graph graph) {
         Map<Integer, Vertex> vertices1 = new HashMap<>();
         Map<Integer, Vertex> vertices2 = new HashMap<>();
-        double graphValue = graph.getValue();
+        double graphValue = graph.getWeightValue();
         double halfGraph = graphValue/2;
         findBetterHalf(halfGraph, flowList, vertices1);
         for (Map.Entry<Integer, Vertex> vertexEntry : graph.getVertices().entrySet()) {
@@ -220,10 +220,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             vertices.put(vertex.getId(), vertex);
             value += vertex.getValue();
             for (Edge edge : vertex.getStartingEdges()) {
-                value += edge.getLength() / 2;
+                value += edge.getWeight() / 2;
             }
             for (Edge edge : vertex.getEndingEdges()) {
-                value += edge.getLength() / 2;
+                value += edge.getWeight() / 2;
             }
         }
         return value;

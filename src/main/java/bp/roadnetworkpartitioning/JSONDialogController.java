@@ -53,6 +53,9 @@ public class JSONDialogController extends Dialog<Boolean> {
     private TextField textFieldColEnd;
     /** TextField with number of column where is length of edge in edge file. */
     @FXML
+    private TextField textFieldColCapacity;
+    /** TextField with number of column where is length of edge in edge file. */
+    @FXML
     private TextField textFieldColLength;
     /** TextField with number of line where data starts in node file. */
     @FXML
@@ -115,15 +118,16 @@ public class JSONDialogController extends Dialog<Boolean> {
      */
     @FXML
     protected void onCreateJSONButtonClick(ActionEvent event){
-        int[] details = new int[8];
+        int[] details = new int[9];
         details[0] = MainController.getNumberFromString(textFieldLineVertex.getText());
         details[1] = MainController.getNumberFromString(textFieldLineEdge.getText());
         details[2] = MainController.getNumberFromString(textFieldColStart.getText());
         details[3] = MainController.getNumberFromString(textFieldColEnd.getText());
-        details[4] = MainController.getNumberFromString(textFieldColLength.getText());
-        details[5] = MainController.getNumberFromString(textFieldColID.getText());
-        details[6] = MainController.getNumberFromString(textFieldColX.getText());
-        details[7] = MainController.getNumberFromString(textFieldColY.getText());
+        details[4] = MainController.getNumberFromString(textFieldColCapacity.getText());
+        details[5] = MainController.getNumberFromString(textFieldColLength.getText());
+        details[6] = MainController.getNumberFromString(textFieldColID.getText());
+        details[7] = MainController.getNumberFromString(textFieldColX.getText());
+        details[8] = MainController.getNumberFromString(textFieldColY.getText());
         String delimiterEdge = textFieldDelimiterEdge.getText();
         String delimiterVertex = textFieldDelimiterVertex.getText();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");

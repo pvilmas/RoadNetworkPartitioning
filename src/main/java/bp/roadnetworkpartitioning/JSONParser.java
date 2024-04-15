@@ -41,15 +41,15 @@ public class JSONParser {
         if((coordinatesFile == null) && (edgesFile == null)){
             return false;
         }
-        List<Vertex> vertices = readVertices(details, delimiterVertex, coordinatesFile);
+        Map<Integer, Vertex> vertices = readVertices(details, delimiterVertex, coordinatesFile);
         if(vertices == null){
             return false;
         }
-        List<Edge> edges = readEdges(details, delimiterEdge, edgesFile, vertices);
+        Map<Integer, Edge> edges = readEdges(details, delimiterEdge, edgesFile, vertices);
         if(edges == null){
             return false;
         }
-        return writeJSONFile(jsonName, vertices, edges);
+        return writeJSONFile(jsonName, vertices, edges.size());
     }
 
     public static void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
@@ -64,32 +64,76 @@ public class JSONParser {
     }
 
     public static boolean writeJSONFile(String jsonName, Graph graph) {
-        return writeJSONFile(jsonName, graph.getVertices().values(), graph.getEdges().values());
+        return writeJSONFile(jsonName, graph.getVertices(), graph.getEdges().values().size());
     }
 
 
-    public static boolean writeJSONFile(String jsonName, Collection<Vertex> vertices, Collection<Edge> edges) {
+    public static boolean writeJSONFile(String jsonName, Map<Integer, Vertex> vertices, int edgesSize) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(jsonName + EXTENSION))){
             bw.write("{\n \"type\": \"FeatureCollection\",\n \"features\": [\n");
             int k = 1;
-            for (Vertex vertex : vertices) {
-                for (int j = 0; j < vertex.getStartingEdges().size(); j++) {
-                    Edge edge = vertex.getStartingEdges().get(j);
+            for (Vertex vertex : vertices.values()) {
+                for (Edge edge : vertex.getStartingEdges()) {
+                    int endpointId;
+                    double endpointX;
+                    double endpointY;
+                    double length;
+                    double capacity;
+                    if (vertices.containsKey(edge.getEndpoint().getId())){
+                        endpointId = edge.getEndpoint().getId();
+                        endpointX = edge.getEndpoint().getX();
+                        endpointY = edge.getEndpoint().getY();
+                        length = edge.getLength();
+                        capacity = edge.getCapacity();
+                    }
+                    else {
+                        endpointId = - Math.min(edge.getEndpoint().getId(), vertex.getId());
+                        endpointX = 0;
+                        endpointY = 0;
+                        length = edge.getLength()/2;
+                        capacity = edge.getCapacity()/2;
+                    }
                     bw.write("{ \"type\": \"Feature\", \"properties\": { \"fid\": " + k +
                             ", \"cat\": " + k + ", \"init_node\": " + vertex.getId() + ", " +
-                            "\"term_node\": " + edge.getEndpoint().getId() +
-                            ", \"length\": " + edge.getLength() +
+                            "\"term_node\": " + endpointId +
+                            ", \"capacity\": " + capacity +
+                            ", \"length\": " + length +
                             "}, \"geometry\": { \"type\": \"LineString\", " +
                             "\"coordinates\": [ [ " + vertex.getX() +
-                            ", " + vertex.getY() + " ], [ " + edge.getEndpoint().getX() +
-                            ", " + edge.getEndpoint().getY() +
+                            ", " + vertex.getY() + " ], [ " + endpointX +
+                            ", " + endpointY +
                             " ] ] } }");
-                    if (k == edges.size()) {
+                    if (k == edgesSize) {
                         bw.write("\n]\n}");
                     } else {
                         bw.write(",\n");
                     }
                     k++;
+                }
+                for (Edge endingEdge : vertex.getEndingEdges()) {
+                    if (vertices.containsKey(endingEdge.getStartpoint().getId())) {
+                        int startpointId = - Math.min(endingEdge.getStartpoint().getId(), vertex.getId());
+                        double startpointX = 0;
+                        double startpointY = 0;
+                        double length = endingEdge.getLength() / 2;
+                        double capacity = endingEdge.getCapacity() / 2;
+                        bw.write("{ \"type\": \"Feature\", \"properties\": { \"fid\": " + k +
+                                ", \"cat\": " + k + ", \"init_node\": " + startpointId + ", " +
+                                "\"term_node\": " + vertex.getId() +
+                                ", \"capacity\": " + capacity +
+                                ", \"length\": " + length +
+                                "}, \"geometry\": { \"type\": \"LineString\", " +
+                                "\"coordinates\": [ [ " + startpointX +
+                                ", " + startpointY + " ], [ " + vertex.getX() +
+                                ", " + vertex.getY() +
+                                " ] ] } }");
+                        if (k == edgesSize) {
+                            bw.write("\n]\n}");
+                        } else {
+                            bw.write(",\n");
+                        }
+                        k++;
+                    }
                 }
             }
             bw.flush();
@@ -119,6 +163,7 @@ public class JSONParser {
                 int vertexId1 = 0;
                 int vertexId2 = 0;
                 double length = 0.0;
+                double capacity = Double.NaN;
                 double vertexX1 = Double.NaN;
                 double vertexY1 = Double.NaN;
                 double vertexX2 = Double.NaN;
@@ -131,6 +176,9 @@ public class JSONParser {
                             }
                             if (details[i].contains("term_node")) {
                                 vertexId2 = Integer.parseInt(details[i + 1].trim().split("[}, ]")[0]);
+                            }
+                            if (details[i].contains("capacity")) {
+                                capacity = Double.parseDouble(details[i + 1].trim().split("[}, ]")[0]);
                             }
                             if (details[i].contains("length")) {
                                 length = Double.parseDouble(details[i + 1].trim().split("[}, ]")[0]);
@@ -147,19 +195,23 @@ public class JSONParser {
                             System.out.println("Could not parse " + details[i]);
                         }
                     }
-
-                    if(!vertices.containsKey(vertexId1)) {
-                        Vertex vertex1 = new Vertex(vertexId1, vertexX1, vertexY1);
-                        vertices.put(vertexId1, vertex1);
+                    if (!Double.isNaN(vertexX1) && !Double.isNaN(vertexY1) && !Double.isNaN(vertexX2) && !Double.isNaN(vertexY2)) {
+                        if (!vertices.containsKey(vertexId1)) {
+                            Vertex vertex1 = new Vertex(vertexId1, vertexX1, vertexY1);
+                            vertices.put(vertexId1, vertex1);
+                        }
+                        if (!vertices.containsKey(vertexId2)) {
+                            Vertex vertex2 = new Vertex(vertexId2, vertexX2, vertexY2);
+                            vertices.put(vertexId2, vertex2);
+                        }
+                        Edge edge = new Edge(vertices.get(vertexId1), vertices.get(vertexId2), length);
+                        if (!Double.isNaN(capacity)) {
+                            edge.setCapacity(capacity);
+                        }
+                        vertices.get(vertexId1).getStartingEdges().add(edge);
+                        vertices.get(vertexId2).getEndingEdges().add(edge);
+                        edges.put(edge.getId(), edge);
                     }
-                    if(!vertices.containsKey(vertexId2)) {
-                        Vertex vertex2 = new Vertex(vertexId2, vertexX2, vertexY2);
-                        vertices.put(vertexId2, vertex2);
-                    }
-                    Edge edge = new Edge(vertices.get(vertexId1), vertices.get(vertexId2), length);
-                    vertices.get(vertexId1).getStartingEdges().add(edge);
-                    vertices.get(vertexId2).getEndingEdges().add(edge);
-                    edges.put(edge.getId(), edge);
                 }
                 line = sc.nextLine();
             }
@@ -186,27 +238,27 @@ public class JSONParser {
      * @param vertices      List of available vertices.
      * @return list of read edges. Returns null if file was impossible to read.
      */
-    private static List<Edge> readEdges(int[] details, String delimiterEdge, File edgesFile, List<Vertex> vertices){
+    private static Map<Integer, Edge> readEdges(int[] details, String delimiterEdge, File edgesFile, Map<Integer, Vertex> vertices){
         double eps = 0.0000001;
-        List<Edge> edges = new ArrayList<>();
+        Map<Integer, Edge> edges = new HashMap<>();
         try (Scanner sc = new Scanner(edgesFile)){
             String[] data = findFirstLine(sc, details[1], delimiterEdge);
-            Edge edge = new Edge(vertices.get(Integer.parseInt(data[0])-1), vertices.get(Integer.parseInt(data[1])-1),Double.parseDouble(data[3]));
-            vertices.get(Integer.parseInt(data[0])-1).getStartingEdges().add(edge);
-            edges.add(edge);
+            Edge edge = new Edge(vertices.get(Integer.parseInt(data[0])), vertices.get(Integer.parseInt(data[1])),Double.parseDouble(data[3]));
+            vertices.get(Integer.parseInt(data[0])).getStartingEdges().add(edge);
+            edges.put(edge.getId(), edge);
             while(sc.hasNextLine()){
                 String line = sc.nextLine();
-                data = line.trim().split("\\s+");
+                data = line.trim().split(delimiterEdge);
                 int startpoint = Integer.parseInt(data[0]);
                 int endpoint = Integer.parseInt(data[1]);
                 double length = Double.parseDouble(data[3]);
                 if((length - 0.0) < eps ){
-                    length = vertices.get(startpoint-1).distance(vertices.get(endpoint-1));
+                    length = vertices.get(startpoint).distance(vertices.get(endpoint));
                 }
-                edge = new Edge(vertices.get(startpoint-1), vertices.get(endpoint-1), length);
-                vertices.get(endpoint-1).getEndingEdges().add(edge);
-                vertices.get(startpoint-1).getStartingEdges().add(edge);
-                edges.add(edge);
+                edge = new Edge(vertices.get(startpoint), vertices.get(endpoint), length);
+                vertices.get(endpoint).getEndingEdges().add(edge);
+                vertices.get(startpoint).getStartingEdges().add(edge);
+                edges.put(edge.getId(), edge);
             }
             return edges;
         } catch (FileNotFoundException e) {
@@ -230,18 +282,33 @@ public class JSONParser {
      *                          text file where each vertex's coordinates are on individual line (id x y ;).
      * @return list of read vertices. Returns null if file was impossible to read.
      */
-    private static List<Vertex> readVertices(int[] details, String delimiterVertex, File coordinatesFile){
-        List<Vertex> vertices = new ArrayList<>();
+    private static Map<Integer, Vertex> readVertices(int[] details, String delimiterVertex, File coordinatesFile){
+        Map<Integer, Vertex> vertices = new HashMap<>();
         try (Scanner sc = new Scanner(coordinatesFile)){
             String[] data = findFirstLine(sc, details[0], delimiterVertex);
-            Vertex vertex = new Vertex(Integer.parseInt(data[0]),Double.parseDouble(data[1]), Double.parseDouble(data[2]));
-            vertices.add(vertex);
-            while(sc.hasNextInt()){
-                int id = sc.nextInt();
-                double x = sc.nextDouble();
-                double y = sc.nextDouble();
-                vertex = new Vertex(id, x, y);
-                vertices.add(vertex);
+            int indexId = Math.max(details[6], 0);
+            int indexX = details[7] >= 0 ? details[7] : 1;
+            int indexY = details[8] >= 0 ? details[8] : 2;
+            int maxIndex = Math.max(Math.max(indexId, indexX), indexY);
+            if (maxIndex < data.length) {
+                int id = MainController.getNumberFromString(data[details[6]]);
+                Vertex vertex = new Vertex(id, Double.parseDouble(data[details[7]]), Double.parseDouble(data[details[8]]));
+                vertices.put(id, vertex);
+            }
+            while(sc.hasNextLine()){
+                String line = sc.nextLine();
+                data = line.trim().split(delimiterVertex);
+                if (maxIndex < data.length) {
+                    int id = MainController.getNumberFromString(data[indexId]);
+                    try {
+                        double x = Double.parseDouble(data[indexX]);
+                        double y = Double.parseDouble(data[indexY]);
+                        Vertex vertex = new Vertex(id, x, y);
+                        vertices.put(id, vertex);
+                    }catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             return vertices;
         } catch (FileNotFoundException e) {
