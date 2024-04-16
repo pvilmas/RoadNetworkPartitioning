@@ -197,7 +197,9 @@ public class StatisticsDialogController extends Dialog<Boolean> {
                 bw.write(data.algorithmTime.getValue() + ",");
                 bw.write(data.algorithmDeviation.getValue() + ",");
                 bw.write(data.algorithmNumberOfCutEdges.getValue() + ",");
-                bw.write(data.algorithmMaxNumberOfNeighbours.getValue() + "\n");
+                bw.write(data.algorithmMinNumberOfNeighbours.getValue() + ",");
+                bw.write(data.algorithmMaxNumberOfNeighbours.getValue() + ",");
+                bw.write(data.algorithmAverageNumberOfNeighbours.getValue() + "\n");
             }
         }
         catch (IOException e) {

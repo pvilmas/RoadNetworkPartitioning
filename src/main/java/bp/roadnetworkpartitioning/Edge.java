@@ -11,7 +11,7 @@ public class Edge {
     /** ID of edge. */
     private int id;
     /** Length of edge (no specific units). */
-    private double length;
+    private double length = 1;
     /** Weight of edge (no specific units). */
     private double capacity = 1;
     /** Weight of edge (no specific units). */
@@ -30,7 +30,9 @@ public class Edge {
     public Edge(Vertex startpoint, Vertex endpoint, double length){
         this.startpoint = startpoint;
         this.endpoint = endpoint;
-        this.length = length;
+        if (length > 0) {
+            this.length = length;
+        }
         count++;
         id = count;
     }

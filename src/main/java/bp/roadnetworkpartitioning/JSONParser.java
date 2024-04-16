@@ -187,8 +187,8 @@ public class JSONParser {
                                 String[] coordinates = details[i + 1].trim().split("[}, \\[\\]]");
                                 vertexX1 = Double.parseDouble(coordinates[4].trim());
                                 vertexY1 = Double.parseDouble(coordinates[6].trim());
-                                vertexX2 = Double.parseDouble(coordinates[12].trim());
-                                vertexY2 = Double.parseDouble(coordinates[14].trim());
+                                vertexX2 = Double.parseDouble(coordinates[coordinates.length-3].trim());
+                                vertexY2 = Double.parseDouble(coordinates[coordinates.length-1].trim());
                             }
                         }
                         catch (Exception e) {
@@ -239,26 +239,51 @@ public class JSONParser {
      * @return list of read edges. Returns null if file was impossible to read.
      */
     private static Map<Integer, Edge> readEdges(int[] details, String delimiterEdge, File edgesFile, Map<Integer, Vertex> vertices){
-        double eps = 0.0000001;
         Map<Integer, Edge> edges = new HashMap<>();
         try (Scanner sc = new Scanner(edgesFile)){
             String[] data = findFirstLine(sc, details[1], delimiterEdge);
-            Edge edge = new Edge(vertices.get(Integer.parseInt(data[0])), vertices.get(Integer.parseInt(data[1])),Double.parseDouble(data[3]));
-            vertices.get(Integer.parseInt(data[0])).getStartingEdges().add(edge);
-            edges.put(edge.getId(), edge);
+            int indexStart = Math.max(details[2], 0);
+            int indexEnd = details[3] >= 0 ? details[3] : 1;
+            int indexCapacity = details[4] >= 0 ? details[4] : -1;
+            int indexLength = details[5] >= 0 ? details[5] : 3;
+            int maxIndex = Math.max(Math.max(indexStart, indexEnd), Math.max(indexCapacity, indexLength));
+            if (maxIndex < data.length) {
+                try {
+                    Vertex startpoint = vertices.get(Integer.parseInt(data[indexStart]));
+                    Vertex endpoint = vertices.get(Integer.parseInt(data[indexEnd]));
+                    double length = Double.parseDouble(data[indexLength ]);
+                    Edge edge = new Edge(startpoint, endpoint, length);
+                    startpoint.getStartingEdges().add(edge);
+                    endpoint.getEndingEdges().add(edge);
+                    edges.put(edge.getId(), edge);
+                    if (indexCapacity >= 0) {
+                        double capacity = Double.parseDouble(data[indexCapacity]);
+                        edge.setCapacity(capacity);
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
             while(sc.hasNextLine()){
                 String line = sc.nextLine();
                 data = line.trim().split(delimiterEdge);
-                int startpoint = Integer.parseInt(data[0]);
-                int endpoint = Integer.parseInt(data[1]);
-                double length = Double.parseDouble(data[3]);
-                if((length - 0.0) < eps ){
-                    length = vertices.get(startpoint).distance(vertices.get(endpoint));
+                if (maxIndex < data.length) {
+                    try {
+                        Vertex startpoint = vertices.get(Integer.parseInt(data[indexStart]));
+                        Vertex endpoint = vertices.get(Integer.parseInt(data[indexEnd]));
+                        double length = Double.parseDouble(data[indexLength ]);
+                        Edge edge = new Edge(startpoint, endpoint, length);
+                        startpoint.getStartingEdges().add(edge);
+                        endpoint.getEndingEdges().add(edge);
+                        edges.put(edge.getId(), edge);
+                        if (indexCapacity >= 0) {
+                            double capacity = Double.parseDouble(data[indexCapacity]);
+                            edge.setCapacity(capacity);
+                        }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
                 }
-                edge = new Edge(vertices.get(startpoint), vertices.get(endpoint), length);
-                vertices.get(endpoint).getEndingEdges().add(edge);
-                vertices.get(startpoint).getStartingEdges().add(edge);
-                edges.put(edge.getId(), edge);
             }
             return edges;
         } catch (FileNotFoundException e) {
@@ -291,9 +316,13 @@ public class JSONParser {
             int indexY = details[8] >= 0 ? details[8] : 2;
             int maxIndex = Math.max(Math.max(indexId, indexX), indexY);
             if (maxIndex < data.length) {
-                int id = MainController.getNumberFromString(data[details[6]]);
-                Vertex vertex = new Vertex(id, Double.parseDouble(data[details[7]]), Double.parseDouble(data[details[8]]));
-                vertices.put(id, vertex);
+                try {
+                    int id = MainController.getNumberFromString(data[details[6]]);
+                    Vertex vertex = new Vertex(id, Double.parseDouble(data[details[7]]), Double.parseDouble(data[details[8]]));
+                    vertices.put(id, vertex);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
             while(sc.hasNextLine()){
                 String line = sc.nextLine();

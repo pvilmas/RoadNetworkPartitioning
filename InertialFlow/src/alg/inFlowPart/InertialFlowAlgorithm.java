@@ -402,6 +402,12 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     q.add(e.otherpoint);
                 }
             }
+            for (IFEdge e: u.getAllEndingEdges(this)) {
+                if ((e.otherpoint != null) && (e.otherpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
+                    e.otherpoint.setLevel(u.getLevel() + 1);
+                    q.add(e.otherpoint);
+                }
+            }
         }
         return t.getLevel() >= 0;
     }

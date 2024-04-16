@@ -50,9 +50,8 @@ public class AlgorithmsLoader {
     }
 
     /**
-     * Method that finds all jar files available in given dedicated classpath
-     * places. It serves for an URLClassloader initialization.
-     * @return List of jar files URLs
+     * Method that finds all jar files available in given classpath.
+     * @return list of jar files URLs.
      */
     private static URL[] findJarURLsInClasspath() {
         URL url;

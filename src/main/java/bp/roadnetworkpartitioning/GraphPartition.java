@@ -81,7 +81,7 @@ public class GraphPartition {
     private double getGraphValue(){
         double value = 0;
         for(Graph graph: graphComponents){
-            value += graph.getValue();
+            value += graph.getWeightValue();
         }
         return value;
     }
