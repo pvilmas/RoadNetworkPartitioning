@@ -23,15 +23,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     @Override
     public GraphPartition createGraphPartition(Graph graph, int partsCount) {
         setPartsCount(partsCount);
-        boolean isSame = false;
-        if (graph != null) {
-            if (getGraph() == graph) {
-                isSame = true;
-            }
-            setGraph(graph);
-        }
-        GraphPartition graphPartition = getGraphPartition();
-        if ((graphPartition == null || !isSame) && getGraph() != null) {
+        setGraph(graph);
+        if (getGraph() != null) {
             Map<Vertex, Integer> verticesParts = new HashMap<>();
             List<SpartsimPart> parts = new ArrayList<>(getPartsCount());
             int[] stop = initialise(parts, verticesParts);
@@ -39,9 +32,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             balancePartitioning(parts, verticesParts);
             List<Graph> subgraphs = computeConnectedSubgraphs(parts);
             attach(subgraphs);
-            graphPartition = new GraphPartition(subgraphs);
+            setGraphPartition(new GraphPartition(subgraphs));
         }
-        return graphPartition;
+        return getGraphPartition();
     }
 
     @Override
@@ -168,9 +161,11 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                     }
                 }
             }
-            smallestPart.getVertices().putAll(smallestNeighbour.getVertices());
-            subparts.remove(smallestNeighbour);
-            partsCount = subparts.size();
+            if (smallestPart != null) {
+                smallestPart.getVertices().putAll(smallestNeighbour.getVertices());
+                subparts.remove(smallestNeighbour);
+                partsCount = subparts.size();
+            }
         }
     }
 
@@ -275,7 +270,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 }
                 vertexWeight += vertex1.getValue();
             }
-            //moveVertexOut(vertex, parts, maxPart, verticesParts);
             moved += edgeWeight + vertexWeight;
             moveVertexOut(vertex, parts, maxPart, verticesParts, edgeWeight + vertexWeight);
             vertexWeight = 0;
@@ -360,7 +354,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         Map<Vertex, Double> distances = new HashMap<>();
         Map<Vertex, List<Vertex>> shortestPaths = new HashMap<>();
         distances.put(maxVertex, 0.0);
-        //source.setDistance(0);
 
         Set<Vertex> settledNodes = new HashSet<>();
         Set<Vertex> unsettledNodes = new HashSet<>();

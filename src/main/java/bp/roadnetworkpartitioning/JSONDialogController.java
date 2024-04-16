@@ -128,8 +128,8 @@ public class JSONDialogController extends Dialog<Boolean> {
         details[6] = MainController.getNumberFromString(textFieldColID.getText());
         details[7] = MainController.getNumberFromString(textFieldColX.getText());
         details[8] = MainController.getNumberFromString(textFieldColY.getText());
-        String delimiterEdge = textFieldDelimiterEdge.getText();
-        String delimiterVertex = textFieldDelimiterVertex.getText();
+        String delimiterEdge = textFieldDelimiterEdge.getText().isEmpty() ? "\\s+" : textFieldDelimiterEdge.getText();
+        String delimiterVertex = textFieldDelimiterVertex.getText().isEmpty() ? "\\s+" : textFieldDelimiterVertex.getText();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
         LocalDateTime now = LocalDateTime.now();
         this.isCreated = JSONParser.createJSONFile(details, delimiterEdge, delimiterVertex,

@@ -14,17 +14,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     @Override
     public GraphPartition createGraphPartition(Graph graph, int partsCount) {
         setPartsCount(partsCount);
-        boolean isSame = false;
-        if (graph != null) {
-            if (this.getGraph() == graph) {
-                isSame = true;
-            }
-            setGraph(graph);
-        }
-        GraphPartition graphPartition = getGraphPartition();
-        if ((graphPartition == null || !isSame) && getGraph() != null) {
+        setGraph(graph);
+        if (getGraph() != null) {
             List<Graph> graphComponents = new ArrayList<>();
-            graphPartition = new GraphPartition(graphComponents);
+            GraphPartition graphPartition = new GraphPartition(graphComponents);
             graphComponents.add(graph);
             while(graphComponents.size() < getPartsCount()) {
                 Set<MetisVertex> coarsenGraph = coarsenGraph(graphComponents.get(0));
@@ -33,8 +26,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 graphComponents.remove(0);
                 graphComponents.addAll(graphs);
             }
+            setGraphPartition(graphPartition);
         }
-        return graphPartition;
+        return getGraphPartition();
     }
 
     @Override

@@ -111,7 +111,7 @@ public class JSONParser {
                     k++;
                 }
                 for (Edge endingEdge : vertex.getEndingEdges()) {
-                    if (vertices.containsKey(endingEdge.getStartpoint().getId())) {
+                    if (!vertices.containsKey(endingEdge.getStartpoint().getId())) {
                         int startpointId = - Math.min(endingEdge.getStartpoint().getId(), vertex.getId());
                         double startpointX = 0;
                         double startpointY = 0;

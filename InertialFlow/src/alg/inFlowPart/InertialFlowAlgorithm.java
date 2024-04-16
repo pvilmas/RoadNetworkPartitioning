@@ -58,10 +58,9 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     protected GraphPartition createGraphPartition(Graph graph, int partsCount) {
         setPartsCount(partsCount);
         setGraph(graph);
-        GraphPartition graphPartition = null;
         if (getGraph() != null) {
             List<Graph> graphComponents = new ArrayList<>();
-            graphPartition = new GraphPartition(graphComponents);
+            GraphPartition graphPartition = new GraphPartition(graphComponents);
             graphComponents.add(graph);
             pickLine();
             projectAndSortVertices();
@@ -72,7 +71,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             }
             setGraphPartition(graphPartition);
         }
-        return graphPartition;
+        return getGraphPartition();
     }
 
     @Override
