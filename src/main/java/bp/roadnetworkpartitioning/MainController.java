@@ -105,7 +105,7 @@ public class MainController {
             Button btnCalculate = new Button("Calculate");
             btnCalculate.getStyleClass().setAll("btn","btn-success");
             btnCalculate.setOnAction(e -> {Platform.runLater(() ->
-                    progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n"));
+                    Platform.runLater(() -> progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n")));
                     algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
                     Platform.runLater(() -> progressMessages.appendText("Partitioning is done.\n"));
             });
@@ -120,12 +120,12 @@ public class MainController {
                 progressMessages.appendText("Getting Graph Partition by "+ algorithm.getName() +"...\n");
                 graphPartition = algorithm.getGraphPartition();
                 if (graphPartition != null) {
-                    visualizeGraph();
                     progressMessages.appendText("Graph Partition was displayed.\n");
                 }
                 else {
                     progressMessages.appendText("Graph Partition could not be displayed.\n");
                 }
+                visualizeGraph();
             }
 
         });
