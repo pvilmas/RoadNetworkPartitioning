@@ -398,4 +398,9 @@ public class MainController {
         }
         visualizeGraph();
     }
+
+    @FXML
+    protected void onExitMenuClick() {
+        stage.close();
+    }
 }

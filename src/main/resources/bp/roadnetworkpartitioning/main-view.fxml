@@ -16,7 +16,7 @@
                     <MenuItem text="Export Graph Partition to GeoJSON" onAction="#onExportPartitionToGeoJSONMenuClick"/>
                 </Menu>
                 <SeparatorMenuItem/>
-                <MenuItem text="Exit"/>
+                <MenuItem text="Exit" onAction="#onExitMenuClick"/>
             </Menu>
             <Menu text="Parser">
                 <MenuItem text="Create GeoJSON File" onAction="#onCreateJSONMenuClick"/>
