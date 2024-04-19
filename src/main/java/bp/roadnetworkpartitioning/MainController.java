@@ -1,6 +1,7 @@
 package bp.roadnetworkpartitioning;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -104,10 +106,19 @@ public class MainController {
             btnSetting.setOnAction(e -> showSettingDialog(algorithm.getValue()));
             Button btnCalculate = new Button("Calculate");
             btnCalculate.getStyleClass().setAll("btn","btn-success");
-            btnCalculate.setOnAction(e -> {Platform.runLater(() ->
-                    Platform.runLater(() -> progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n")));
-                    algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
-                    Platform.runLater(() -> progressMessages.appendText("Partitioning is done.\n"));
+            btnCalculate.setOnAction(e -> {
+                progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n");
+                Task<Void> graphPartitioningTask = new Task<>() {
+                    @Override
+                    protected Void call() {
+                        algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
+                        progressMessages.appendText("Partitioning is done.\n");
+                        return null;
+                    }
+                };
+                Thread graphPartitioningThread = new Thread(graphPartitioningTask);
+                graphPartitioningThread.setDaemon(true);
+                graphPartitioningThread.start();
             });
             hBox.getChildren().addAll(radioButton, btnSetting, btnCalculate);
             hBox.setAlignment(Pos.CENTER);
@@ -140,9 +151,29 @@ public class MainController {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
         progressMessages.appendText("Reading selected file...\n");
-        this.graph = JSONParser.readFile(selectedFile);
-        progressMessages.appendText("Reading is done, visualizing graph...\n");
-        visualizeGraph();
+        Task<Void> insertGraphTask = new Task<>() {
+            @Override
+            protected Void call() {
+                MainController.this.graph = JSONParser.readFile(selectedFile);
+                progressMessages.appendText("Reading is done, visualizing graph...\n");
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                visualizeGraph();
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                progressMessages.appendText("Something went wrong...\n");
+            }
+        };
+        Thread insertGraphThread = new Thread(insertGraphTask);
+        insertGraphThread.setDaemon(true);
+        insertGraphThread.start();
     }
 
     /**
@@ -275,6 +306,7 @@ public class MainController {
             SettingDialogController dialog = new SettingDialogController(stage, algorithm);
             dialog.showAndWait().ifPresent(apply -> {
                 if (group.getSelectedToggle() != null) {
+
                     graphPartition = algorithm.getGraphPartition(graph, spinnerPartCount.getValue());
                     visualizeGraph();
                 }
@@ -297,22 +329,66 @@ public class MainController {
         if (graphPartition == null) {
             progressMessages.appendText("No Graph Partition available, visualizing plain graph with "
                     + this.graph.getVertices().size() + " vertices and " + this.graph.getEdges().size() + " edges.\n");
-            drawGraph(group, this.graph, Color.BLACK);
+            Task<Void> drawGraphTask = new Task<>() {
+                @Override
+                protected Void call() {
+                    drawGraph(group, MainController.this.graph, Color.BLACK);
+                    return null;
+                }
+
+                @Override
+                protected void succeeded() {
+                    super.succeeded();
+                    setGraphDrawing(group);
+                }
+
+                @Override
+                protected void failed() {
+                    super.failed();
+                    progressMessages.appendText("Something went wrong.\n");
+                }
+            };
+            Thread drawGraphThread = new Thread(drawGraphTask);
+            drawGraphThread.setDaemon(true);
+            drawGraphThread.start();
 
         }
         else {
             progressMessages.appendText("Visualizing Graph Partition with " +
                      this.graph.getVertices().size() + " vertices and " + this.graph.getEdges().size() + " edges...\n");
+            Task<Void> drawGraphTask = new Task<>() {
+                @Override
+                protected Void call() {
+                    for (int i = 0; i < spinnerPartCount.getValue(); i++) {
+                        Color color = colors.length > i ? colors[i] : Color.BLACK;
+                        drawGraph(group, graphPartition.getGraphComponents().get(i), color);
+                    }
+                    return null;
+                }
 
-            for (int i = 0; i < spinnerPartCount.getValue(); i++) {
-                Color color = colors.length > i ? colors[i] : Color.BLACK;
-                drawGraph(group, graphPartition.getGraphComponents().get(i), color);
-            }
+                @Override
+                protected void succeeded() {
+                    super.succeeded();
+                    setGraphDrawing(group);
+                }
+
+                @Override
+                protected void failed() {
+                    super.failed();
+                    progressMessages.appendText("Something went wrong.\n");
+                }
+            };
+            Thread drawGraphThread = new Thread(drawGraphTask);
+            drawGraphThread.setDaemon(true);
+            drawGraphThread.start();
         }
+
+    }
+
+    private void setGraphDrawing(Group group) {
         scrollPane.setPrefSize(1000, 1000);
         scrollPane.setContent(group);
         progressMessages.appendText("Visualizing is done.\n");
-
     }
 
     /**

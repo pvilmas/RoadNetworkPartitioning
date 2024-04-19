@@ -131,7 +131,6 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 deviationEntry.setValue(new ArrayList<>(1));
                 deviationEntry.getValue().add(totalDeviation/n);
-                deviationEntry.setValue(new ArrayList<>(1));
             }
             for (Map.Entry<String, List<Integer>> numberOfCutEdgeEntry : this.numberOfCutEdges.entrySet()) {
                 List<Integer> numberOfCutEdges = numberOfCutEdgeEntry.getValue();
@@ -142,7 +141,6 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 numberOfCutEdgeEntry.setValue(new ArrayList<>(1));
                 numberOfCutEdgeEntry.getValue().add(totalNumberOfCutEdges/n);
-                numberOfCutEdgeEntry.setValue(new ArrayList<>(1));
             }
             for (Map.Entry<String, List<Integer>> minNumberOfNeighbourEntry : this.minNumberOfNeighbours.entrySet()) {
                 List<Integer> minNumberOfNeighbours = minNumberOfNeighbourEntry.getValue();
@@ -153,7 +151,6 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 minNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
                 minNumberOfNeighbourEntry.getValue().add(totalMinNumberOfNeighbours/n);
-                minNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
             }
             for (Map.Entry<String, List<Integer>> maxNumberOfNeighbourEntry : this.maxNumberOfNeighbours.entrySet()) {
                 List<Integer> maxNumberOfNeighbours = maxNumberOfNeighbourEntry.getValue();
@@ -164,7 +161,6 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 maxNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
                 maxNumberOfNeighbourEntry.getValue().add(totalMaxNumberOfNeighbours/n);
-                maxNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
             }
             for (Map.Entry<String, List<Double>> averageNumberOfNeighbourEntry : this.averageNumberOfNeighbours.entrySet()) {
                 List<Double> averageNumberOfNeighbours = averageNumberOfNeighbourEntry.getValue();
@@ -175,7 +171,6 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 averageNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
                 averageNumberOfNeighbourEntry.getValue().add(totalAverageNumberOfNeighbours/n);
-                averageNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
             }
 
             columnNames.add("Algorithm Name");
@@ -251,7 +246,7 @@ public class TestDialogController extends Dialog<Boolean> {
 
     private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
         statistics.addTime(algorithm.getName(), graphPartition.getTime());
-        statistics.addDeviation(algorithm.getName(), graphPartition.getRelativeStandartDeviation());
+        statistics.addDeviation(algorithm.getName(), graphPartition.getRelativeStandardDeviation());
         statistics.addNumberOfCutEdges(algorithm.getName(), graphPartition.getCutEdgesCount());
         statistics.addMinNumberOfNeighbours(algorithm.getName(), graphPartition.getMinNeighbours());
         statistics.addMaxNumberOfNeighbours(algorithm.getName(), graphPartition.getMaxNeighbours());

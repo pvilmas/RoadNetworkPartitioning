@@ -103,7 +103,7 @@ public class Graph {
             Map<Integer, Vertex> vertices = firstGraph.getVertices();
             Map<Integer, Edge> edges = firstGraph.getEdges();
             for (Map.Entry<Integer, Vertex> idVertexEntry : secondGraph.getVertices().entrySet()) {
-                if (vertices.containsKey(idVertexEntry.getKey()) && vertices.get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
+                if ((idVertexEntry.getKey() < 0) && vertices.containsKey(idVertexEntry.getKey()) && vertices.get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
                     Vertex v1 = idVertexEntry.getValue();
                     Vertex v2 = vertices.get(v1.getId());
                     if ((v1.getEndingEdges().size() > 0) && (v2.getStartingEdges().size() > 0)) {

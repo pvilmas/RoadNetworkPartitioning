@@ -64,13 +64,13 @@ public class GraphPartition {
      *
      * @return
      */
-    public double getRelativeStandartDeviation(){
+    public double getRelativeStandardDeviation(){
         if(deviation == -1){
             double graphValue = getGraphValue();
             double averageGraphComponentValue = graphValue/graphComponents.size();
             double sd = 0;
             for(Graph graph: graphComponents){
-                sd += (averageGraphComponentValue - graph.getValue())*(averageGraphComponentValue - graph.getValue());
+                sd += (averageGraphComponentValue - graph.getWeightValue())*(averageGraphComponentValue - graph.getWeightValue());
             }
             deviation = (Math.sqrt(sd/graphComponents.size())/averageGraphComponentValue)*100;
         }

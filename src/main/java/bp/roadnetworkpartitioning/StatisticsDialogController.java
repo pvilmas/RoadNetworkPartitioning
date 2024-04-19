@@ -215,7 +215,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
         for(Map.Entry<String, APartitionAlgorithm> algorithmEntry: algorithms.entrySet()){
             GraphPartition partition = algorithmEntry.getValue().getGraphPartition();
             if (partition != null){
-                data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getRelativeStandartDeviation(),
+                data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getRelativeStandardDeviation(),
                         partition.getCutEdgesCount(), partition.getMinNeighbours(), partition.getMaxNeighbours(), partition.getAverageNeighbours()));
 
             }
