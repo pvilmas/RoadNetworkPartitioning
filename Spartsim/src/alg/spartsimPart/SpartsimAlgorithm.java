@@ -13,10 +13,6 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     /**  Total value of the graph. */
     private double graphValue = 0;
-    /**  List of vertices in minimal path. */
-    private List<Vertex> minPath = new LinkedList<>();
-    /**  Minimal value. */
-    private double minValue = Double.MAX_VALUE;
     /** Maximal difference between each two parts. */
     private double epsilon = 10;
 
@@ -34,7 +30,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             attach(subgraphs);
             setGraphPartition(new GraphPartition(subgraphs));
         }
-        return getGraphPartition();
+        return getGraphPartition(getGraph());
     }
 
     @Override
@@ -143,20 +139,21 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             double smallestDiff = graphValue;
             SpartsimPart smallestPart = null;
             SpartsimPart smallestNeighbour = null;
-            ListIterator<Graph> i;
-            for (i = subparts.listIterator(); i.hasNext();) {
-                Graph graph = i.next();
+            for (int i = 0; i < subparts.size(); i++) {
+                Graph graph = subparts.get(i);
                 if(graph instanceof SpartsimPart) {
                     SpartsimPart part = (SpartsimPart) graph;
                     if (((part.getValue() - epsilon) < partValue) && (partValue < (part.getValue() + epsilon))) {
                         continue;
                     }
                     for (SpartsimPart neighbour : part.getNeighbourParts()) {
-                        double value = part.getValue() + neighbour.getValue();
-                        if (Math.abs(partValue - value) <= smallestDiff) {
-                            smallestDiff = Math.abs(partValue - value);
-                            smallestPart = part;
-                            smallestNeighbour = neighbour;
+                        if(subparts.contains(neighbour)) {
+                            double value = part.getValue() + neighbour.getValue();
+                            if (Math.abs(partValue - value) <= smallestDiff) {
+                                smallestDiff = Math.abs(partValue - value);
+                                smallestPart = part;
+                                smallestNeighbour = neighbour;
+                            }
                         }
                     }
                 }
@@ -228,7 +225,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      */
     private void trade(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
         double difference = (parts.get(maxPart).getValue() - parts.get(minPart).getValue())/2;
-        findShortestPathBetweenParts(parts, maxPart, minPart, verticesParts);
+        List<Vertex> minPath = new LinkedList<>();
+        findShortestPathBetweenParts(parts, maxPart, minPart, verticesParts, minPath);
         double moved = 0.0;
         int i = minPath.size() -1;
         while(moved < difference && i > 0){
@@ -271,7 +269,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 vertexWeight += vertex1.getValue();
             }
             moved += edgeWeight + vertexWeight;
-            moveVertexOut(vertex, parts, maxPart, verticesParts, edgeWeight + vertexWeight);
+            moveVertexOut(vertex, parts, maxPart, verticesParts, edgeWeight + vertexWeight, minPath);
             vertexWeight = 0;
             vertex = vertex1;
         }
@@ -285,7 +283,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param verticesParts     mapping of vertices and their part number.
      * @param moved             total moved value.
      */
-    private void moveVertexOut(Vertex vertex, List<SpartsimPart> parts, int maxPart, Map<Vertex, Integer> verticesParts, double moved) {
+    private void moveVertexOut(Vertex vertex, List<SpartsimPart> parts, int maxPart, Map<Vertex, Integer> verticesParts,
+                               double moved, List<Vertex> minPath) {
         int newPart = -1;
         for (Vertex v: minPath) {
             if(!isInMaxPart(v, parts, maxPart)){
@@ -336,11 +335,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param minPart       index of min part.
      * @param verticesParts mapping of vertices and their part number.
      */
-    private void findShortestPathBetweenParts(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
+    private void findShortestPathBetweenParts(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts, List<Vertex> minPath) {
         List<Vertex> maxBorderPart = getBorderVertices(parts, maxPart, verticesParts);
         List<Vertex> minBorderPart = getBorderVertices(parts, minPart, verticesParts);
+        double minValue = Double.MAX_VALUE;
         for (Vertex maxVertex: maxBorderPart) {
-            dijkstrasSearch(maxVertex, minBorderPart, verticesParts);
+            minValue = dijkstrasSearch(maxVertex, minBorderPart, verticesParts, minPath, minValue);
         }
     }
 
@@ -350,7 +350,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param minBorderPart part with minimal border.
      * @param verticesParts vertices partition.
      */
-    private void dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Map<Vertex, Integer> verticesParts) {
+    private double dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Map<Vertex, Integer> verticesParts, List<Vertex> minPath, double minValue) {
         Map<Vertex, Double> distances = new HashMap<>();
         Map<Vertex, List<Vertex>> shortestPaths = new HashMap<>();
         distances.put(maxVertex, 0.0);
@@ -379,10 +379,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 double value = distances.get(vertex);
                 if(minValue > value){
                     minValue = value;
-                    minPath = shortestPaths.get(vertex);
+                    minPath.clear();
+                    minPath.addAll(shortestPaths.get(vertex));
                 }
             }
         }
+        return  minValue;
     }
 
     /**

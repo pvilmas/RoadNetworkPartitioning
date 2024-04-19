@@ -217,7 +217,8 @@ public class TestDialogController extends Dialog<Boolean> {
             statistics.calculateAverage();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
             LocalDateTime now = LocalDateTime.now();
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + dtf.format(now) + ".csv"))) {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + graph.getVertices().size() + "-" + graph.getEdges().size()
+                    + "_" + spinnerRoundCount.getValue() + "_"+ partCount + "_" + dtf.format(now) + ".csv"))) {
                 int i = 0;
                 for(; i < statistics.columnNames.size() - 1; i++){
                     bw.write(statistics.columnNames.get(i) + ",");

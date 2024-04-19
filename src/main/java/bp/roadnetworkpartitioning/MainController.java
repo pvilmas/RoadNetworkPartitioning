@@ -2,7 +2,6 @@ package bp.roadnetworkpartitioning;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -21,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -129,7 +127,7 @@ public class MainController {
             if (group.getSelectedToggle() != null) {
                 APartitionAlgorithm algorithm = (APartitionAlgorithm) group.getSelectedToggle().getUserData();
                 progressMessages.appendText("Getting Graph Partition by "+ algorithm.getName() +"...\n");
-                graphPartition = algorithm.getGraphPartition();
+                graphPartition = algorithm.getGraphPartition(graph);
                 if (graphPartition != null) {
                     progressMessages.appendText("Graph Partition was displayed.\n");
                 }
@@ -155,6 +153,7 @@ public class MainController {
             @Override
             protected Void call() {
                 MainController.this.graph = JSONParser.readFile(selectedFile);
+                MainController.this.graphPartition = null;
                 progressMessages.appendText("Reading is done, visualizing graph...\n");
                 return null;
             }
@@ -254,6 +253,7 @@ public class MainController {
             GraphDialogController dialog = new GraphDialogController(stage);
             dialog.showAndWait().ifPresent(graph -> {
                 this.graph = graph;
+                this.graphPartition = null;
                 visualizeGraph();
             });
             progressMessages.appendText("Graph was successfully generated.\n");
@@ -423,6 +423,7 @@ public class MainController {
         if (this.graph == null) {
             progressMessages.appendText("No initial graph. Setting added graph as initial.\n");
             this.graph = graphComponent;
+            this.graphPartition = null;
 
         }
         else {
@@ -458,7 +459,7 @@ public class MainController {
 
         for (APartitionAlgorithm algorithm : algorithms.values()) {
             progressMessages.appendText("Exporting to JSON file...\n");
-            JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(), 0);
+            JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(graph), 0);
             progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
         }
     }

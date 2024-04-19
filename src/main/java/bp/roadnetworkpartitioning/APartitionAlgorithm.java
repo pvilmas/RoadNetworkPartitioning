@@ -38,9 +38,13 @@ public abstract class APartitionAlgorithm {
     /**
      * Gets graph partition.
      * @return instance representing graph division (partition).
+     * @param graph
      */
-    public final GraphPartition getGraphPartition(){
-        return this.graphPartition;
+    public final GraphPartition getGraphPartition(Graph graph){
+        if (this.graph == graph) {
+            return this.graphPartition;
+        }
+        return null;
     }
 
     /**

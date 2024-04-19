@@ -213,7 +213,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
     private void addRows() {
         ObservableList<Data> data = tableView.getItems();
         for(Map.Entry<String, APartitionAlgorithm> algorithmEntry: algorithms.entrySet()){
-            GraphPartition partition = algorithmEntry.getValue().getGraphPartition();
+            GraphPartition partition = algorithmEntry.getValue().getGraphPartition(algorithmEntry.getValue().getGraph());
             if (partition != null){
                 data.add(new Data(algorithmEntry.getKey(), partition.getTime(), partition.getRelativeStandardDeviation(),
                         partition.getCutEdgesCount(), partition.getMinNeighbours(), partition.getMaxNeighbours(), partition.getAverageNeighbours()));

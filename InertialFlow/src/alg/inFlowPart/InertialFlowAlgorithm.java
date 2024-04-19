@@ -71,7 +71,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             }
             setGraphPartition(graphPartition);
         }
-        return getGraphPartition();
+        return getGraphPartition(getGraph());
     }
 
     @Override
