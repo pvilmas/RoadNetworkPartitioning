@@ -103,7 +103,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         boolean balanced = false;
         int enoughIterations = 50;
         int i = 0;
-        graphValue = getGraph().getValue();
+        graphValue = getGraph().getWeightValue();
         double partValue = graphValue / getPartsCount();
         if (getParameters() != null && getParameters().containsKey("epsilon")) {
             epsilon = Double.parseDouble(getParameters().get("epsilon"));
@@ -111,8 +111,8 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         while (!balanced && (i < enoughIterations)) {
             int maxPart = getMaxPart(parts);
             int minPart = getMinPart(parts);
-            if (((parts.get(maxPart).getValue() - epsilon) < partValue)
-                    && (partValue < (parts.get(minPart).getValue() + epsilon))) {
+            if (((parts.get(maxPart).getWeightValue() - epsilon) < partValue)
+                    && (partValue < (parts.get(minPart).getWeightValue() + epsilon))) {
                 balanced = true;
             } else {
                 trade(parts, maxPart, minPart, verticesParts);
@@ -143,12 +143,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 Graph graph = subparts.get(i);
                 if(graph instanceof SpartsimPart) {
                     SpartsimPart part = (SpartsimPart) graph;
-                    if (((part.getValue() - epsilon) < partValue) && (partValue < (part.getValue() + epsilon))) {
+                    if (((part.getWeightValue() - epsilon) < partValue) && (partValue < (part.getWeightValue() + epsilon))) {
                         continue;
                     }
                     for (SpartsimPart neighbour : part.getNeighbourParts()) {
                         if(subparts.contains(neighbour)) {
-                            double value = part.getValue() + neighbour.getValue();
+                            double value = part.getWeightValue() + neighbour.getWeightValue();
                             if (Math.abs(partValue - value) <= smallestDiff) {
                                 smallestDiff = Math.abs(partValue - value);
                                 smallestPart = part;
@@ -224,7 +224,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param verticesParts     mapping of vertices and their part number.
      */
     private void trade(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
-        double difference = (parts.get(maxPart).getValue() - parts.get(minPart).getValue())/2;
+        double difference = (parts.get(maxPart).getWeightValue() - parts.get(minPart).getWeightValue())/2;
         List<Vertex> minPath = new LinkedList<>();
         findShortestPathBetweenParts(parts, maxPart, minPart, verticesParts, minPath);
         double moved = 0.0;
@@ -235,12 +235,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             Vertex vertex2 = minPath.get(i-1);
             for (Edge edge: vertex1.getStartingEdges()) {
                 if(edge.getEndpoint().equals(vertex2)){
-                    edgeWeight += edge.getLength();
+                    edgeWeight += edge.getWeight();
                 }
             }
             for (Edge edge: vertex2.getStartingEdges()) {
                 if(edge.getEndpoint().equals(vertex1)){
-                    edgeWeight += edge.getLength();
+                    edgeWeight += edge.getWeight();
                 }
             }
             double vertexWeight = vertex2.getValue();
@@ -257,13 +257,13 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             for (Edge edge: vertex.getStartingEdges()) {
                 if(isInMaxPart(edge.getEndpoint(), parts, maxPart)){
                     vertex1 = edge.getEndpoint();
-                    edgeWeight += edge.getLength();
+                    edgeWeight += edge.getWeight();
                 }
             }
             if(vertex1 != null){
                 for (Edge edge: vertex1.getStartingEdges()) {
                     if(edge.getEndpoint().equals(vertex)){
-                        edgeWeight += edge.getLength();
+                        edgeWeight += edge.getWeight();
                     }
                 }
                 vertexWeight += vertex1.getValue();
@@ -469,7 +469,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         double minValue = Double.MAX_VALUE;
         int minPart = -1;
         for (int i = 0; i < parts.size(); i++) {
-            double value = parts.get(i).getValue();
+            double value = parts.get(i).getWeightValue();
             if (value < minValue) {
                 minValue = value;
                 minPart = i;
@@ -487,7 +487,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         double maxValue = 0;
         int maxPart = -1;
         for (int i = 0; i < parts.size(); i++) {
-            double value = parts.get(i).getValue();
+            double value = parts.get(i).getWeightValue();
             if (value > maxValue) {
                 maxValue = value;
                 maxPart = i;
@@ -610,15 +610,15 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         Map<Integer, Double> neighbours = new HashMap<>();
         for (Edge edge: vertex.getStartingEdges()) {
             Vertex v = edge.getEndpoint();
-            neighbours.put(v.getId(), edge.getLength());
+            neighbours.put(v.getId(), edge.getWeight());
         }
         for(Edge edge: getGraph().getEdges().values()){
             if(edge.getEndpoint().equals(vertex)){
                 int neighbourID = edge.getStartpoint().getId();
                 if(neighbours.containsKey(neighbourID)){
-                    neighbours.put(neighbourID, neighbours.get(neighbourID) + edge.getLength());
+                    neighbours.put(neighbourID, neighbours.get(neighbourID) + edge.getWeight());
                 }else{
-                    neighbours.put(neighbourID, edge.getLength());
+                    neighbours.put(neighbourID, edge.getWeight());
                 }
             }
         }
@@ -636,16 +636,16 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         for (Edge edge: vertex.getStartingEdges()) {
             Vertex neighbour = edge.getEndpoint();
             if(!verticesParts.containsKey(neighbour)){
-                neighbours.put(neighbour.getId(), edge.getLength());
+                neighbours.put(neighbour.getId(), edge.getWeight());
             }
         }
         for (Edge edge: vertex.getEndingEdges()) {
             Vertex neighbour = edge.getStartpoint();
             if(!verticesParts.containsKey(neighbour)){
                 if(neighbours.containsKey(neighbour.getId())){
-                    neighbours.put(neighbour.getId(), neighbours.get(neighbour.getId()) + edge.getLength());
+                    neighbours.put(neighbour.getId(), neighbours.get(neighbour.getId()) + edge.getWeight());
                 }else{
-                    neighbours.put(neighbour.getId(), edge.getLength());
+                    neighbours.put(neighbour.getId(), edge.getWeight());
                 }
             }
         }

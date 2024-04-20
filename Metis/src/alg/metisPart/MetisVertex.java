@@ -92,7 +92,7 @@ public class MetisVertex {
                     if (!containingVertices.contains(v)) {
                         neighbourVertices.putIfAbsent(v, 0.0);
                         double value = neighbourVertices.get(v);
-                        neighbourVertices.put(v, value + edge.getLength());
+                        neighbourVertices.put(v, value + edge.getWeight());
                     }
                 }
                 for (Edge edge : vertex.getEndingEdges()) {
@@ -100,7 +100,7 @@ public class MetisVertex {
                     if (!containingVertices.contains(v)) {
                         neighbourVertices.putIfAbsent(v, 0.0);
                         double value = neighbourVertices.get(v);
-                        neighbourVertices.put(v, value + edge.getLength());
+                        neighbourVertices.put(v, value + edge.getWeight());
                     }
                 }
             }

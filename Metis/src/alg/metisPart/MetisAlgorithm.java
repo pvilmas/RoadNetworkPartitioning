@@ -208,10 +208,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             MetisVertex vertex = (MetisVertex) metisVertices.toArray()[index];
             double verticesWeight = vertex.getWeight();
             for (Edge startingEdge : vertex.getAllStartingEdges()) {
-                verticesWeight += startingEdge.getLength()/2;
+                verticesWeight += startingEdge.getWeight()/2;
             }
             for (Edge endingEdge : vertex.getAllEndingEdges()) {
-                verticesWeight += endingEdge.getLength()/2;
+                verticesWeight += endingEdge.getWeight()/2;
             }
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
@@ -225,10 +225,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 part.add(vertex);
                 verticesWeight += vertex.getWeight();
                 for (Edge startingEdge : vertex.getAllStartingEdges()) {
-                    verticesWeight += startingEdge.getLength()/2;
+                    verticesWeight += startingEdge.getWeight()/2;
                 }
                 for (Edge endingEdge : vertex.getAllEndingEdges()) {
-                    verticesWeight += endingEdge.getLength()/2;
+                    verticesWeight += endingEdge.getWeight()/2;
                 }
             }
             addNeighbours(part, vList, vertex, metisVertices);
@@ -353,10 +353,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         for (MetisVertex vertex: metisVertices) {
             total += vertex.getWeight();
             for (Edge startingEdge : vertex.getAllStartingEdges()) {
-                total += startingEdge.getLength()/2;
+                total += startingEdge.getWeight()/2;
             }
             for (Edge endingEdge : vertex.getAllEndingEdges()) {
-                total += endingEdge.getLength()/2;
+                total += endingEdge.getWeight()/2;
             }
         }
         return total;
@@ -520,18 +520,18 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         int partNumber = vertexPart.getValue();
         for(Edge edge: vertex.getStartingEdges()){
             if((verticesParts.get(edge.getEndpoint()) != null) && (verticesParts.get(edge.getEndpoint())!= partNumber)){
-                edgesWeights[0] += edge.getLength();
+                edgesWeights[0] += edge.getWeight();
             }
             else{
-                edgesWeights[1] += edge.getLength();
+                edgesWeights[1] += edge.getWeight();
             }
         }
         for(Edge edge: vertex.getEndingEdges()){
             if((verticesParts.get(edge.getStartpoint()) != null) && (verticesParts.get(edge.getStartpoint()) != partNumber)){
-                edgesWeights[0] += edge.getLength();
+                edgesWeights[0] += edge.getWeight();
             }
             else{
-                edgesWeights[1] += edge.getLength();
+                edgesWeights[1] += edge.getWeight();
             }
         }
     }
