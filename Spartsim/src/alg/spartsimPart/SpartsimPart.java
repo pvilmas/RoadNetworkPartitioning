@@ -5,6 +5,7 @@ import bp.roadnetworkpartitioning.Vertex;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class SpartsimPart extends Graph {
 
@@ -25,5 +26,18 @@ public class SpartsimPart extends Graph {
 
     public void setNeighbourParts(List<SpartsimPart> neighbourParts) {
         this.neighbourParts = neighbourParts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpartsimPart that = (SpartsimPart) o;
+        return that.getVertices().equals(this.getVertices());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(neighbourParts);
     }
 }
