@@ -26,9 +26,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             int[] stop = initialise(parts, verticesParts);
             growRegions(parts, verticesParts, stop);
             balancePartitioning(parts, verticesParts);
-            List<Graph> subgraphs = computeConnectedSubgraphs(parts);
-            attach(subgraphs);
-            setGraphPartition(new GraphPartition(subgraphs));
+            List<Graph> subGraphs = computeConnectedSubgraphs(parts);
+            attach(subGraphs, verticesParts);
+            setGraphPartition(new GraphPartition(subGraphs));
         }
         return getGraphPartition(getGraph());
     }
@@ -109,10 +109,10 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             epsilon = Double.parseDouble(getParameters().get("epsilon"));
         }
         while (!balanced && (i < enoughIterations)) {
-            int maxPart = getMaxPart(parts);
-            int minPart = getMinPart(parts);
-            if (((parts.get(maxPart).getWeightValue() - epsilon) < partValue)
-                    && (partValue < (parts.get(minPart).getWeightValue() + epsilon))) {
+            SpartsimPart maxPart = getMaxPart(parts);
+            SpartsimPart minPart = getMinPart(parts);
+            if (((maxPart.getWeightValue() - epsilon) < partValue)
+                    && (partValue < (minPart.getWeightValue() + epsilon))) {
                 balanced = true;
             } else {
                 trade(parts, maxPart, minPart, verticesParts);
@@ -126,12 +126,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * so it has given part count.
      * @param subparts  All parts and subparts previously created.
      */
-    protected void attach(List<Graph> subparts){
+    protected void attach(List<Graph> subparts, Map<Vertex, Integer> verticesParts){
         if(subparts.size() == getPartsCount()){
             return;
         }
         for(Graph part: subparts){
-            getPartNeighbours(part, subparts);
+            getPartNeighbours(part, subparts, verticesParts);
         }
         int partsCount = subparts.size();
         double partValue = graphValue/ getPartsCount();
@@ -169,9 +169,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     /**
      * Gets all neighbour parts of one given part.
      * @param graph      given part.
-     * @param subparts  all parts and subparts.
+     * @param subParts  all parts and subparts.
      */
-    private void getPartNeighbours(Graph graph, List<Graph> subparts) {
+    private void getPartNeighbours(Graph graph, List<Graph> subParts, Map<Vertex, Integer> verticesParts) {
         if(!(graph instanceof SpartsimPart)) {
             return;
         }
@@ -181,7 +181,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             for (Edge edge: vertex.getStartingEdges()) {
                 Vertex v = edge.getEndpoint();
                 if(!part.getVertices().containsValue(v)){
-                    SpartsimPart neighbourPart = getVertexPart(v, subparts);
+                    SpartsimPart neighbourPart = (SpartsimPart) subParts.get(verticesParts.get(v));
                     if(!neighbours.contains(neighbourPart)){
                         neighbours.add(neighbourPart);
                     }
@@ -190,7 +190,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             for(Edge edge: vertex.getEndingEdges()){
                 Vertex neighbour = edge.getStartpoint();
                 if(!part.getVertices().containsValue(neighbour)){
-                    SpartsimPart neighbourPart = getVertexPart(neighbour, subparts);
+                    SpartsimPart neighbourPart = (SpartsimPart) subParts.get(verticesParts.get(neighbour));
                     if(!neighbours.contains(neighbourPart)){
                         neighbours.add(neighbourPart);
                     }
@@ -202,29 +202,14 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * Gets part where vertex belongs.
-     * @param v         given vertex.
-     * @param subParts  list of subparts and parts.
-     * @return part/subpart where vertex belongs.
-     */
-    private SpartsimPart getVertexPart(Vertex v, List<Graph> subParts) {
-        for (Graph subPart : subParts) {
-            if (subPart.getVertices().containsValue(v)){
-                return (SpartsimPart) subPart;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Trades vertices between parts so it balances the partition.
      * @param parts             all parts.
      * @param maxPart           maximal part.
      * @param minPart           minimal part.
      * @param verticesParts     mapping of vertices and their part number.
      */
-    private void trade(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts) {
-        double difference = (parts.get(maxPart).getWeightValue() - parts.get(minPart).getWeightValue())/2;
+    private void trade(List<SpartsimPart> parts, SpartsimPart maxPart, SpartsimPart minPart, Map<Vertex, Integer> verticesParts) {
+        double difference = (maxPart.getWeightValue() - minPart.getWeightValue())/2;
         List<Vertex> minPath = new LinkedList<>();
         findShortestPathBetweenParts(parts, maxPart, minPart, verticesParts, minPath);
         double moved = 0.0;
@@ -244,7 +229,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 }
             }
             double vertexWeight = vertex2.getValue();
-            moveVertexIn(vertex2, parts, minPart, edgeWeight + vertexWeight, verticesParts);
+            moveVertexIn(vertex2, parts, minPart, verticesParts);
             moved += edgeWeight + vertexWeight;
             i--;
         }
@@ -255,7 +240,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             Vertex vertex1 = null;
             double edgeWeight = 0;
             for (Edge edge: vertex.getStartingEdges()) {
-                if(isInMaxPart(edge.getEndpoint(), parts, maxPart)){
+                if(maxPart.getVertices().containsValue(edge.getEndpoint())){
                     vertex1 = edge.getEndpoint();
                     edgeWeight += edge.getWeight();
                 }
@@ -269,7 +254,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
                 vertexWeight += vertex1.getValue();
             }
             moved += edgeWeight + vertexWeight;
-            moveVertexOut(vertex, parts, maxPart, verticesParts, edgeWeight + vertexWeight, minPath);
+            moveVertexOut(vertex, parts, maxPart, verticesParts, minPath);
             vertexWeight = 0;
             vertex = vertex1;
         }
@@ -281,37 +266,20 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param parts             all parts.
      * @param maxPart           given part.
      * @param verticesParts     mapping of vertices and their part number.
-     * @param moved             total moved value.
      */
-    private void moveVertexOut(Vertex vertex, List<SpartsimPart> parts, int maxPart, Map<Vertex, Integer> verticesParts,
-                               double moved, List<Vertex> minPath) {
+    private void moveVertexOut(Vertex vertex, List<SpartsimPart> parts, SpartsimPart maxPart, Map<Vertex, Integer> verticesParts,
+                               List<Vertex> minPath) {
         int newPart = -1;
         for (Vertex v: minPath) {
-            if(!isInMaxPart(v, parts, maxPart)){
+            if(maxPart.getVertices().containsValue(v)){
                 newPart = verticesParts.get(v);
             }
         }
         if (newPart > -1) {
             verticesParts.put(vertex, newPart);
             parts.get(newPart).getVertices().put(vertex.getId(), vertex);
-            parts.get(maxPart).getVertices().remove(vertex.getId());
+            maxPart.getVertices().remove(vertex.getId());
         }
-    }
-
-    /**
-     * Checks if vertex is in maximal part.
-     * @param endpoint  the vertex.
-     * @param parts     all parts.
-     * @param maxPart   index of maximal part.
-     * @return  true if vertex belongs to max part.
-     */
-    private boolean isInMaxPart(Vertex endpoint, List<SpartsimPart> parts, int maxPart) {
-        for (Vertex v: parts.get(maxPart).getVertices().values()) {
-            if(v.equals(endpoint)){
-               return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -321,11 +289,22 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param minPart       the given path.
      * @param verticesParts mapping of vertices and their part number.
      */
-    private void moveVertexIn(Vertex vertex, List<SpartsimPart> parts, int minPart, double moved, Map<Vertex, Integer> verticesParts) {
+    private void moveVertexIn(Vertex vertex, List<SpartsimPart> parts, SpartsimPart minPart, Map<Vertex, Integer> verticesParts) {
         int part = verticesParts.get(vertex);
-        verticesParts.put(vertex, minPart);
-        parts.get(minPart).getVertices().put(vertex.getId(), vertex);
+        int partNumber = getPartNumber(parts, minPart);
+        verticesParts.put(vertex, partNumber);
+        minPart.getVertices().put(vertex.getId(), vertex);
         parts.get(part).getVertices().remove(vertex.getId());
+    }
+
+    private int getPartNumber(List<SpartsimPart> parts, SpartsimPart minPart) {
+        int partNumber = -1;
+        for (int i = 0; i < parts.size(); i++) {
+            if (parts.get(i).equals(minPart)) {
+                return i;
+            }
+        }
+        return partNumber;
     }
 
     /**
@@ -335,9 +314,9 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param minPart       index of min part.
      * @param verticesParts mapping of vertices and their part number.
      */
-    private void findShortestPathBetweenParts(List<SpartsimPart> parts, int maxPart, int minPart, Map<Vertex, Integer> verticesParts, List<Vertex> minPath) {
-        List<Vertex> maxBorderPart = getBorderVertices(parts, maxPart, verticesParts);
-        List<Vertex> minBorderPart = getBorderVertices(parts, minPart, verticesParts);
+    private void findShortestPathBetweenParts(List<SpartsimPart> parts, SpartsimPart maxPart, SpartsimPart minPart, Map<Vertex, Integer> verticesParts, List<Vertex> minPath) {
+        List<Vertex> maxBorderPart = getBorderVertices(maxPart, verticesParts);
+        List<Vertex> minBorderPart = getBorderVertices(minPart, verticesParts);
         double minValue = Double.MAX_VALUE;
         for (Vertex maxVertex: maxBorderPart) {
             minValue = dijkstrasSearch(maxVertex, minBorderPart, verticesParts, minPath, minValue);
@@ -432,14 +411,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     /**
      * Gets border vertices of part.
-     * @param parts         all parts.
-     * @param partNumber    index of part.
+     * @param part          part.
      * @param verticesParts vertices partition.
      * @return  border vertices.
      */
-    private List<Vertex> getBorderVertices(List<SpartsimPart> parts, int partNumber, Map<Vertex, Integer> verticesParts) {
+    private List<Vertex> getBorderVertices(SpartsimPart part, Map<Vertex, Integer> verticesParts) {
         List<Vertex> borderPart = new ArrayList<>();
-        SpartsimPart part = parts.get(partNumber);
         for (Vertex vertex: part.getVertices().values()) {
             int index = verticesParts.get(vertex);
             boolean included = false;
@@ -465,14 +442,14 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param parts     all parts.
      * @return index of min part.
      */
-    private int getMinPart(List<SpartsimPart> parts) {
+    private SpartsimPart getMinPart(List<SpartsimPart> parts) {
         double minValue = Double.MAX_VALUE;
-        int minPart = -1;
-        for (int i = 0; i < parts.size(); i++) {
-            double value = parts.get(i).getWeightValue();
+        SpartsimPart minPart = null;
+        for (SpartsimPart part : parts) {
+            double value = part.getWeightValue();
             if (value < minValue) {
                 minValue = value;
-                minPart = i;
+                minPart = part;
             }
         }
         return  minPart;
@@ -483,14 +460,14 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param parts     all parts.
      * @return index of max part.
      */
-    private int getMaxPart(List<SpartsimPart> parts) {
+    private SpartsimPart getMaxPart(List<SpartsimPart> parts) {
         double maxValue = 0;
-        int maxPart = -1;
-        for (int i = 0; i < parts.size(); i++) {
-            double value = parts.get(i).getWeightValue();
+        SpartsimPart maxPart = null;
+        for (SpartsimPart part : parts) {
+            double value = part.getWeightValue();
             if (value > maxValue) {
                 maxValue = value;
-                maxPart = i;
+                maxPart = part;
             }
         }
         return  maxPart;
@@ -661,22 +638,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         int maxDegree = 0;
         Vertex bestVertex = null;
         for(Vertex vertex: getGraph().getVertices().values()){
-            if(((vertex.getStartingEdges().size() + vertex.getEndingEdges().size()) > maxDegree) && (!isIncluded(verticesParts, vertex))){
+            if(((vertex.getStartingEdges().size() + vertex.getEndingEdges().size()) > maxDegree) && (!verticesParts.containsKey(vertex))){
                 maxDegree = vertex.getStartingEdges().size() + vertex.getEndingEdges().size();
                 bestVertex = vertex;
             }
         }
         return bestVertex;
-    }
-
-    /**
-     * Finds if vertex is already included in some part.
-     * @param verticesParts     vertices partition.
-     * @param vertex            the vertex.
-     * @return  true if it is included.
-     */
-    private boolean isIncluded(Map<Vertex, Integer> verticesParts, Vertex vertex) {
-        return verticesParts.containsKey(vertex);
     }
 
 }
