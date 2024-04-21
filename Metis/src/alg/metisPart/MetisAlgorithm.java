@@ -99,7 +99,26 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param vertexDegree   degree of each vertex.
      */
     private void quickSort(MetisVertex[] sortedVertices, Map<MetisVertex, Integer> vertexDegree) {
-        quickSort(sortedVertices, 0, sortedVertices.length - 1, vertexDegree);
+        int begin = 0;
+        int end = sortedVertices.length - 1;
+        int[] stack = new int[end - begin + 1];
+        int top = -1;
+
+        stack[++top] = begin;
+        stack[++top] = end;
+        while (top >= 0) {
+            end = stack[top--];
+            begin = stack[top--];
+            int p = partition(sortedVertices, begin, end, vertexDegree);
+            if (p - 1 > begin) {
+                stack[++top] = begin;
+                stack[++top] = p - 1;
+            }
+            if (p + 1 < end) {
+                stack[++top] = p + 1;
+                stack[++top] = end;
+            }
+        }
     }
 
     /**
