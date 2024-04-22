@@ -14,6 +14,8 @@ import javafx.stage.Window;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
@@ -186,7 +188,9 @@ public class StatisticsDialogController extends Dialog<Boolean> {
      */
     @FXML
     protected void onExportToCSVButtonClick() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("results.csv"))) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + dtf.format(now) + ".csv"))) {
             int i = 0;
             for(; i < tableView.getColumns().size() - 1; i++){
                 bw.write(tableView.getColumns().get(i).getText() + ",");

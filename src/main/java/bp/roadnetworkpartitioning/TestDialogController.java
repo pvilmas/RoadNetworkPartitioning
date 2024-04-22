@@ -214,7 +214,7 @@ public class TestDialogController extends Dialog<Boolean> {
         }
         if (createCSVStatisticFile.isSelected()) {
             progressMessages.appendText("Creating CSV statistics file...\n");
-            statistics.calculateAverage();
+
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
             LocalDateTime now = LocalDateTime.now();
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + graph.getVertices().size() + "-" + graph.getEdges().size()
@@ -225,14 +225,27 @@ public class TestDialogController extends Dialog<Boolean> {
                 }
                 bw.write(statistics.columnNames.get(i) + "\n");
                 for(String algorithmName : algorithms.keySet()) {
-                    bw.write(algorithmName + ",");
+                    for(int j = 0; j < statistics.times.get(algorithmName).size(); j++) {
+                        bw.write(algorithmName + " " + j +",");
+                        bw.write(statistics.times.get(algorithmName).get(j) + ",");
+                        bw.write(statistics.deviations.get(algorithmName).get(j) + ",");
+                        bw.write(statistics.numberOfCutEdges.get(algorithmName).get(j) + ",");
+                        bw.write(statistics.minNumberOfNeighbours.get(algorithmName).get(j) + ",");
+                        bw.write(statistics.maxNumberOfNeighbours.get(algorithmName).get(j) + ",");
+                        bw.write(statistics.averageNumberOfNeighbours.get(algorithmName).get(j) + "\n");
+                    }
+                    bw.write("\n\n");
+                }
+
+                statistics.calculateAverage();
+                for(String algorithmName : algorithms.keySet()) {
+                    bw.write(algorithmName + " - average,");
                     bw.write(statistics.times.get(algorithmName).get(0) + ",");
                     bw.write(statistics.deviations.get(algorithmName).get(0) + ",");
                     bw.write(statistics.numberOfCutEdges.get(algorithmName).get(0) + ",");
                     bw.write(statistics.minNumberOfNeighbours.get(algorithmName).get(0) + ",");
                     bw.write(statistics.maxNumberOfNeighbours.get(algorithmName).get(0) + ",");
                     bw.write(statistics.averageNumberOfNeighbours.get(algorithmName).get(0) + "\n");
-
                 }
                 bw.flush();
                 progressMessages.appendText("CSV file was created successfully.\n");
