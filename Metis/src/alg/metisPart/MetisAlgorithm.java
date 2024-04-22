@@ -226,9 +226,20 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         double totalVWeight = countTotalVWeight(metisVertices);
         int currentScore = Integer.MAX_VALUE;
         Set<MetisVertex> bestPart = new HashSet<>();
+        MetisVertex[] vertices = metisVertices.toArray(new MetisVertex[0]);
         for (int i = 0; i < 4; i++) {
-            int index = new Random(System.nanoTime()).nextInt(metisVertices.size());
-            MetisVertex vertex = (MetisVertex) metisVertices.toArray()[index];
+            boolean hasNeighbours = false;
+            MetisVertex vertex = null;
+            while (!hasNeighbours) {
+                int index = new Random(System.nanoTime()).nextInt(metisVertices.size());
+                vertex = vertices[index];
+                if (vertex.getAllStartingEdges().size() > 0) {
+                    hasNeighbours = true;
+                }
+                if (vertex.getAllEndingEdges().size() > 0) {
+                    hasNeighbours = true;
+                }
+            }
             double verticesWeight = vertex.getWeight();
             for (Edge startingEdge : vertex.getAllStartingEdges()) {
                 verticesWeight += startingEdge.getWeight()/2;
