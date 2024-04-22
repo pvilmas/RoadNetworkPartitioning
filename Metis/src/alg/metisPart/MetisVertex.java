@@ -18,7 +18,8 @@ public class MetisVertex {
     private final double weight;
     /** New ID of vertex. */
     private final int id;
-    private Map<MetisVertex, Double> neighbourVertices;
+    private List<Edge> startingEdges = null;
+    private List<Edge> endingEdges = null;
 
     /**
      * Constructor of a vertex in IF.
@@ -57,34 +58,38 @@ public class MetisVertex {
     }
 
     public List<Edge> getAllStartingEdges() {
-        List<Edge> startingEdges = new ArrayList<>();
-        for (Vertex vertex : this.containingVertices) {
-            for (Edge startingEdge : vertex.getStartingEdges()) {
-                if (!this.containingVertices.contains(startingEdge.getEndpoint())){
-                    startingEdges.add(startingEdge);
+        if (startingEdges == null) {
+            startingEdges = new ArrayList<>();
+            for (Vertex vertex : this.containingVertices) {
+                for (Edge startingEdge : vertex.getStartingEdges()) {
+                    if (!this.containingVertices.contains(startingEdge.getEndpoint())) {
+                        startingEdges.add(startingEdge);
+                    }
                 }
-            }
 
+            }
         }
         return startingEdges;
     }
 
     public List<Edge> getAllEndingEdges() {
-        List<Edge> endingEdges = new ArrayList<>();
-        for (Vertex vertex : this.containingVertices) {
-            for (Edge endingEdge : vertex.getEndingEdges()) {
-                if (!this.containingVertices.contains(endingEdge.getStartpoint())){
-                    endingEdges.add(endingEdge);
+        if (endingEdges == null) {
+            endingEdges = new ArrayList<>();
+            for (Vertex vertex : this.containingVertices) {
+                for (Edge endingEdge : vertex.getEndingEdges()) {
+                    if (!this.containingVertices.contains(endingEdge.getStartpoint())) {
+                        endingEdges.add(endingEdge);
+                    }
                 }
-            }
 
+            }
         }
         return endingEdges;
     }
 
     public Map<MetisVertex, Double> getNeighbourVertices(Set<MetisVertex> vertices) {
         //if(this.neighbourVertices == null) {
-            this.neighbourVertices = new HashMap<>();
+        Map<MetisVertex, Double> neighbourVertices1 = new HashMap<>();
             Map<Vertex, Double> neighbourVertices = new HashMap<>();
             for (Vertex vertex : this.containingVertices) {
                 for (Edge edge : vertex.getStartingEdges()) {
@@ -107,15 +112,15 @@ public class MetisVertex {
             for (Vertex v : neighbourVertices.keySet()) {
                 for (MetisVertex metisVertex : vertices) {
                     if (metisVertex != this && metisVertex.containingVertices.contains(v)) {
-                        this.neighbourVertices.putIfAbsent(metisVertex, 0.0);
+                        neighbourVertices1.putIfAbsent(metisVertex, 0.0);
                         double value = neighbourVertices.get(v);
-                        double totalValue = this.neighbourVertices.get(metisVertex);
-                        this.neighbourVertices.put(metisVertex, value + totalValue);
+                        double totalValue = neighbourVertices1.get(metisVertex);
+                        neighbourVertices1.put(metisVertex, value + totalValue);
                     }
                 }
             }
         //}
-        return this.neighbourVertices;
+        return neighbourVertices1;
     }
 
     public int getVertexDegree() {
