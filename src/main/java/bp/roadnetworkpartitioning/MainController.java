@@ -33,7 +33,11 @@ public class MainController {
     @FXML
     private TextArea progressMessages;
     /** Default zoom value. */
-    private int zoom = 10;
+    private double zoom = 10;
+    /** Default zoom value. */
+    private int moveHorizontally = 0;
+    /** Default zoom value. */
+    private int moveVertically = 0;
     /** Stores color of each part. */
     private Color[] colors = {Color.BLUE, Color.RED};
     /** Sets number of parts. */
@@ -205,10 +209,14 @@ public class MainController {
      */
     @FXML
     protected void onZoomButtonClick(){
-        zoom = getNumberFromString(textZoom.getText());
-        labelZoom.setText(""+zoom);
-        progressMessages.appendText("Zoomed.\n");
-        visualizeGraph();
+        try {
+            zoom = Double.parseDouble(textZoom.getText());
+            labelZoom.setText("" + zoom);
+            progressMessages.appendText("Zoomed.\n");
+            visualizeGraph();
+        } catch (NumberFormatException e) {
+            progressMessages.appendText("Zoom value must be number (double).\n");
+        }
     }
 
     /**
@@ -400,13 +408,13 @@ public class MainController {
     private void drawGraph(Group group, Graph graph, Color color){
         int size = 5;
         for(Vertex vertex: graph.getVertices().values()){
-            Circle circle = new Circle(vertex.getX()*zoom, vertex.getY()*zoom, size);
+            Circle circle = new Circle((vertex.getX()*zoom) + moveHorizontally, (vertex.getY()*zoom) + moveVertically, size);
             circle.setStroke(color);
             circle.setFill(color);
             group.getChildren().add(circle);
             for(Edge edge: vertex.getStartingEdges()){
-                Line line = new Line(vertex.getX()*zoom, vertex.getY()*zoom,
-                        edge.getEndpoint().getX()*zoom, edge.getEndpoint().getY()*zoom);
+                Line line = new Line((vertex.getX()*zoom) + moveHorizontally, (vertex.getY()*zoom) + moveVertically,
+                        (edge.getEndpoint().getX()*zoom) + moveHorizontally, (edge.getEndpoint().getY()*zoom) + moveVertically);
                 if (graph.getVertices().containsValue(edge.getEndpoint())){
                     line.setStroke(color);
                 }

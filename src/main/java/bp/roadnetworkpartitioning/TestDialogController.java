@@ -76,6 +76,16 @@ public class TestDialogController extends Dialog<Boolean> {
         private final Map<String, List<Double>> averageNumberOfNeighbours = new HashMap<>();
         private final List<String> columnNames = new ArrayList<>();
 
+        private Statistics() {
+            columnNames.add("Algorithm Name");
+            columnNames.add("Time [ms]");
+            columnNames.add("Relative Standard Deviation [%]");
+            columnNames.add("Number of Cut Edges");
+            columnNames.add("Minimal Number of Neighbours");
+            columnNames.add("Maximal Number of Neighbours");
+            columnNames.add("Average Number of Neighbours");
+        }
+
         private void addTime(String algorithmName, long time) {
             times.putIfAbsent(algorithmName, new ArrayList<>(12));
             times.get(algorithmName).add(time);
@@ -173,13 +183,7 @@ public class TestDialogController extends Dialog<Boolean> {
                 averageNumberOfNeighbourEntry.getValue().add(totalAverageNumberOfNeighbours/n);
             }
 
-            columnNames.add("Algorithm Name");
-            columnNames.add("Time [ms]");
-            columnNames.add("Relative Standard Deviation [%]");
-            columnNames.add("Number of Cut Edges");
-            columnNames.add("Minimal Number of Neighbours");
-            columnNames.add("Maximal Number of Neighbours");
-            columnNames.add("Average Number of Neighbours");
+
         }
 
         private void prepareList(List attributes) {
