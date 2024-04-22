@@ -72,7 +72,11 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                         matchedVertices.add(maxVertex);
                         matchedVertices.add(sortedVertex);
                         reduceGraph(vertices, sortedVertex, maxVertex, maxWeight);
+
                     }
+                }
+                if (vertices.size() <= 100) {
+                    break;
                 }
             }
         }
@@ -237,17 +241,29 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             List<MetisVertex> vList = new ArrayList<>();
             while (verticesWeight < (totalVWeight / 2)) {
                 addNeighbours(part, vList, vertex, metisVertices);
+                boolean added = false;
                 if (vList.size() == 0) {
                     break;
                 }
-                vertex = vList.remove(0);
-                part.add(vertex);
-                verticesWeight += vertex.getWeight();
-                for (Edge startingEdge : vertex.getAllStartingEdges()) {
-                    verticesWeight += startingEdge.getWeight()/2;
+                for (int j = 0; j < vList.size(); j++) {
+                    vertex = vList.get(j);
+                    double tempVerticesWeight = verticesWeight +  vertex.getWeight();
+                    for (Edge startingEdge : vertex.getAllStartingEdges()) {
+                        tempVerticesWeight += startingEdge.getWeight() / 2;
+                    }
+                    for (Edge endingEdge : vertex.getAllEndingEdges()) {
+                        tempVerticesWeight += endingEdge.getWeight() / 2;
+                    }
+                    if (tempVerticesWeight < (totalVWeight / 2)) {
+                        verticesWeight = tempVerticesWeight;
+                        part.add(vertex);
+                        vList.remove(j);
+                        added = true;
+                        break;
+                    }
                 }
-                for (Edge endingEdge : vertex.getAllEndingEdges()) {
-                    verticesWeight += endingEdge.getWeight()/2;
+                if (!added) {
+                    break;
                 }
             }
             addNeighbours(part, vList, vertex, metisVertices);
@@ -469,12 +485,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 index = i;
             }
         }
-        if ((index == -1) || ((bv.get(index) != a) && (bv.get(index) != b))) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (index == -1) || ((bv.get(index) != a) && (bv.get(index) != b));
 
     }
 
@@ -489,16 +500,11 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         int[] abValue = {-1, -1};
         int i = 0;
         for(Graph graph: verticesParts){
-            for(Vertex v: graph.getVertices().values()){
-                if((abValue[0] > -1) && (abValue[1] > -1)){
-                    return abValue;
-                }
-                if(v.equals(a)){
-                    abValue[0] = i;
-                }
-                if(v.equals(b)){
-                    abValue[1] = i;
-                }
+            if(graph.getVertices().containsKey(a.getId())){
+                abValue[0] = i;
+            }
+            if(graph.getVertices().containsKey(b.getId())){
+                abValue[1] = i;
             }
             i++;
         }
@@ -565,12 +571,12 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         double edgesWeight = 0;
         for(Edge edge: v1.getStartingEdges()){
             if(edge.getEndpoint().equals(v2)){
-                edgesWeight += edge.getCapacity();
+                edgesWeight += edge.getWeight();
             }
         }
         for(Edge edge: v2.getStartingEdges()){
             if(edge.getEndpoint().equals(v1)){
-                edgesWeight += edge.getCapacity();
+                edgesWeight += edge.getWeight();
             }
         }
         return edgesWeight;

@@ -73,7 +73,7 @@ public class MetisVertex {
         List<Edge> endingEdges = new ArrayList<>();
         for (Vertex vertex : this.containingVertices) {
             for (Edge endingEdge : vertex.getEndingEdges()) {
-                if (!this.containingVertices.contains(endingEdge.getEndpoint())){
+                if (!this.containingVertices.contains(endingEdge.getStartpoint())){
                     endingEdges.add(endingEdge);
                 }
             }
