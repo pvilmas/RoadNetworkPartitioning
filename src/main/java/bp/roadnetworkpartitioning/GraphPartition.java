@@ -192,8 +192,8 @@ public class GraphPartition {
                 averageNeighbours += neighbourNumbers.size();
 
             }
+            averageNeighbours = averageNeighbours/(double)graphComponents.size();
         }
-        averageNeighbours = averageNeighbours/(double)graphComponents.size();
         return averageNeighbours;
     }
 
