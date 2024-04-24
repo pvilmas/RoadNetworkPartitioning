@@ -316,7 +316,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         List<Vertex> minBorderPart = getBorderVertices(minPart);
         double minValue = Double.MAX_VALUE;
         for (Vertex maxVertex: maxBorderPart) {
-            minValue = dijkstrasSearch(maxVertex, minBorderPart, minPart, minPath, minValue);
+            minValue = dijkstrasSearch(maxVertex, minBorderPart, minPart, maxPart, minPath, minValue);
         }
     }
 
@@ -325,7 +325,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * @param maxVertex     maximal vertex.
      * @param minBorderPart part with minimal border.
      */
-    private double dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Graph minPart, List<Vertex> minPath, double minValue) {
+    private double dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Graph minPart, Graph maxPart, List<Vertex> minPath, double minValue) {
         Map<Vertex, Double> distances = new HashMap<>();
         Map<Vertex, List<Vertex>> shortestPaths = new HashMap<>();
         distances.put(maxVertex, 0.0);
@@ -341,7 +341,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
             for (Map.Entry< Vertex, Double> neighbour: neighbours.entrySet()) {
                 Vertex adjacentNode = neighbour.getKey();
                 double edgeWeight = neighbour.getValue();
-                if (!settledNodes.contains(adjacentNode) && (!minPart.getVertices().containsKey(adjacentNode.getId()) || minBorderPart.contains(adjacentNode))) {
+                if (!settledNodes.contains(adjacentNode) && !maxPart.getVertices().containsKey(adjacentNode.getId()) && (!minPart.getVertices().containsKey(adjacentNode.getId()) || minBorderPart.contains(adjacentNode))) {
                     calculateMinimumDistance(adjacentNode, edgeWeight, currentNode, distances, shortestPaths);
                     unsettledNodes.add(adjacentNode);
                 }
