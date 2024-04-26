@@ -26,37 +26,37 @@ public class Statistics {
         columnNames.add("Average Number of Neighbours");
     }
 
-    private void addTime(String algorithmName, long time) {
+    void addTime(String algorithmName, long time) {
         times.putIfAbsent(algorithmName, new ArrayList<>(12));
         times.get(algorithmName).add(time);
     }
 
-    private void addDeviation(String algorithmName, double deviation) {
+    void addDeviation(String algorithmName, double deviation) {
         deviations.putIfAbsent(algorithmName, new ArrayList<>(12));
         deviations.get(algorithmName).add(deviation);
     }
 
-    private void addNumberOfCutEdges(String algorithmName, int numberOfCutEdge) {
+    void addNumberOfCutEdges(String algorithmName, int numberOfCutEdge) {
         numberOfCutEdges.putIfAbsent(algorithmName, new ArrayList<>(12));
         numberOfCutEdges.get(algorithmName).add(numberOfCutEdge);
     }
 
-    private void addMinNumberOfNeighbours(String algorithmName, int minNumberOfNeighbour) {
+    void addMinNumberOfNeighbours(String algorithmName, int minNumberOfNeighbour) {
         minNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
         minNumberOfNeighbours.get(algorithmName).add(minNumberOfNeighbour);
     }
 
-    private void addMaxNumberOfNeighbours(String algorithmName, int maxNumberOfNeighbour) {
+    void addMaxNumberOfNeighbours(String algorithmName, int maxNumberOfNeighbour) {
         maxNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
         maxNumberOfNeighbours.get(algorithmName).add(maxNumberOfNeighbour);
     }
 
-    private void addAverageNumberOfNeighbours(String algorithmName, double averageNumberOfNeighbour) {
+    void addAverageNumberOfNeighbours(String algorithmName, double averageNumberOfNeighbour) {
         averageNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
         averageNumberOfNeighbours.get(algorithmName).add(averageNumberOfNeighbour);
     }
 
-    private void calculateAverage() {
+    void calculateAverage() {
         if (isAverageCalculated) {
             return;
         }
@@ -130,5 +130,49 @@ public class Statistics {
         attributes.sort(null);
         attributes.remove(0);
         attributes.remove(times.size() - 1);
+    }
+
+    public int getNumberOfRounds() {
+        return numberOfRounds;
+    }
+
+    public void setNumberOfRounds(int numberOfRounds) {
+        this.numberOfRounds = numberOfRounds;
+    }
+
+    public boolean isAverageCalculated() {
+        return isAverageCalculated;
+    }
+
+    public void setAverageCalculated(boolean averageCalculated) {
+        isAverageCalculated = averageCalculated;
+    }
+
+    public Map<String, List<Long>> getTimes() {
+        return times;
+    }
+
+    public Map<String, List<Double>> getDeviations() {
+        return deviations;
+    }
+
+    public Map<String, List<Integer>> getNumberOfCutEdges() {
+        return numberOfCutEdges;
+    }
+
+    public Map<String, List<Integer>> getMinNumberOfNeighbours() {
+        return minNumberOfNeighbours;
+    }
+
+    public Map<String, List<Integer>> getMaxNumberOfNeighbours() {
+        return maxNumberOfNeighbours;
+    }
+
+    public Map<String, List<Double>> getAverageNumberOfNeighbours() {
+        return averageNumberOfNeighbours;
+    }
+
+    public List<String> getColumnNames() {
+        return columnNames;
     }
 }
