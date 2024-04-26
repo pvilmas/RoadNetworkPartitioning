@@ -75,21 +75,21 @@ public class JSONParser {
             for (Vertex vertex : vertices.values()) {
                 for (Edge edge : vertex.getStartingEdges()) {
                     int endpointId;
-                    double endpointX;
-                    double endpointY;
+                    double pointX;
+                    double pointY;
                     double length;
                     double capacity;
                     if (vertices.containsKey(edge.getEndpoint().getId())){
                         endpointId = edge.getEndpoint().getId();
-                        endpointX = edge.getEndpoint().getX();
-                        endpointY = edge.getEndpoint().getY();
+                        pointX = edge.getEndpoint().getX();
+                        pointY = edge.getEndpoint().getY();
                         length = edge.getLength();
                         capacity = edge.getCapacity();
                     }
                     else {
                         endpointId = - Math.min(edge.getEndpoint().getId(), vertex.getId());
-                        endpointX = 0;
-                        endpointY = 0;
+                        pointX = (vertex.getX() + edge.getEndpoint().getX()) / 2;
+                        pointY = (vertex.getY() + edge.getEndpoint().getY()) / 2;
                         length = edge.getLength()/2;
                         capacity = edge.getCapacity()/2;
                     }
@@ -100,8 +100,8 @@ public class JSONParser {
                             ", \"length\": " + length +
                             "}, \"geometry\": { \"type\": \"LineString\", " +
                             "\"coordinates\": [ [ " + vertex.getX() +
-                            ", " + vertex.getY() + " ], [ " + endpointX +
-                            ", " + endpointY +
+                            ", " + vertex.getY() + " ], [ " + pointX +
+                            ", " + pointY +
                             " ] ] } }");
                     if (k == edgesSize) {
                         bw.write("\n]\n}");
@@ -113,8 +113,8 @@ public class JSONParser {
                 for (Edge endingEdge : vertex.getEndingEdges()) {
                     if (!vertices.containsKey(endingEdge.getStartpoint().getId())) {
                         int startpointId = - Math.min(endingEdge.getStartpoint().getId(), vertex.getId());
-                        double startpointX = 0;
-                        double startpointY = 0;
+                        double pointX = (vertex.getX() + endingEdge.getStartpoint().getX()) / 2;
+                        double pointY = (vertex.getY() + endingEdge.getStartpoint().getY()) / 2;
                         double length = endingEdge.getLength() / 2;
                         double capacity = endingEdge.getCapacity() / 2;
                         bw.write("{ \"type\": \"Feature\", \"properties\": { \"fid\": " + k +
@@ -123,8 +123,8 @@ public class JSONParser {
                                 ", \"capacity\": " + capacity +
                                 ", \"length\": " + length +
                                 "}, \"geometry\": { \"type\": \"LineString\", " +
-                                "\"coordinates\": [ [ " + startpointX +
-                                ", " + startpointY + " ], [ " + vertex.getX() +
+                                "\"coordinates\": [ [ " + pointX +
+                                ", " + pointY + " ], [ " + vertex.getX() +
                                 ", " + vertex.getY() +
                                 " ] ] } }");
                         if (k == edgesSize) {

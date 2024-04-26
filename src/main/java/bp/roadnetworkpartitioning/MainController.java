@@ -424,33 +424,6 @@ public class MainController {
     }
 
     @FXML
-    protected void onAddGraphJSONMenuClick() {
-        FileChooser fileChooser = new FileChooser();
-        File selectedFile = fileChooser.showOpenDialog(stage);
-        Graph graphComponent = JSONParser.readFile(selectedFile);
-        if (this.graph == null) {
-            progressMessages.appendText("No initial graph. Setting added graph as initial.\n");
-            this.graph = graphComponent;
-            this.graphPartition = null;
-
-        }
-        else {
-            progressMessages.appendText("Merging Graphs...\n");
-
-            Graph mergedGraph = Graph.mergeGraphs(this.graph, graphComponent);
-            if (mergedGraph != null) {
-                progressMessages.appendText("Merging completed.\n");
-                this.graph = mergedGraph;
-            }
-            else {
-                progressMessages.appendText("Graphs could not be merged.\n");
-            }
-        }
-        progressMessages.appendText("Visualizing merged graphs...\n");
-        visualizeGraph();
-    }
-
-    @FXML
     protected void onExportToGeoJSONMenuClick() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
         LocalDateTime now = LocalDateTime.now();

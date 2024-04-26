@@ -45,7 +45,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Coarsens graph by Heavy Edge Matching.
      * @return graph with fewer vertices and edges.
      */
-    protected Set<MetisVertex> coarsenGraph(Graph graph) {
+    private Set<MetisVertex> coarsenGraph(Graph graph) {
         Set<MetisVertex> vertices = new HashSet<>();
         for (Vertex vertex : graph.getVertices().values()) {
             List<Vertex> containingVertices = new ArrayList<>();
@@ -126,22 +126,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * QuickSort using preprocessed degree of each vertex, starts from begin index and ends with end index.
-     * @param sortedVertices array to be sorted.
-     * @param begin          starts from begin index.
-     * @param end            ends with end index.
-     * @param vertexDegree   degree of each vertex.
-     */
-    private void quickSort(MetisVertex[] sortedVertices, int begin, int end, Map<MetisVertex, Integer> vertexDegree) {
-        if (begin < end) {
-            int partitionIndex = partition(sortedVertices, begin, end, vertexDegree);
-
-            quickSort(sortedVertices, begin, partitionIndex - 1, vertexDegree);
-            quickSort(sortedVertices, partitionIndex + 1, end, vertexDegree);
-        }
-    }
-
-    /**
      * Method used for partition in quick sort.
      * @param sortedVertices    Array of sorted vertices.
      * @param begin             Number of index to begin.
@@ -189,34 +173,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * Sorting vertices using bubbleSort.
-     * @param sortedVertices array to be sorted.
-     * @param edgesCount     degree of each vertex.
-     */
-    private void bubbleSort(Vertex[] sortedVertices, int[] edgesCount) {
-        int temp;
-        Vertex tempVertex;
-        boolean swapped;
-        for (int i = 0; i < sortedVertices.length; i++) {
-            swapped = false;
-            for (int j = 1; j < sortedVertices.length; j++) {
-                if (edgesCount[j - 1] > edgesCount[i]) {
-                    temp = edgesCount[j - 1];
-                    edgesCount[j - 1] = edgesCount[i];
-                    edgesCount[i] = temp;
-                    tempVertex = sortedVertices[j - 1];
-                    sortedVertices[j - 1] = sortedVertices[i];
-                    sortedVertices[i] = tempVertex;
-                    swapped = true;
-                }
-            }
-            if (!swapped) {
-                break;
-            }
-        }
-    }
-
-    /**
      * Partition the given graph in half.
      * @param metisVertices
      * @return partition of graph.
@@ -224,6 +180,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     private List<Set<MetisVertex>> partitionGraph(Set<MetisVertex> metisVertices) {
         List<Set<MetisVertex>> graphComponents = new ArrayList<>();
         double totalVWeight = countTotalVWeight(metisVertices);
+        double halfTotalVWeight = totalVWeight / 2;
+        double quarterTotalVWeight = totalVWeight / 4;
         int currentScore = Integer.MAX_VALUE;
         Set<MetisVertex> bestPart = new HashSet<>();
         MetisVertex[] vertices = metisVertices.toArray(new MetisVertex[0]);
@@ -250,7 +208,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             Set<MetisVertex> part = new HashSet<>();
             part.add(vertex);
             List<MetisVertex> vList = new ArrayList<>();
-            while (verticesWeight < (totalVWeight / 2)) {
+            while (verticesWeight < halfTotalVWeight) {
                 addNeighbours(part, vList, vertex, metisVertices);
                 boolean added = false;
                 if (vList.size() == 0) {
@@ -265,7 +223,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                     for (Edge endingEdge : vertex.getAllEndingEdges()) {
                         tempVerticesWeight += endingEdge.getWeight() / 2;
                     }
-                    if (tempVerticesWeight < (totalVWeight / 2)) {
+                    if (tempVerticesWeight < halfTotalVWeight) {
                         verticesWeight = tempVerticesWeight;
                         part.add(vertex);
                         vList.remove(j);
@@ -277,11 +235,13 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                     break;
                 }
             }
-            addNeighbours(part, vList, vertex, metisVertices);
-            int score = adjustCutVertices(part, vList);
-            if (score < currentScore) {
-                currentScore = score;
-                bestPart = new HashSet<>(part);
+            if (verticesWeight > quarterTotalVWeight) {
+                addNeighbours(part, vList, vertex, metisVertices);
+                int score = adjustCutVertices(part, vList);
+                if (score < currentScore) {
+                    currentScore = score;
+                    bestPart = new HashSet<>(part);
+                }
             }
         }
         Set<MetisVertex> vertices1 = new HashSet<>();
@@ -318,7 +278,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             }
             for (Edge edge: vertex.getAllEndingEdges()) {
                 for (MetisVertex metisVertex : part) {
-                    if (metisVertex.getContainingVertices().contains(edge.getEndpoint())) {
+                    if (metisVertex.getContainingVertices().contains(edge.getStartpoint())) {
                         cutEdges++;
                         break;
                     }
@@ -430,7 +390,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             verticesParts.add(new Graph(vertices, null));
             p++;
         }
-
+        double tolerance = getGraph().getWeightValue()*0.025;
         double gMax;
         do {
             gMax = 0;
@@ -438,17 +398,19 @@ public class MetisAlgorithm extends APartitionAlgorithm {
             List<Vertex> av = new ArrayList<>();
             List<Vertex> bv = new ArrayList<>();
             for(int n = 0; n < length/2; n++) {
-                List<Map<Vertex, Double>> list = new ArrayList<>(computeBorderDValues(verticesPartsDynamic).values());
+                List<Map<Vertex, Double[]>> list = new ArrayList<>(computeBorderDValues(verticesPartsDynamic).values());
                 double max = 0;
                 Vertex a = null;
                 Vertex b = null;
                 if (list.size() == 0) {
                     break;
                 }
-                for (Map.Entry<Vertex, Double> i : list.get(0).entrySet()) {
-                    for (Map.Entry<Vertex, Double> j : list.get(1).entrySet()) {
-                        if (verticesNotExchanged(i.getKey(), j.getKey(), av, bv)){
-                            double g = i.getValue() + j.getValue() - 2 * getCValue(i.getKey(), j.getKey());
+                for (Map.Entry<Vertex, Double[]> i : list.get(0).entrySet()) {
+                    for (Map.Entry<Vertex, Double[]> j : list.get(1).entrySet()) {
+                        if (verticesNotExchangedAndSimilar(i, j, av, bv, tolerance)){
+                            double idValue = i.getValue()[0] - i.getValue()[1];
+                            double jdValue = j.getValue()[0] - j.getValue()[1];
+                            double g = idValue + jdValue - 2 * getCValue(i.getKey(), j.getKey());
                             if(g >= max){
                                 max = g;
                                 a = i.getKey();
@@ -489,15 +451,18 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         return verticesParts;
     }
 
-    private boolean verticesNotExchanged(Vertex a, Vertex b, List<Vertex> av, List<Vertex> bv) {
+    private boolean verticesNotExchangedAndSimilar(Map.Entry<Vertex, Double[]> a, Map.Entry<Vertex, Double[]> b,
+                                                   List<Vertex> av, List<Vertex> bv, double tolerance) {
         int index = -1;
         for (int i = 0; i < av.size(); i++) {
-            if ((av.get(i) == a) || (av.get(i) == b)) {
+            if ((av.get(i) == a.getKey()) || (av.get(i) == b.getKey())) {
                 index = i;
             }
         }
-        return (index == -1) || ((bv.get(index) != a) && (bv.get(index) != b));
-
+        if ((index == -1) || ((bv.get(index) != a.getKey()) && (bv.get(index) != b.getKey()))) {
+            return Math.abs(a.getValue()[0] - b.getValue()[0]) <= (tolerance);
+        }
+        return false;
     }
 
     /**
@@ -527,17 +492,16 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param verticesParts    Divided vertices into parts.
      * @return border difference values for each part.
      */
-    private Map<Integer, Map<Vertex, Double>> computeBorderDValues(Map<Vertex, Integer> verticesParts){
-        Map<Integer, Map<Vertex, Double>> borderDValues = new HashMap<>();
+    private Map<Integer, Map<Vertex, Double[]>> computeBorderDValues(Map<Vertex, Integer> verticesParts){
+        Map<Integer, Map<Vertex, Double[]>> borderDValues = new HashMap<>();
         for(Map.Entry<Vertex, Integer> vertexPart: verticesParts.entrySet()){
             Vertex vertex = vertexPart.getKey();
             int partNumber = vertexPart.getValue();
-            double[] edgesWeights = {0.0, 0.0};
+            Double[] edgesWeights = {0.0, 0.0};
             setEdgesWeights(edgesWeights, vertexPart, verticesParts);
             if(edgesWeights[0] > 0 ){
                 borderDValues.computeIfAbsent(partNumber, value -> new HashMap<>());
-                double dValue = edgesWeights[0] - edgesWeights[1];
-                borderDValues.get(partNumber).put(vertex, dValue);
+                borderDValues.get(partNumber).put(vertex, edgesWeights);
 
             }
         }
@@ -551,7 +515,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * @param vertexPart            The vertex.
      * @param verticesParts     Map where key is vertex and value is number of its part.
      */
-    private void setEdgesWeights(double[] edgesWeights, Map.Entry<Vertex, Integer> vertexPart, Map<Vertex, Integer> verticesParts){
+    private void setEdgesWeights(Double[] edgesWeights, Map.Entry<Vertex, Integer> vertexPart, Map<Vertex, Integer> verticesParts){
         Vertex vertex = vertexPart.getKey();
         int partNumber = vertexPart.getValue();
         for(Edge edge: vertex.getStartingEdges()){

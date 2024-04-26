@@ -9,7 +9,6 @@
                 <Menu text="New">
                     <MenuItem text="Generate Graph" onAction="#onCreateGraphMenuClick"/>
                     <MenuItem text="Insert Graph" onAction="#onInsertGraphJSONMenuClick"/>
-                    <MenuItem text="Add Graph Part" onAction="#onAddGraphJSONMenuClick"/>
                 </Menu>
                 <Menu text="Save">
                     <MenuItem text="Export Graph to GeoJSON" onAction="#onExportToGeoJSONMenuClick"/>
