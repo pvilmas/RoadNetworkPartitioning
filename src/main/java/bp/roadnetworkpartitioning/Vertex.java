@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Vertex extends Point2D {
     /** ID of vertex. */
-    private int id = 0;
+    private int id;
     /** Value of vertex. */
     private double value = 1.0;
     /**

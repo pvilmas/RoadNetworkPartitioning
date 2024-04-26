@@ -52,21 +52,6 @@ public class Edge {
     }
 
     /**
-     * Gets attribute count.
-     * @return  count (number of existing instances of edge).
-     */
-    public static int getCount(){
-        return count;
-    }
-
-    /**
-     * Resets edge count to 0.
-     */
-    public static void resetEdgeCount() {
-        count = 0;
-    }
-
-    /**
      * Sets ID to edge.
      * @param id    New edge ID.
      */

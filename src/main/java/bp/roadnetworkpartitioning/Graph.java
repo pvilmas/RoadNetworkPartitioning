@@ -90,60 +90,6 @@ public class Graph {
         return id;
     }
 
-    public static Graph mergeGraphs(Graph firstGraph, Graph secondGraph) {
-        Graph newGraph = null;
-        boolean isCompatible = false;
-        for (Map.Entry<Integer, Vertex> idVertexEntry : firstGraph.getVertices().entrySet()) {
-            if (secondGraph.getVertices().containsKey(idVertexEntry.getKey()) && secondGraph.getVertices().get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
-                isCompatible = true;
-                break;
-            }
-        }
-        if (isCompatible) {
-            Map<Integer, Vertex> vertices = firstGraph.getVertices();
-            Map<Integer, Edge> edges = firstGraph.getEdges();
-            for (Map.Entry<Integer, Vertex> idVertexEntry : secondGraph.getVertices().entrySet()) {
-                if ((idVertexEntry.getKey() < 0) && vertices.containsKey(idVertexEntry.getKey()) && vertices.get(idVertexEntry.getKey()).equals(idVertexEntry.getValue())) {
-                    Vertex v1 = idVertexEntry.getValue();
-                    Vertex v2 = vertices.get(v1.getId());
-                    if ((v1.getEndingEdges().size() > 0) && (v2.getStartingEdges().size() > 0)) {
-                        Vertex v3 = v1.getEndingEdges().get(0).getStartpoint();
-                        Vertex v4 = v2.getStartingEdges().get(0).getEndpoint();
-                        Edge edge1 = new Edge(v3, v4, v1.getEndingEdges().get(0).getLength() + v2.getStartingEdges().get(0).getLength());
-                        v3.getStartingEdges().remove(v1.getEndingEdges().get(0));
-                        v3.getStartingEdges().add(edge1);
-                        v4.getEndingEdges().remove(v2.getStartingEdges().get(0));
-                        v4.getEndingEdges().add(edge1);
-                        edges.remove(v2.getStartingEdges().get(0).getId());
-                        edges.put(edge1.getId(), edge1);
-                        secondGraph.getEdges().remove(v1.getEndingEdges().get(0).getId());
-                    }
-                    if ((v1.getStartingEdges().size() > 0) && (v2.getEndingEdges().size() > 0)) {
-                        Vertex v3 = v1.getStartingEdges().get(0).getEndpoint();
-                        Vertex v4 = v2.getEndingEdges().get(0).getStartpoint();
-                        Edge edge2 = new Edge(v4, v3, v2.getEndingEdges().get(0).getLength() + v1.getStartingEdges().get(0).getLength());
-                        v3.getEndingEdges().remove(v1.getStartingEdges().get(0));
-                        v3.getEndingEdges().add(edge2);
-                        v4.getStartingEdges().remove(v2.getEndingEdges().get(0));
-                        v4.getStartingEdges().add(edge2);
-                        edges.remove(v2.getEndingEdges().get(0).getId());
-                        edges.put(edge2.getId(), edge2);
-                        secondGraph.getEdges().remove(v1.getStartingEdges().get(0).getId());
-                    }
-                    vertices.remove(v2.getId());
-                }
-                else {
-                    vertices.put(idVertexEntry.getKey(), idVertexEntry.getValue());
-
-                }
-            }
-            edges.putAll(secondGraph.getEdges());
-            newGraph = new Graph(vertices, edges);
-        }
-
-        return newGraph;
-    }
-
     /**
      * Getter of graph vertices.
      * @return graph vertices.
