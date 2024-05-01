@@ -30,7 +30,7 @@ public class AlgorithmsLoader {
     public static Map<String, APartitionAlgorithm> findAlgorithms() {
         if (ALGORITHMS.size() == 0) {
             URLClassLoader cl = new URLClassLoader(findJarURLsInClasspath(), Thread.currentThread().getContextClassLoader());
-            List<Class<?>> classes = AlgorithmsLoader.getClasses(cl);
+            List<Class<?>> classes = getClasses(cl);
             for (Class<?> clazz : classes) {
                 try {
                     if (APartitionAlgorithm.class.isAssignableFrom(clazz)) {

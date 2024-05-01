@@ -49,7 +49,7 @@ public class GraphPartition {
      *
      * @return
      */
-    public int getCutEdgesCount(){
+    protected int getCutEdgesCount(){
         if(cutEdgesCount == -1){
             for(Graph graph: graphComponents){
                 List<Edge> cutEndingEdges = graph.getCutEndingEdges();
@@ -64,7 +64,7 @@ public class GraphPartition {
      *
      * @return
      */
-    public double getRelativeStandardDeviation(){
+    protected double getRelativeStandardDeviation(){
         if(deviation == -1){
             double graphValue = getGraphValue();
             double averageGraphComponentValue = graphValue/graphComponents.size();
@@ -90,7 +90,7 @@ public class GraphPartition {
      *
      * @return
      */
-    public int getMaxNeighbours(){
+    protected int getMaxNeighbours(){
         if(maxNeighbours == -1){
             maxNeighbours = 0;
             for(Graph graph: graphComponents){
@@ -127,7 +127,7 @@ public class GraphPartition {
      *
      * @return
      */
-    public int getMinNeighbours(){
+    protected int getMinNeighbours(){
         if(minNeighbours == -1){
             minNeighbours = graphComponents.size();
             for(Graph graph: graphComponents){
@@ -164,7 +164,7 @@ public class GraphPartition {
      *
      * @return
      */
-    public double getAverageNeighbours(){
+    protected double getAverageNeighbours(){
         if(averageNeighbours == -1){
             averageNeighbours = 0;
             for(Graph graph: graphComponents){
@@ -201,7 +201,7 @@ public class GraphPartition {
      * Gets computing time in milliseconds for achieving this partition.
      * @return time in milliseconds.
      */
-    public long getTime(){
+    protected long getTime(){
         return time;
     }
 

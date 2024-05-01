@@ -42,7 +42,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     /** Order of vertices orthographically projected on picked line. */
     private List<Vertex> vertexOrder;
     /** All IFVertices of the graph. */
-    public List<IFVertex> graphVertices;
+    List<IFVertex> graphVertices;
 
     @Override
     public String getName() {
@@ -303,7 +303,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * Projects orthogonally vertices onto picked line.
      * Vertices are sorted by order of appearances on the line.
      */
-    protected void projectAndSortVertices(){
+    private void projectAndSortVertices(){
         vertexOrder = new ArrayList<>();
         List<Point> pointOrder = new ArrayList<>();
         double a = A.x - B.x;
@@ -507,7 +507,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
      * @param s     source vertex.
      * @param t     sink vertex.
      */
-    protected List<Double> dinicMaxflow(IFVertex s, IFVertex t) {
+    private List<Double> dinicMaxflow(IFVertex s, IFVertex t) {
         List<Double> flowList = new ArrayList<>();
         if (s == t) {
             return flowList;
