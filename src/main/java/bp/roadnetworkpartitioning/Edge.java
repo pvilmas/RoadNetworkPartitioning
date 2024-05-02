@@ -12,7 +12,7 @@ public class Edge {
     private int id;
     /** Length of edge (no specific units). */
     private double length = 1;
-    /** Weight of edge (no specific units). */
+    /** Capacity of edge (no specific units). */
     private double capacity = 1;
     /** Weight of edge (no specific units). */
     private double weight = 0;
@@ -39,9 +39,10 @@ public class Edge {
 
     /**
      * Constructor of edge with given endpoint and length.
-     * @param startpoint  Startpoint of edge (start point has reference of this edge).
-     * @param endpoint  Endpoint of edge (start point has reference of this edge).
-     * @param length    Length of edge (no specific units).
+     * @param id            ID of the edge.
+     * @param startpoint    Startpoint of edge (start point has reference of this edge).
+     * @param endpoint      Endpoint of edge (start point has reference of this edge).
+     * @param length        Length of edge (no specific units).
      */
     public Edge(int id, Vertex startpoint, Vertex endpoint, double length){
         this.startpoint = startpoint;
@@ -87,8 +88,8 @@ public class Edge {
 
 
     /**
-     * Sets weight to edge.
-     * @param capacity    New weight of edge.
+     * Sets capacity to edge.
+     * @param capacity    New capacity of edge.
      */
     public void setCapacity(double capacity){
         if (capacity > 0) {
@@ -97,13 +98,17 @@ public class Edge {
     }
 
     /**
-     * Gets weight of edge.
-     * @return weight of edge
+     * Gets capacity of edge.
+     * @return capacity of edge
      */
     public double getCapacity(){
         return this.capacity;
     }
 
+    /**
+     * Gets weight of edge.
+     * @return weight of edge
+     */
     public double getWeight() {
         if (this.weight == 0) {
             this.weight = this.length * this.capacity;

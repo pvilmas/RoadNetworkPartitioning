@@ -68,27 +68,7 @@ public class Graph {
         return new Graph(vertices, edges);
     }
 
-    /**
-     * Adds edge to vertex if it's possible.
-     * @param vertexStart   Vertex which should be new start of edge.
-     * @param edges         HashMap with all edges currently created.
-     * @param condition     Condition for adding edge to specific vertex.
-     * @param vertexEnd     End vertex of new edge.
-     * @param id            ID of new edge.
-     * @param length        Length of new edge.
-     * @return  ID of new edge if condition is true.
-     */
-    private static int addEdge(Vertex vertexStart, HashMap<Integer, Edge> edges,
-                               boolean condition, Vertex vertexEnd, int id, double length){
-        if(condition) {
-            Edge edge = new Edge(vertexStart, vertexEnd, length);
-            vertexStart.getStartingEdges().add(edge);
-            vertexEnd.getEndingEdges().add(edge);
-            edges.put(id, edge);
-            id++;
-        }
-        return id;
-    }
+
 
     /**
      * Getter of graph vertices.
@@ -130,43 +110,10 @@ public class Graph {
         this.edges = edges;
     }
 
-    @Override
-    public String toString(){
-        StringBuilder s = new StringBuilder();
-        for (Vertex v: vertices.values()) {
-            s.append(v.toString()).append("\n");
-        }
-
-        for (Edge e: edges.values()) {
-            s.append(e.toString()).append("\n");
-        }
-        return s.toString();
-    }
-
-    protected List<Edge> getCutEndingEdges() {
-        List<Edge> cutEdges = new ArrayList<>();
-        for(Vertex vertex: vertices.values()) {
-            for(Edge edge: vertex.getEndingEdges()){
-                if(!vertices.containsKey(edge.getStartpoint().getId())){
-                    cutEdges.add(edge);
-                }
-            }
-        }
-        return cutEdges;
-    }
-
-    protected List<Edge> getCutStartingEdges() {
-        List<Edge> cutEdges = new ArrayList<>();
-        for(Vertex vertex: vertices.values()) {
-            for(Edge edge: vertex.getStartingEdges()){
-                if(!vertices.containsKey(edge.getEndpoint().getId())){
-                    cutEdges.add(edge);
-                }
-            }
-        }
-        return cutEdges;
-    }
-
+    /**
+     * Gets graph value counting on edge weight.
+     * @return  graph weight value.
+     */
     public double getWeightValue() {
         double value = 0;
         for(Vertex vertex: vertices.values()) {
@@ -181,6 +128,10 @@ public class Graph {
         return value;
     }
 
+    /**
+     * Gets graph value counting on edge length.
+     * @return  graph value.
+     */
     public double getValue() {
         double value = 0;
         for(Vertex vertex: vertices.values()) {
@@ -193,5 +144,74 @@ public class Graph {
             }
         }
         return value;
+    }
+
+
+    @Override
+    public String toString(){
+        StringBuilder s = new StringBuilder();
+        for (Vertex v: vertices.values()) {
+            s.append(v.toString()).append("\n");
+        }
+
+        for (Edge e: edges.values()) {
+            s.append(e.toString()).append("\n");
+        }
+        return s.toString();
+    }
+
+    /**
+     * Gets all cut ending edges.
+     * @return all cut ending edges.
+     */
+    protected List<Edge> getCutEndingEdges() {
+        List<Edge> cutEdges = new ArrayList<>();
+        for(Vertex vertex: vertices.values()) {
+            for(Edge edge: vertex.getEndingEdges()){
+                if(!vertices.containsKey(edge.getStartpoint().getId())){
+                    cutEdges.add(edge);
+                }
+            }
+        }
+        return cutEdges;
+    }
+
+    /**
+     * Gets all cut starting edges.
+     * @return all cut starting edges.
+     */
+    protected List<Edge> getCutStartingEdges() {
+        List<Edge> cutEdges = new ArrayList<>();
+        for(Vertex vertex: vertices.values()) {
+            for(Edge edge: vertex.getStartingEdges()){
+                if(!vertices.containsKey(edge.getEndpoint().getId())){
+                    cutEdges.add(edge);
+                }
+            }
+        }
+        return cutEdges;
+    }
+
+
+    /**
+     * Adds edge to vertex if it's possible.
+     * @param vertexStart   Vertex which should be new start of edge.
+     * @param edges         HashMap with all edges currently created.
+     * @param condition     Condition for adding edge to specific vertex.
+     * @param vertexEnd     End vertex of new edge.
+     * @param id            ID of new edge.
+     * @param length        Length of new edge.
+     * @return  ID of new edge if condition is true.
+     */
+    private static int addEdge(Vertex vertexStart, HashMap<Integer, Edge> edges,
+                               boolean condition, Vertex vertexEnd, int id, double length){
+        if(condition) {
+            Edge edge = new Edge(vertexStart, vertexEnd, length);
+            vertexStart.getStartingEdges().add(edge);
+            vertexEnd.getEndingEdges().add(edge);
+            edges.put(id, edge);
+            id++;
+        }
+        return id;
     }
 }

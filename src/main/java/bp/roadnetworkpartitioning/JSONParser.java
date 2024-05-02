@@ -23,10 +23,11 @@ public class JSONParser {
      *                          index 1 - number of line where data starts in edge file,
      *                          index 2 - number of column where is start point of edge in edge file,
      *                          index 3 - number of column where is endpoint of edge in edge file,
-     *                          index 4 - number of column where is length of edge in edge file,
-     *                          index 5 - number of column where is ID of node in node file,
-     *                          index 6 - number of column where is x-coordinate of node in node file,
-     *                          index 7 - number of column where is y-coordinate of node in node file.
+     *                          index 4 - number of column where is capacity of edge in edge file,
+     *                          index 5 - number of column where is length of edge in edge file,
+     *                          index 6 - number of column where is ID of node in node file,
+     *                          index 7 - number of column where is x-coordinate of node in node file,
+     *                          index 8 - number of column where is y-coordinate of node in node file.
      * @param delimiterEdge     Delimiter of columns in file with graph edges.
      * @param delimiterVertex   Delimiter of columns in file with vertices coordinates.
      * @param coordinatesFile   File with vertices coordinates,

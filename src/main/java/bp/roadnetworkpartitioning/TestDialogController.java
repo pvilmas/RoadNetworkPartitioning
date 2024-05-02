@@ -25,6 +25,7 @@ public class TestDialogController extends Dialog<Boolean> {
     private final Map<String, APartitionAlgorithm> algorithms;
     private final Graph graph;
     private final int partCount;
+    private final Statistics statistics = new Statistics();
     /** Main button of the dialog with parameters setting. */
     @FXML
     private ButtonType testButtonType;
@@ -43,7 +44,8 @@ public class TestDialogController extends Dialog<Boolean> {
     private TextArea progressMessages;
 
     /**
-     * Constructor of dialog for algorithm parameters setting with given stage/window and the algorithm instance for dialog.
+     * Constructor of dialog for algorithm parameters setting with given stage/window
+     * and the algorithm instance for dialog.
      * @param window        stage/window hosting dialog.
      * @throws IOException  when loading fxml.
      */
@@ -64,8 +66,6 @@ public class TestDialogController extends Dialog<Boolean> {
         this.partCount = partCount;
         startTestingButton.setOnAction(e -> onStartTestingButtonClick());
     }
-
-    private final Statistics statistics = new Statistics();
 
     private void onStartTestingButtonClick() {
         statistics.setNumberOfRounds(spinnerRoundCount.getValue());
@@ -135,6 +135,11 @@ public class TestDialogController extends Dialog<Boolean> {
         progressMessages.appendText("Testing finished.\n");
     }
 
+    /**
+     * Adds graph partition characteristics to statistics.
+     * @param algorithm         algorithm that created partition.
+     * @param graphPartition    graph partition.
+     */
     private void addToStatistics(APartitionAlgorithm algorithm, GraphPartition graphPartition) {
         statistics.addTime(algorithm.getName(), graphPartition.getTime());
         statistics.addDeviation(algorithm.getName(), graphPartition.getRelativeStandardDeviation());

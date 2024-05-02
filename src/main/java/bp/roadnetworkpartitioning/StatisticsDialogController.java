@@ -15,27 +15,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
- *
+ * Class whose instances controls statistics dialog.
+ * @author Lucie Roy
+ * @version 25-04-2024
  */
 public class StatisticsDialogController extends Dialog<Boolean> {
 
-    /**  */
+    /** All available algorithms. */
     private final Map<String, APartitionAlgorithm> algorithms;
-    /**  */
+    /** Button to close dialog. */
     @FXML
     private ButtonType statisticsButtonType;
-    /**  */
+    /** Button for exporting data to CSV file. */
     @FXML
     private Button exportCSVButtonType;
-    /**  */
+    /** Table where statistics is written. */
     @FXML
     private TableView<Data> tableView;
 
     /**
-     *
-     * @param window
-     * @param algorithms
-     * @throws IOException
+     * Constructor for this class with all parameters.
+     * @param window        window owning this dialog.
+     * @param algorithms    all available algorithms.
+     * @throws IOException  if no resource fxml file is present.
      */
     public StatisticsDialogController(Window window, Map<String, APartitionAlgorithm> algorithms) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -56,7 +58,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
     }
 
     /**
-     *
+     * Exports table to CSV file.
      */
     @FXML
     protected void onExportToCSVButtonClick() {
@@ -84,7 +86,7 @@ public class StatisticsDialogController extends Dialog<Boolean> {
     }
 
     /**
-     *
+     * Adds rows to the table.
      */
     private void addRows() {
         ObservableList<Data> data = tableView.getItems();

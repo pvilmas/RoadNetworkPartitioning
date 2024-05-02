@@ -6,13 +6,10 @@ import java.util.List;
 /**
  * Instance of this class represents partition of a graph.
  * @author Lucie Roy
- * @version 24-01-2023
+ * @version 24-01-2024
  */
 public class GraphPartition {
-    /**
-     * Map where key is a vertex ID and value is
-     * number of part of graph where this vertex belongs.
-     */
+    /** List of graph parts (components). */
     private final List<Graph> graphComponents;
 
     private int cutEdgesCount = -1;
