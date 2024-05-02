@@ -24,8 +24,8 @@
                 <MenuItem text="Test" onAction="#onTestMenuClick"/>
             </Menu>
             <Menu text="Help">
-                <MenuItem text="Manual"/>
-                <MenuItem text="About"/>
+                <MenuItem text="Manual" onAction="#onManualMenuClick"/>
+                <MenuItem text="About" onAction="#onAboutMenuClick"/>
             </Menu>
         </MenuBar>
     <SplitPane AnchorPane.topAnchor="30.0" AnchorPane.leftAnchor="10.0"

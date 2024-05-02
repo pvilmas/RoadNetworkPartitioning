@@ -1,6 +1,7 @@
 package bp.roadnetworkpartitioning;
 
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -464,6 +465,32 @@ public class MainController {
     }
 
     /**
+     * Shows where to find manual.
+     */
+    @FXML
+    protected void onManualMenuClick() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Manual");
+        alert.setHeaderText(null);
+        alert.setContentText("Manual is available from https://github.com/Lulu1234/RoadNetworkPartitioning");
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Shows info about app.
+     */
+    @FXML
+    protected void onAboutMenuClick() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText(null);
+        alert.setContentText("This application is for graph partition algorithms testing. Author is Lucie Roy.");
+
+        alert.showAndWait();
+    }
+
+    /**
      * Sets graph drawing.
      * @param group     group with all graph components.
      */
@@ -472,5 +499,7 @@ public class MainController {
         scrollPane.setContent(group);
         progressMessages.appendText("Visualizing is done.\n");
     }
+
+
 
 }
