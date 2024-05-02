@@ -12,13 +12,12 @@ import java.util.*;
 public class MetisAlgorithm extends APartitionAlgorithm {
 
     @Override
-    protected GraphPartition createGraphPartition(Graph graph, int partsCount) {
-        setPartsCount(partsCount);
-        setGraph(graph);
+    protected GraphPartition createGraphPartition() {
+        GraphPartition graphPartition = null;
         if (getGraph() != null) {
             List<Graph> graphComponents = new ArrayList<>();
-            GraphPartition graphPartition = new GraphPartition(graphComponents);
-            graphComponents.add(graph);
+            graphPartition = new GraphPartition(graphComponents);
+            graphComponents.add(getGraph());
             while(graphComponents.size() < getPartsCount()) {
                 Set<MetisVertex> coarsenGraph = coarsenGraph(graphComponents.get(0));
                 List<Set<MetisVertex>> graphParts = partitionGraph(coarsenGraph);
@@ -26,9 +25,8 @@ public class MetisAlgorithm extends APartitionAlgorithm {
                 graphComponents.remove(0);
                 graphComponents.addAll(graphs);
             }
-            setGraphPartition(graphPartition);
         }
-        return getGraphPartition(getGraph());
+        return graphPartition;
     }
 
     @Override

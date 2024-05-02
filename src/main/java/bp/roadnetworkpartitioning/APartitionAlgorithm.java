@@ -27,13 +27,15 @@ public abstract class APartitionAlgorithm {
      * @param partsCount    number of parts.
      */
     public final GraphPartition getGraphPartition(Graph graph, int partsCount){
+        setPartsCount(partsCount);
+        setGraph(graph);
         long time = System.currentTimeMillis();
-        this.graphPartition = createGraphPartition(graph, partsCount);
+        this.graphPartition = createGraphPartition();
         this.graphPartition.setTime(System.currentTimeMillis() - time);
         return this.graphPartition;
     }
 
-    protected abstract GraphPartition createGraphPartition(Graph graph, int partsCount);
+    protected abstract GraphPartition createGraphPartition();
 
     /**
      * Gets graph partition.

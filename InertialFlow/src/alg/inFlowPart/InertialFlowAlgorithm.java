@@ -35,11 +35,11 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     private Point A = new Point(0.0, 0.0);
     /** Point B on picked line. */
     private Point B = new Point(1.0, 0.0);
-    /** Balance parameter that determining number of sources and sinks vertices. */
+    /** Balance parameter determining number of sources and sinks vertices. */
     private double balance = 0.25;
-    /** Balance parameter that determining number of sources and sinks vertices. */
+    /** Tolerance parameter increasing graph weight. */
     private double tolerance = 35;
-    /** Order of vertices orthographically projected on picked line. */
+    /** List in Order of vertices orthographically projected on picked line. */
     private List<Vertex> vertexOrder;
     /** All IFVertices of the graph. */
     List<IFVertex> graphVertices;
@@ -51,17 +51,16 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
 
     @Override
     public String getDescription() {
-        return "Inertial Flow";
+        return "Inertial Flow Algorithm";
     }
 
     @Override
-    protected GraphPartition createGraphPartition(Graph graph, int partsCount) {
-        setPartsCount(partsCount);
-        setGraph(graph);
+    protected GraphPartition createGraphPartition() {
+        GraphPartition graphPartition = null;
         if (getGraph() != null) {
             List<Graph> graphComponents = new ArrayList<>();
-            GraphPartition graphPartition = new GraphPartition(graphComponents);
-            graphComponents.add(graph);
+            graphPartition = new GraphPartition(graphComponents);
+            graphComponents.add(getGraph());
             pickLine();
             projectAndSortVertices();
             int numberOfParts = 1;
@@ -69,9 +68,8 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                 divide(graphComponents);
                 numberOfParts++;
             }
-            setGraphPartition(graphPartition);
         }
-        return getGraphPartition(getGraph());
+        return graphPartition;
     }
 
     @Override
@@ -110,10 +108,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param graphComponents
-     * @param flowList
-     * @param graph
+     * Creates minimum edge cut.
+     * @param graphComponents   Graph components from the original graph.
+     * @param flowList          List of values of min cut edges.
+     * @param graph             Graph to be divided.
      */
     private void createMinimumSTCut(List<Graph> graphComponents, List<Double> flowList, Graph graph) {
         Map<Integer, Vertex> vertices1 = new HashMap<>();
@@ -131,10 +129,10 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param graphHalfValue
-     * @param flowList
-     * @param vertices1
+     * Finds better part with ideal weight.
+     * @param graphHalfValue  Value of half of the graph.
+     * @param flowList        List of values of min cut edges.
+     * @param vertices1       With one half.
      */
     private void findBetterHalf(double graphHalfValue, List<Double> flowList, Map<Integer, Vertex> vertices1) {
         LinkedList<IFVertex> q = new LinkedList<>();
@@ -158,25 +156,25 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.pop();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                s = e.otherpoint;
+                s = e.ifPoint;
                 if (!visitedVertices.contains(s)) {
                     if (edgeNotMinCut(useFlowList ? flowList : tempFlowList, e)) {
                         value2 = addToGraphComponent(s, vertices2, q, visitedVertices, value2);
                         IFEdge minCutEdge = vertexEdgesNotMinCut(s, q1);
                         if (minCutEdge != null) {
-                            tempFlowList.set(minCutEdge.flowListIndex, minCutEdge.getCapacity());
+                            tempFlowList.set(minCutEdge.getFlowListIndex(), minCutEdge.getCapacity());
                             q1.remove(minCutEdge);
 
                         }
                     } else if (!useFlowList) {
-                        tempFlowList.set(e.flowListIndex, -1.0);
+                        tempFlowList.set(e.getFlowListIndex(), -1.0);
                         q1.push(e);
                     } else {
                         useFlowList = false;
-                        tempFlowList.set(e.flowListIndex, e.getCapacity());
-                        IFEdge edge = getEdgeWithFlowListIndex(e.flowListIndex, q1);
+                        tempFlowList.set(e.getFlowListIndex(), e.getCapacity());
+                        IFEdge edge = getEdgeWithFlowListIndex(e.getFlowListIndex(), q1);
                         if (edge != null) {
-                            value2 = addToGraphComponent(edge.otherpoint, vertices2, q, visitedVertices, value2);
+                            value2 = addToGraphComponent(edge.ifPoint, vertices2, q, visitedVertices, value2);
                             q1.remove(edge);
                         }
                     }
@@ -190,8 +188,8 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
                     value1 += value2;
                     vertices2 = new HashMap<>();
                     IFEdge edge = q1.removeLast();
-                    tempFlowList.set(edge.flowListIndex, edge.getCapacity());
-                    value2 = addToGraphComponent(edge.otherpoint, vertices2, q, visitedVertices, 0);
+                    tempFlowList.set(edge.getFlowListIndex(), edge.getCapacity());
+                    value2 = addToGraphComponent(edge.ifPoint, vertices2, q, visitedVertices, 0);
                 }
                 else {
                    break;
@@ -203,13 +201,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param iFVertex
-     * @param vertices
-     * @param queue
-     * @param visitedVertices
-     * @param value
-     * @return
+     * Adds vertex to graph component.
+     * @param iFVertex          Adding vertex.
+     * @param vertices          Instance saving good division.
+     * @param queue             Queue for vertices during search.
+     * @param visitedVertices   List of already visited vertices
+     * @param value             Current part value.
+     * @return  part value.
      */
     private double addToGraphComponent(IFVertex iFVertex, Map<Integer, Vertex> vertices, LinkedList<IFVertex> queue,
                                        List<IFVertex> visitedVertices, double value) {
@@ -229,14 +227,14 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param s
-     * @param q1
-     * @return
+     * Gets specific edge from queue with one end in s vertex.
+     * @param s         s IFVertex.
+     * @param q1        queue.
+     * @return          specified edge or null.
      */
     private IFEdge vertexEdgesNotMinCut(IFVertex s, LinkedList<IFEdge> q1) {
         for (IFEdge edge : q1) {
-            if (edge.otherpoint == s){
+            if (edge.ifPoint == s){
                 return edge;
             }
         }
@@ -244,14 +242,14 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param flowListIndex
-     * @param q1
-     * @return
+     * Gets edge with specific flow list index.
+     * @param flowListIndex     Flow list index.
+     * @param q1                Edge queue
+     * @return  specified edge or null.
      */
     private IFEdge getEdgeWithFlowListIndex(int flowListIndex, LinkedList<IFEdge> q1) {
         for (IFEdge edge : q1) {
-            if (edge.flowListIndex == flowListIndex){
+            if (edge.getFlowListIndex() == flowListIndex){
                 return edge;
             }
         }
@@ -259,13 +257,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param flowList
-     * @param edge
-     * @return
+     * Checks if edge is in min. cut.
+     * @param flowList      List of min. cut values.
+     * @param edge          Edge to be checked.
+     * @return  true if not in minimal graph.
      */
     private boolean edgeNotMinCut(List<Double> flowList, IFEdge edge) {
-        int flowNumber = edge.flowListIndex;
+        int flowNumber = edge.getFlowListIndex();
         if ((flowNumber == -1) || (flowNumber >= flowList.size())){
             return true;
         }
@@ -369,11 +367,11 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param v
-     * @param point
-     * @param pointOrder
-     * @param index
+     * Adds vertex and point to right place in orderedLists.
+     * @param v             Vertex to be sorted.
+     * @param point         Point of vertex to be sorted.
+     * @param pointOrder    List of ordered points.
+     * @param index         Index of vertex position.
      */
     private void addToOrderedLists(Vertex v, Point point, List<Point> pointOrder, int index) {
         pointOrder.add(index, point);
@@ -396,15 +394,15 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         while (q.size() != 0) {
             IFVertex u = q.poll();
             for (IFEdge e: u.getAllStartingEdges(this)) {
-                if ((e.otherpoint != null) && (e.otherpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
-                    e.otherpoint.setLevel(u.getLevel() + 1);
-                    q.add(e.otherpoint);
+                if ((e.ifPoint != null) && (e.ifPoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
+                    e.ifPoint.setLevel(u.getLevel() + 1);
+                    q.add(e.ifPoint);
                 }
             }
             for (IFEdge e: u.getAllEndingEdges(this)) {
-                if ((e.otherpoint != null) && (e.otherpoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
-                    e.otherpoint.setLevel(u.getLevel() + 1);
-                    q.add(e.otherpoint);
+                if ((e.ifPoint != null) && (e.ifPoint.getLevel() < 0) && (e.getFlow() < e.getCapacity())) {
+                    e.ifPoint.setLevel(u.getLevel() + 1);
+                    q.add(e.ifPoint);
                 }
             }
         }
@@ -412,16 +410,13 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     * A DFS based function to send flow after bfs has
-     * figured out that there is a possible flow and
-     * constructed levels. This function called multiple
-     * times for a single call of bfs.
-     * @param u     current vertex.
-     * @param flow  current flow send by parent function call.
-     * @param t     sink.
-     * @param startMap  To keep track of next edge to be explored.
-     *               startMap.get(vertex) stores  count of edges explored
-     *               from vertex.
+     * Modified DFS that is searching for new graph paths.
+     * @param u         current vertex.
+     * @param flow      current flow send by parent method call.
+     * @param t         sink.
+     * @param startMap  Tracking of next edge to be searched.
+     *                  startMap.get(vertex) stores  count of edges explored
+     *                  from vertex.
      * @return flow.
      */
     private double sendFlow(IFVertex u, double flow, IFVertex t, Map<IFVertex, Integer> startMap, int i) {
@@ -437,14 +432,14 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
             else {
                 e = u.getAllEndingEdges(this).get(startMap.get(u) - u.getAllStartingEdges(this).size());
             }
-            v = e.otherpoint;
+            v = e.ifPoint;
             if (v != null && v.getLevel() == u.getLevel() + 1 && e.getFlow() < e.getCapacity()) {
-                e.flowListIndex = i;
+                e.setFlowListIndex(i);
                 double curr_flow = Math.min(flow, e.getCapacity() - e.getFlow());
-                double temp_flow = sendFlow(e.otherpoint, curr_flow, t, startMap, i);
+                double temp_flow = sendFlow(e.ifPoint, curr_flow, t, startMap, i);
                 if (temp_flow > 0) {
                     e.setFlow(e.getFlow() + temp_flow);
-                    IFEdge reverseEdge = e.otherpoint.getReverseEdge(this, u);
+                    IFEdge reverseEdge = e.ifPoint.getReverseEdge(this, u);
                     double reverseFlow = reverseEdge.getFlow();
                     reverseEdge.setFlow(reverseFlow - temp_flow);
                     return temp_flow;
@@ -491,6 +486,15 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
         return dinicMaxflow(s, t);
     }
 
+    /**
+     * Adds sorted vertices of the graph to vertex list.
+     * @param graph         Graph whose vertices to be added.
+     * @param i             Parameter for limiting max number of added vertices.
+     * @param j             Index in list of all sorted vertices.
+     * @param limit         Limits number of added vertices.
+     * @param vertexList    List to add vertices.
+     * @return              Index of next position in list of all sorted vertices.
+     */
     private int addToVertexList(Graph graph, int i, int j, int limit, List<Vertex> vertexList) {
         while((i < limit) && (j < vertexOrder.size()))  {
             if(graph.getVertices().containsValue(vertexOrder.get(j))){

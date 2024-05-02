@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of vertex in inertial flow algorithm.
+ * Implementation of vertex in Inertial Flow algorithm.
  * @author Lucie Roy
  * @version 20-12-2023
  */
@@ -20,7 +20,8 @@ public class IFVertex {
      */
     private final List<IFEdge> allStartingEdges = new ArrayList<>();
     /**
-     *
+     * All ending edges coming from another IFVertices to this IFVertex.
+     * These are computed from all original graph vertices in verticesList.
      */
     private final List<IFEdge> allEndingEdges = new ArrayList<>();
     /** Vertex level in graph. */
@@ -66,10 +67,10 @@ public class IFVertex {
     }
 
     /**
-     * Gets all starting edges of the IFVertex computed from all original vertices
+     * Gets all ending edges of the IFVertex computed from all original vertices
      * included in this instance.
      * @param iFA   Instance of IF algorithm.
-     * @return  all starting edges of the IFVertex.
+     * @return  all ending edges of the IFVertex.
      */
     public List<IFEdge> getAllEndingEdges(InertialFlowAlgorithm iFA) {
         if(allEndingEdges.size() == 0) {
@@ -103,12 +104,12 @@ public class IFVertex {
     public IFEdge getReverseEdge(InertialFlowAlgorithm iFA, IFVertex vertex) {
         getAllStartingEdges(iFA);
         for(IFEdge edge: allStartingEdges){
-            if(edge.otherpoint == vertex){
+            if(edge.ifPoint == vertex){
                 return edge;
             }
         }
         for(IFEdge edge: allEndingEdges){
-            if(edge.otherpoint == vertex){
+            if(edge.ifPoint == vertex){
                 return edge;
             }
         }
