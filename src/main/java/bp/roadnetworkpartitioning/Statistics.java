@@ -1,5 +1,10 @@
 package bp.roadnetworkpartitioning;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +16,8 @@ public class Statistics {
     private final Map<String, List<Long>> times = new HashMap<>();
     private final Map<String, List<Double>> deviations = new HashMap<>();
     private final Map<String, List<Integer>> numberOfCutEdges = new HashMap<>();
-    private final Map<String, List<Integer>> minNumberOfNeighbours = new HashMap<>();
-    private final Map<String, List<Integer>> maxNumberOfNeighbours = new HashMap<>();
+    private final Map<String, List<Double>> minNumberOfNeighbours = new HashMap<>();
+    private final Map<String, List<Double>> maxNumberOfNeighbours = new HashMap<>();
     private final Map<String, List<Double>> averageNumberOfNeighbours = new HashMap<>();
     private final List<String> columnNames = new ArrayList<>();
 
@@ -43,12 +48,12 @@ public class Statistics {
 
     void addMinNumberOfNeighbours(String algorithmName, int minNumberOfNeighbour) {
         minNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
-        minNumberOfNeighbours.get(algorithmName).add(minNumberOfNeighbour);
+        minNumberOfNeighbours.get(algorithmName).add((double) minNumberOfNeighbour);
     }
 
     void addMaxNumberOfNeighbours(String algorithmName, int maxNumberOfNeighbour) {
         maxNumberOfNeighbours.putIfAbsent(algorithmName, new ArrayList<>(12));
-        maxNumberOfNeighbours.get(algorithmName).add(maxNumberOfNeighbour);
+        maxNumberOfNeighbours.get(algorithmName).add((double) maxNumberOfNeighbour);
     }
 
     void addAverageNumberOfNeighbours(String algorithmName, double averageNumberOfNeighbour) {
@@ -92,21 +97,21 @@ public class Statistics {
             numberOfCutEdgeEntry.setValue(new ArrayList<>(1));
             numberOfCutEdgeEntry.getValue().add(totalNumberOfCutEdges/n);
         }
-        for (Map.Entry<String, List<Integer>> minNumberOfNeighbourEntry : this.minNumberOfNeighbours.entrySet()) {
-            List<Integer> minNumberOfNeighbours = minNumberOfNeighbourEntry.getValue();
+        for (Map.Entry<String, List<Double>> minNumberOfNeighbourEntry : this.minNumberOfNeighbours.entrySet()) {
+            List<Double> minNumberOfNeighbours = minNumberOfNeighbourEntry.getValue();
             prepareList(minNumberOfNeighbours);
-            int totalMinNumberOfNeighbours = 0;
-            for (Integer minNumberOfNeighbour: minNumberOfNeighbours) {
+            double totalMinNumberOfNeighbours = 0.0;
+            for (Double minNumberOfNeighbour: minNumberOfNeighbours) {
                 totalMinNumberOfNeighbours += minNumberOfNeighbour;
             }
             minNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
             minNumberOfNeighbourEntry.getValue().add(totalMinNumberOfNeighbours/n);
         }
-        for (Map.Entry<String, List<Integer>> maxNumberOfNeighbourEntry : this.maxNumberOfNeighbours.entrySet()) {
-            List<Integer> maxNumberOfNeighbours = maxNumberOfNeighbourEntry.getValue();
+        for (Map.Entry<String, List<Double>> maxNumberOfNeighbourEntry : this.maxNumberOfNeighbours.entrySet()) {
+            List<Double> maxNumberOfNeighbours = maxNumberOfNeighbourEntry.getValue();
             prepareList(maxNumberOfNeighbours);
-            int totalMaxNumberOfNeighbours = 0;
-            for (Integer maxNumberOfNeighbour: maxNumberOfNeighbours) {
+            double totalMaxNumberOfNeighbours = 0.0;
+            for (Double maxNumberOfNeighbour: maxNumberOfNeighbours) {
                 totalMaxNumberOfNeighbours += maxNumberOfNeighbour;
             }
             maxNumberOfNeighbourEntry.setValue(new ArrayList<>(1));
@@ -125,12 +130,47 @@ public class Statistics {
 
 
     }
+    public boolean recordResultsToCSV(int roundCount, int partCount, Graph graph, Map<String, APartitionAlgorithm> algorithms) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + graph.getVertices().size() + "-" + graph.getEdges().size()
+                        + "_" + roundCount + "_" + partCount + "_" + dtf.format(now) + ".csv"))) {
+            int i = 0;
+            for (; i < getColumnNames().size() - 1; i++) {
+                bw.write(getColumnNames().get(i) + ",");
+            }
+            bw.write(getColumnNames().get(i) + "\n");
+            for (String algorithmName : algorithms.keySet()) {
+                for (int j = 0; j < getTimes().get(algorithmName).size(); j++) {
+                    bw.write(algorithmName + " " + j + ",");
+                    bw.write(getTimes().get(algorithmName).get(j) + ",");
+                    bw.write(getDeviations().get(algorithmName).get(j) + ",");
+                    bw.write(getNumberOfCutEdges().get(algorithmName).get(j) + ",");
+                    bw.write(getMinNumberOfNeighbours().get(algorithmName).get(j) + ",");
+                    bw.write(getMaxNumberOfNeighbours().get(algorithmName).get(j) + ",");
+                    bw.write(getAverageNumberOfNeighbours().get(algorithmName).get(j) + "\n");
+                }
+                bw.write("\n\n");
+            }
 
-    private void prepareList(List attributes) {
-        attributes.sort(null);
-        attributes.remove(0);
-        attributes.remove(times.size() - 1);
+            calculateAverage();
+            for (String algorithmName : algorithms.keySet()) {
+                bw.write(algorithmName + " - average,");
+                bw.write(getTimes().get(algorithmName).get(0) + ",");
+                bw.write(getDeviations().get(algorithmName).get(0) + ",");
+                bw.write(getNumberOfCutEdges().get(algorithmName).get(0) + ",");
+                bw.write(getMinNumberOfNeighbours().get(algorithmName).get(0) + ",");
+                bw.write(getMaxNumberOfNeighbours().get(algorithmName).get(0) + ",");
+                bw.write(getAverageNumberOfNeighbours().get(algorithmName).get(0) + "\n");
+            }
+            bw.flush();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
 
     public int getNumberOfRounds() {
         return numberOfRounds;
@@ -160,11 +200,11 @@ public class Statistics {
         return numberOfCutEdges;
     }
 
-    public Map<String, List<Integer>> getMinNumberOfNeighbours() {
+    public Map<String, List<Double>> getMinNumberOfNeighbours() {
         return minNumberOfNeighbours;
     }
 
-    public Map<String, List<Integer>> getMaxNumberOfNeighbours() {
+    public Map<String, List<Double>> getMaxNumberOfNeighbours() {
         return maxNumberOfNeighbours;
     }
 
@@ -174,5 +214,11 @@ public class Statistics {
 
     public List<String> getColumnNames() {
         return columnNames;
+    }
+
+    private void prepareList(List attributes) {
+        attributes.sort(null);
+        attributes.remove(0);
+        attributes.remove(times.size() - 1);
     }
 }

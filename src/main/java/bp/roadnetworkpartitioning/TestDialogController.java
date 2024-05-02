@@ -1,5 +1,6 @@
 package bp.roadnetworkpartitioning;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -7,12 +8,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
 
 
 /**
@@ -23,8 +20,11 @@ import java.util.*;
 public class TestDialogController extends Dialog<Boolean> {
     /** Algorithm whose parameters are going to be set up. */
     private final Map<String, APartitionAlgorithm> algorithms;
+    /** Graph to be tested. */
     private final Graph graph;
+    /** Number of parts to divide the graph. */
     private final int partCount;
+    /** Instance of statistics so results of testing can be recorded. */
     private final Statistics statistics = new Statistics();
     /** Main button of the dialog with parameters setting. */
     @FXML
@@ -32,14 +32,19 @@ public class TestDialogController extends Dialog<Boolean> {
     /** VBox containing all parameters. */
     @FXML
     private VBox vBox;
+    /** Spinner with number of testing rounds. */
     @FXML
     private Spinner<Integer> spinnerRoundCount;
+    /** If checked CSV statistics file will be created. */
     @FXML
     private CheckBox createCSVStatisticFile;
+    /** If checked all resulting partition will be exported to GeoJSON file. */
     @FXML
     private CheckBox exportResultingPartitions;
+    /**  Main button for start of testing. */
     @FXML
     private Button startTestingButton;
+    /** Text area showing progress mesages. */
     @FXML
     private TextArea progressMessages;
 
@@ -67,72 +72,61 @@ public class TestDialogController extends Dialog<Boolean> {
         startTestingButton.setOnAction(e -> onStartTestingButtonClick());
     }
 
+    /**
+     * Main testing method executed when Start testing button is clicked.
+     */
     private void onStartTestingButtonClick() {
         statistics.setNumberOfRounds(spinnerRoundCount.getValue());
         progressMessages.appendText("Testing started...\n");
-        for(APartitionAlgorithm algorithm : algorithms.values()) {
-            progressMessages.appendText(progressMessages.getText() + "Testing algorithm: " + algorithm.getName() + "\n");
-            for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
-                progressMessages.appendText("Starting round " + i + "...\n");
-                progressMessages.appendText("Partitioning...\n");
-                GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
-                progressMessages.appendText("Partition was created.\n");
+        Task<Void> graphRepartitioningTask = new Task<>() {
+            @Override
+            protected Void call() {
+                for(APartitionAlgorithm algorithm : algorithms.values()) {
+                    progressMessages.appendText(progressMessages.getText() + "Testing algorithm: " + algorithm.getName() + "\n");
+                    for(int i = 0; i < spinnerRoundCount.getValue(); i++) {
+                        progressMessages.appendText("Starting round " + i + "...\n");
+                        progressMessages.appendText("Partitioning...\n");
+                        GraphPartition graphPartition = algorithm.getGraphPartition(graph, partCount);
+                        progressMessages.appendText("Partition was created.\n");
 
-                if (createCSVStatisticFile.isSelected()) {
-                    progressMessages.appendText("Adding to statistics...\n");
-                    addToStatistics(algorithm, graphPartition);
-                }
-                if (exportResultingPartitions.isSelected()) {
-                    progressMessages.appendText("Recording result...\n");
-                    JSONParser.exportResultingPartition(algorithm, graphPartition, i);
-                }
-            }
-            progressMessages.appendText("Algorithm " + algorithm.getName() + " was tested.\n");
-        }
-        if (createCSVStatisticFile.isSelected()) {
-            progressMessages.appendText("Creating CSV statistics file...\n");
-
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
-            LocalDateTime now = LocalDateTime.now();
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("results_" + graph.getVertices().size() + "-" + graph.getEdges().size()
-                    + "_" + spinnerRoundCount.getValue() + "_"+ partCount + "_" + dtf.format(now) + ".csv"))) {
-                int i = 0;
-                for(; i < statistics.getColumnNames().size() - 1; i++){
-                    bw.write(statistics.getColumnNames().get(i) + ",");
-                }
-                bw.write(statistics.getColumnNames().get(i) + "\n");
-                for(String algorithmName : algorithms.keySet()) {
-                    for(int j = 0; j < statistics.getTimes().get(algorithmName).size(); j++) {
-                        bw.write(algorithmName + " " + j +",");
-                        bw.write(statistics.getTimes().get(algorithmName).get(j) + ",");
-                        bw.write(statistics.getDeviations().get(algorithmName).get(j) + ",");
-                        bw.write(statistics.getNumberOfCutEdges().get(algorithmName).get(j) + ",");
-                        bw.write(statistics.getMinNumberOfNeighbours().get(algorithmName).get(j) + ",");
-                        bw.write(statistics.getMaxNumberOfNeighbours().get(algorithmName).get(j) + ",");
-                        bw.write(statistics.getAverageNumberOfNeighbours().get(algorithmName).get(j) + "\n");
+                        if (createCSVStatisticFile.isSelected()) {
+                            progressMessages.appendText("Adding to statistics...\n");
+                            addToStatistics(algorithm, graphPartition);
+                        }
+                        if (exportResultingPartitions.isSelected()) {
+                            progressMessages.appendText("Recording result...\n");
+                            JSONParser.exportResultingPartition(algorithm, graphPartition, i);
+                        }
                     }
-                    bw.write("\n\n");
+                    progressMessages.appendText("Algorithm " + algorithm.getName() + " was tested.\n");
                 }
+                return null;
+            }
 
-                statistics.calculateAverage();
-                for(String algorithmName : algorithms.keySet()) {
-                    bw.write(algorithmName + " - average,");
-                    bw.write(statistics.getTimes().get(algorithmName).get(0) + ",");
-                    bw.write(statistics.getDeviations().get(algorithmName).get(0) + ",");
-                    bw.write(statistics.getNumberOfCutEdges().get(algorithmName).get(0) + ",");
-                    bw.write(statistics.getMinNumberOfNeighbours().get(algorithmName).get(0) + ",");
-                    bw.write(statistics.getMaxNumberOfNeighbours().get(algorithmName).get(0) + ",");
-                    bw.write(statistics.getAverageNumberOfNeighbours().get(algorithmName).get(0) + "\n");
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                if (createCSVStatisticFile.isSelected()) {
+                    progressMessages.appendText("Creating CSV statistics file...\n");
+                    if (statistics.recordResultsToCSV(spinnerRoundCount.getValue(), partCount, graph, algorithms)) {
+                        progressMessages.appendText("CSV file was created successfully.\n");
+                    }
+                    else {
+                        progressMessages.appendText("CSV file creation failed.\n");
+                    }
+
                 }
-                bw.flush();
-                progressMessages.appendText("CSV file was created successfully.\n");
+                progressMessages.appendText("Testing finished.\n");            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                progressMessages.appendText("Something went wrong.\n");
             }
-            catch (IOException e) {
-                e.printStackTrace();
-                progressMessages.appendText("CSV file creation failed.\n");
-            }
-        }
-        progressMessages.appendText("Testing finished.\n");
+        };
+        Thread graphPartitioningThread = new Thread(graphRepartitioningTask);
+        graphPartitioningThread.setDaemon(true);
+        graphPartitioningThread.start();
     }
 
     /**

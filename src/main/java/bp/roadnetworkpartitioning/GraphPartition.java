@@ -11,15 +11,17 @@ import java.util.List;
 public class GraphPartition {
     /** List of graph parts (components). */
     private final List<Graph> graphComponents;
-
+    /** Number of cut edges */
     private int cutEdgesCount = -1;
-
+    /** Relative standard deviation from ideal part. */
     private double deviation = -1;
-
+    /** Min. number of neighbours. */
     private int minNeighbours = -1;
+    /** Average number of neighbours. */
     private double averageNeighbours = -1;
+    /** Max. number of neighbours. */
     private int maxNeighbours = -1;
-
+    /** Time of partition. */
     private long time = -1;
 
     /**
@@ -43,8 +45,8 @@ public class GraphPartition {
     }
 
     /**
-     *
-     * @return
+     * Gets number of cut edges.
+     * @return number of cut edges.
      */
     protected int getCutEdgesCount(){
         if(cutEdgesCount == -1){
@@ -58,8 +60,8 @@ public class GraphPartition {
     }
 
     /**
-     *
-     * @return
+     * Gets relative standard deviation.
+     * @return  relative standard deviation from ideal part.
      */
     protected double getRelativeStandardDeviation(){
         if(deviation == -1){
@@ -75,17 +77,10 @@ public class GraphPartition {
     }
 
 
-    private double getGraphValue(){
-        double value = 0;
-        for(Graph graph: graphComponents){
-            value += graph.getWeightValue();
-        }
-        return value;
-    }
 
     /**
-     *
-     * @return
+     * Gets max. number of part neighbours.
+     * @return max. number of part neighbours.
      */
     protected int getMaxNeighbours(){
         if(maxNeighbours == -1){
@@ -121,8 +116,8 @@ public class GraphPartition {
     }
 
     /**
-     *
-     * @return
+     * Gets min. number of part neighbours.
+     * @return min. number of part neighbours.
      */
     protected int getMinNeighbours(){
         if(minNeighbours == -1){
@@ -158,8 +153,8 @@ public class GraphPartition {
     }
 
     /**
-     *
-     * @return
+     * Gets average number of part neighbours.
+     * @return average number of part neighbours.
      */
     protected double getAverageNeighbours(){
         if(averageNeighbours == -1){
@@ -211,4 +206,17 @@ public class GraphPartition {
             this.time = time;
         }
     }
+
+    /**
+     * Gets total graph value.
+     * @return total graph value.
+     */
+    private double getGraphValue(){
+        double value = 0;
+        for(Graph graph: graphComponents){
+            value += graph.getWeightValue();
+        }
+        return value;
+    }
+
 }

@@ -53,6 +53,12 @@ public class JSONParser {
         return writeJSONFile(jsonName, vertices, edges.size());
     }
 
+    /**
+     * Exports each graph part to separate GeoJSON file.
+     * @param algorithm         Partitioning algorithm.
+     * @param graphPartition    Graph partition created by this algorithm.
+     * @param i     index of test round.
+     */
     public static void exportResultingPartition(APartitionAlgorithm algorithm, GraphPartition graphPartition, int i) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
         LocalDateTime now = LocalDateTime.now();
@@ -64,11 +70,23 @@ public class JSONParser {
         }
     }
 
+    /**
+     * Writes graph to GeoJSON file.
+     * @param jsonName      File name.
+     * @param graph         Graph to be recorder.
+     * @return  true if written successfully.
+     */
     public static boolean writeJSONFile(String jsonName, Graph graph) {
         return writeJSONFile(jsonName, graph.getVertices(), graph.getEdges().values().size());
     }
 
-
+    /**
+     * Writes graph to GeoJSON file.
+     * @param jsonName      File name.
+     * @param vertices      All graph vertices.
+     * @param edgesSize     Number of edges.
+     * @return  true if written successfully.
+     */
     public static boolean writeJSONFile(String jsonName, Map<Integer, Vertex> vertices, int edgesSize) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(jsonName + EXTENSION))){
             bw.write("{\n \"type\": \"FeatureCollection\",\n \"features\": [\n");
@@ -229,6 +247,7 @@ public class JSONParser {
      *                      number of line where data starts in edge file,
      *                      number of column where is start point of edge in edge file,
      *                      number of column where is endpoint of edge in edge file,
+     *                      number of column where is capacity of edge in edge file,
      *                      number of column where is length of edge in edge file,
      *                      number of column where is ID of node in node file,
      *                      number of column where is x-coordinate of node in node file,
@@ -299,6 +318,7 @@ public class JSONParser {
      *                          number of line where data starts in edge file,
      *                          number of column where is start point of edge in edge file,
      *                          number of column where is endpoint of edge in edge file,
+     *                          number of column where is capacity of edge in edge file,
      *                          number of column where is length of edge in edge file,
      *                          number of column where is ID of node in node file,
      *                          number of column where is x-coordinate of node in node file,

@@ -1,6 +1,5 @@
 package bp.roadnetworkpartitioning;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -34,10 +33,6 @@ public class MainController {
     private TextArea progressMessages;
     /** Default zoom value. */
     private double zoom = 10;
-    /** Default zoom value. */
-    private int moveHorizontally = 0;
-    /** Default zoom value. */
-    private int moveVertically = 0;
     /** Stores color of each part. */
     private Color[] colors = {Color.BLUE, Color.RED};
     /** Sets number of parts. */
@@ -65,7 +60,7 @@ public class MainController {
     private Graph graph = null;
     /** Computed partition of the graph. */
     private GraphPartition graphPartition = null;
-    /**  */
+    /** All available algorithms. */
     private Map<String, APartitionAlgorithm> algorithms = new HashMap<>();
 
     /**
@@ -238,7 +233,7 @@ public class MainController {
     }
 
     /**
-     *
+     * Shows statistics for graph partition of each algorithm.
      */
     @FXML
     protected void onShowStatisticsButtonClick() {
@@ -294,6 +289,7 @@ public class MainController {
         }
     }
 
+    /** Shows testing dialog. */
     @FXML
     protected void onTestMenuClick() {
         try {
@@ -393,12 +389,6 @@ public class MainController {
 
     }
 
-    private void setGraphDrawing(Group group) {
-        scrollPane.setPrefSize(1000, 1000);
-        scrollPane.setContent(group);
-        progressMessages.appendText("Visualizing is done.\n");
-    }
-
     /**
      * Draws graph or one graph component/part.
      * @param group group where graph belongs.
@@ -408,13 +398,13 @@ public class MainController {
     private void drawGraph(Group group, Graph graph, Color color){
         int size = 5;
         for(Vertex vertex: graph.getVertices().values()){
-            Circle circle = new Circle((vertex.getX()*zoom) + moveHorizontally, (vertex.getY()*zoom) + moveVertically, size);
+            Circle circle = new Circle((vertex.getX()*zoom), (vertex.getY()*zoom), size);
             circle.setStroke(color);
             circle.setFill(color);
             group.getChildren().add(circle);
             for(Edge edge: vertex.getStartingEdges()){
-                Line line = new Line((vertex.getX()*zoom) + moveHorizontally, (vertex.getY()*zoom) + moveVertically,
-                        (edge.getEndpoint().getX()*zoom) + moveHorizontally, (edge.getEndpoint().getY()*zoom) + moveVertically);
+                Line line = new Line((vertex.getX()*zoom), (vertex.getY()*zoom),
+                        (edge.getEndpoint().getX()*zoom), (edge.getEndpoint().getY()*zoom));
                 if (graph.getVertices().containsValue(edge.getEndpoint())){
                     line.setStroke(color);
                 }
@@ -423,6 +413,7 @@ public class MainController {
         }
     }
 
+    /** Exports graph to GeoJSON. */
     @FXML
     protected void onExportToGeoJSONMenuClick() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
@@ -434,6 +425,7 @@ public class MainController {
 
     }
 
+    /** Exports resulting partition to GeoJSON. */
     @FXML
     protected void onExportPartitionToGeoJSONMenuClick() {
         progressMessages.appendText("Exporting partitions...\n");
@@ -445,20 +437,40 @@ public class MainController {
         }
     }
 
+    /** Recalculates graph partition of all partition algorithms. */
     @FXML
     protected void onRecalculateButtonClick() {
-        Platform.runLater(() -> progressMessages.appendText("Recalculating Partitions...\n"));
-        for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
-            Platform.runLater(() -> progressMessages.appendText("Partitioning Graph by " + algorithm.getKey() + "...\n"));
-            algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
-            Platform.runLater(() -> progressMessages.appendText("Partitioning is done.\n"));
-
-        }
-        visualizeGraph();
+        progressMessages.appendText("Recalculating Partitions...\n");
+        Task<Void> graphRepartitioningTask = new Task<>() {
+            @Override
+            protected Void call() {
+                for (Map.Entry<String, APartitionAlgorithm> algorithm: algorithms.entrySet()) {
+                    algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
+                }
+                progressMessages.appendText("Recalculating is done.\n");
+                visualizeGraph();
+                return null;
+            }
+        };
+        Thread graphPartitioningThread = new Thread(graphRepartitioningTask);
+        graphPartitioningThread.setDaemon(true);
+        graphPartitioningThread.start();
     }
 
+    /** Exits application. */
     @FXML
     protected void onExitMenuClick() {
         stage.close();
     }
+
+    /**
+     * Sets graph drawing.
+     * @param group     group with all graph components.
+     */
+    private void setGraphDrawing(Group group) {
+        scrollPane.setPrefSize(1000, 1000);
+        scrollPane.setContent(group);
+        progressMessages.appendText("Visualizing is done.\n");
+    }
+
 }

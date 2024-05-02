@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
@@ -32,6 +33,13 @@ public class SettingDialogController extends Dialog<Boolean> {
     /** VBox containing all parameters. */
     @FXML
     private VBox vBox;
+    /** Shows algorithm name. */
+    @FXML
+    private Label algorithmName;
+    /** Shows algorithm description. */
+    @FXML
+    private Label algorithmDescription;
+
 
     /**
      * Constructor of dialog for algorithm parameters setting with given stage/window and the algorithm instance for dialog.
@@ -58,6 +66,11 @@ public class SettingDialogController extends Dialog<Boolean> {
             return true;
         });
         this.algorithm = algorithm;
+        algorithmName.setFont(new Font(30));
+        algorithmName.setWrapText(true);
+        algorithmDescription.setWrapText(true);
+        algorithmName.setText(this.algorithm.getName());
+        algorithmDescription.setText(this.algorithm.getDescription());
         showParameters();
     }
 
