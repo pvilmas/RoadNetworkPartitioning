@@ -41,6 +41,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     /**
      * Coarsens graph by Heavy Edge Matching.
+     * @param graph coarsening graph.
      * @return graph with fewer vertices and edges.
      */
     private Set<MetisVertex> coarsenGraph(Graph graph) {
@@ -172,7 +173,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     /**
      * Partition the given graph in half.
-     * @param metisVertices
+     * @param metisVertices coarsen graph.
      * @return partition of graph.
      */
     private List<Set<MetisVertex>> partitionGraph(Set<MetisVertex> metisVertices) {
@@ -258,10 +259,10 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param part
-     * @param vList
-     * @return
+     * Adjust number of cut edge.
+     * @param part      Checking part.
+     * @param vList     List with checked vertices.
+     * @return  number of cut edges.
      */
     private int adjustCutVertices(Set<MetisVertex> part, List<MetisVertex> vList) {
         int cutEdges = 0;
@@ -290,7 +291,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Sorts vertices and their points on the line by insertion sort.
      * @param vertexOrder   list of sorted vertices.
      * @param v             current vertex.
-     * @param metisVertices
+     * @param metisVertices current half of the graph.
      */
     private void insertionSort(List<MetisVertex> vertexOrder, MetisVertex v, Set<MetisVertex> part, Set<MetisVertex> metisVertices) {
         int edgeCut = getVertexEdgeCut(v, part, metisVertices);
@@ -318,7 +319,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Gets number of cut edges connected to vertex v.
      * @param v             vertex.
      * @param part          part where vertex v belongs.
-     * @param metisVertices
+     * @param metisVertices current half of the graph.
      * @return number of cut edges connected to vertex v.
      */
     private int getVertexEdgeCut(MetisVertex v, Set<MetisVertex> part, Set<MetisVertex> metisVertices){
@@ -333,9 +334,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     /**
      * Gets neighbours of the part.
-     * @param part      the part.
-     * @param vList     list of vertices.
-     * @param metisVertices
+     * @param part          the part.
+     * @param vList         list of vertices.
+     * @param metisVertices current half of the graph.
      */
     private void addNeighbours(Set<MetisVertex> part, List<MetisVertex> vList, MetisVertex vertex, Set<MetisVertex> metisVertices){
         for (MetisVertex metisVertex: vertex.getNeighbourVertices(metisVertices).keySet()) {
@@ -446,6 +447,14 @@ public class MetisAlgorithm extends APartitionAlgorithm {
         return verticesParts;
     }
 
+    /**
+     * Checks if vertices were not exchanged yet.
+     * @param a     Vertex A.
+     * @param b     Vertex B.
+     * @param av    List
+     * @param bv
+     * @return
+     */
     private boolean verticesNotExchanged(Map.Entry<Vertex, Double> a, Map.Entry<Vertex, Double> b,
                                                    List<Vertex> av, List<Vertex> bv) {
         int index = -1;
@@ -458,11 +467,11 @@ public class MetisAlgorithm extends APartitionAlgorithm {
     }
 
     /**
-     *
-     * @param a
-     * @param b
-     * @param verticesParts
-     * @return
+     * Gets part numbers of given vertices A abd B.
+     * @param a                 Vertex A.
+     * @param b                 Vertex B.
+     * @param verticesParts     Divided vertices into parts.
+     * @return part number of A and B.
      */
     private int[] getAandBPartNumbers(Vertex a, Vertex b, List<Graph> verticesParts) {
         int[] abValue = {-1, -1};
@@ -556,6 +565,6 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     @Override
     public String getDescription() {
-        return "METIS";
+        return "METIS Algorithm";
     }
 }

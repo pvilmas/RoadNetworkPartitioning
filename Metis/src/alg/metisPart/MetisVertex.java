@@ -18,7 +18,9 @@ public class MetisVertex {
     private final double weight;
     /** New ID of vertex. */
     private final int id;
+    /**   */
     private List<Edge> startingEdges = null;
+    /**  */
     private List<Edge> endingEdges = null;
 
     /**
