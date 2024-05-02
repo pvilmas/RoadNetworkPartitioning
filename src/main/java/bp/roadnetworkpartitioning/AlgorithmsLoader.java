@@ -50,7 +50,7 @@ public class AlgorithmsLoader {
     }
 
     /**
-     * Method that finds all jar files available in given classpath.
+     * Finds all jar files available in given classpath.
      * @return list of jar files URLs.
      */
     private static URL[] findJarURLsInClasspath() {
@@ -73,9 +73,9 @@ public class AlgorithmsLoader {
     }
 
     /**
-     * Method that returns all jar files registered in the given URLClassloader
-     * and which are present in dedicated classpath places.
-     * @return List of jar files URLs
+     * Gets all jar files registered in the given URLClassloader
+     * and which are present in given classpath places.
+     * @return List of jar files URLs.
      */
     private static URL[] getJarURLs(URLClassLoader cl) {
         URL[] result = cl.getURLs();
@@ -99,9 +99,9 @@ public class AlgorithmsLoader {
     }
 
     /**
-     * Method that returns all classes available underneath a given package
-     * name.
-     * @return Set of Classes
+     * Gets all classes available underneath a given package name.
+     * @param cl instance of URLClassLoader.
+     * @return list of Classes.
      */
     private static List<Class<?>> getClasses(URLClassLoader cl) {
         List<Class<?>> result = new ArrayList<>();
@@ -113,8 +113,10 @@ public class AlgorithmsLoader {
     }
 
     /**
-     * Method that fills TreeMap with all classes available in a particular jar
-     * file, underneath a given package name.
+     * Gets all classes available in the jar file, underneath a given package name.
+     * @param result    list to be filled with all available classes.
+     * @param jarPath   path to jar file.
+     * @param cl        instance of class loader.
      */
     private static void getClassesFromJar(List<Class<?>> result, String jarPath, URLClassLoader cl) {
         try (JarFile jarFile = new JarFile(jarPath)) {

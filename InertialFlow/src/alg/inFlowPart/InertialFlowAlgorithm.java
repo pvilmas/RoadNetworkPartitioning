@@ -452,6 +452,7 @@ public class InertialFlowAlgorithm extends APartitionAlgorithm {
     /**
      * Computes a maximum flow between source s and sink t.
      * @param graph     graph to be divided.
+     * @return list of values of all edges belonging to the min. edge cut.
      */
     private List<Double> computeMaxFlowBetweenST(Graph graph){
         if (getParameters() != null && getParameters().containsKey("Balance")){

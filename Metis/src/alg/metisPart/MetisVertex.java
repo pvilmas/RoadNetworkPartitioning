@@ -11,6 +11,7 @@ import java.util.*;
  * @version 23-12-2023
  */
 public class MetisVertex {
+    /** Number of created instances. */
     private static int vertexCount = 0;
     /** List of original graph vertices that are represented by this instance. */
     private final List<Vertex> containingVertices;
@@ -18,9 +19,9 @@ public class MetisVertex {
     private final double weight;
     /** New ID of vertex. */
     private final int id;
-    /**   */
+    /** All edges starting from vertex.  */
     private List<Edge> startingEdges = null;
-    /**  */
+    /**  All edges ending in vertex. */
     private List<Edge> endingEdges = null;
 
     /**
@@ -59,6 +60,10 @@ public class MetisVertex {
         return id;
     }
 
+    /**
+     * Gets all edges starting from this vertex.
+     * @return list of all edges starting from this vertex.
+     */
     public List<Edge> getAllStartingEdges() {
         if (startingEdges == null) {
             startingEdges = new ArrayList<>();
@@ -74,6 +79,11 @@ public class MetisVertex {
         return startingEdges;
     }
 
+
+    /**
+     * Gets all edges ending in this vertex.
+     * @return list of all edges ending in this vertex.
+     */
     public List<Edge> getAllEndingEdges() {
         if (endingEdges == null) {
             endingEdges = new ArrayList<>();
@@ -89,6 +99,11 @@ public class MetisVertex {
         return endingEdges;
     }
 
+    /**
+     * Gets all neighbour vertices of this vertex.
+     * @param vertices  all available vertices.
+     * @return  map with all neighbours with edge weight between them.
+     */
     public Map<MetisVertex, Double> getNeighbourVertices(Set<MetisVertex> vertices) {
         //if(this.neighbourVertices == null) {
         Map<MetisVertex, Double> neighbourVertices1 = new HashMap<>();
@@ -125,6 +140,10 @@ public class MetisVertex {
         return neighbourVertices1;
     }
 
+    /**
+     * Gets number of all edges starting or ending in this vertex.
+     * @return  number of all edges starting of ending in this vertex.
+     */
     public int getVertexDegree() {
         int degree = 0;
         for (Vertex vertex : this.containingVertices) {

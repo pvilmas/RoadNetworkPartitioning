@@ -84,6 +84,7 @@ public class MetisAlgorithm extends APartitionAlgorithm {
 
     /**
      * Sorts vertices by their degree.
+     * @param vertices all graph vertices.
      * @return sorted array of vertices.
      */
     private MetisVertex[] sortVertices(Set<MetisVertex> vertices) {
@@ -451,9 +452,9 @@ public class MetisAlgorithm extends APartitionAlgorithm {
      * Checks if vertices were not exchanged yet.
      * @param a     Vertex A.
      * @param b     Vertex B.
-     * @param av    List
-     * @param bv
-     * @return
+     * @param av    List of exchanged vertices from one part.
+     * @param bv    List of exchanged vertices from another part.
+     * @return  true if not exchanged.
      */
     private boolean verticesNotExchanged(Map.Entry<Vertex, Double> a, Map.Entry<Vertex, Double> b,
                                                    List<Vertex> av, List<Vertex> bv) {

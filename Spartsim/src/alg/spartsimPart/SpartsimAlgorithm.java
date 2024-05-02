@@ -53,7 +53,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
 
     @Override
     public String getDescription() {
-        return "SParTSim";
+        return "SParTSim Algorithm";
     }
 
     /**
@@ -163,6 +163,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * Gets all neighbour parts of one given part.
      * @param part     given part.
      * @param subParts  all parts and subparts.
+     * @return list of all neighbour parts.
      */
     private List<Graph> getPartNeighbours(Graph part, List<Graph> subParts) {
         List<Graph> neighbours = new ArrayList<>();
@@ -190,6 +191,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         return neighbours;
     }
 
+    /**
+     * Gets part where given vertex belongs.
+     * @param subParts      all parts.
+     * @param v             given vertex.
+     * @return  part where given vertex belongs.
+     */
     private Graph getNeighbourPart(List<Graph> subParts, Vertex v) {
         for (Graph subPart : subParts) {
             if (subPart.getVertices().containsKey(v.getId())) {
@@ -295,6 +302,12 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
         minPart.getVertices().put(vertex.getId(), vertex);
     }
 
+    /**
+     * Gets number of given part.
+     * @param parts     list of all parts.
+     * @param minPart   given part.
+     * @return number of given part.
+     */
     private int getPartNumber(List<Graph> parts, Graph minPart) {
         int partNumber = -1;
         for (int i = 0; i < parts.size(); i++) {
@@ -323,6 +336,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
      * Implementation of Dijkstra's search.
      * @param maxVertex     maximal vertex.
      * @param minBorderPart part with minimal border.
+     * @return minimal value of path.
      */
     private double dijkstrasSearch(Vertex maxVertex, List<Vertex> minBorderPart, Graph minPart, Graph maxPart, List<Vertex> minPath, double minValue) {
         Map<Vertex, Double> distances = new HashMap<>();
@@ -469,6 +483,7 @@ public class SpartsimAlgorithm extends APartitionAlgorithm {
     /**
      * Computes connected subgraphs.
      * @param parts  parts to be computed.
+     * @return list of connected graphs.
      */
     private List<Graph> computeConnectedSubgraphs(List<Graph> parts) {
         List<Graph> subgraphs = new ArrayList<>();

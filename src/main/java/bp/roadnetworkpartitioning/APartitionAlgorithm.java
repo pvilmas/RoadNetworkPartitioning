@@ -22,9 +22,9 @@ public abstract class APartitionAlgorithm {
 
     /**
      * Method divides graph into parts.
-     * @return instance representing graph division (partition).
      * @param graph         graph to be divided.
      * @param partsCount    number of parts.
+     * @return instance representing graph division (partition).
      */
     public final GraphPartition getGraphPartition(Graph graph, int partsCount){
         setPartsCount(partsCount);
@@ -35,12 +35,17 @@ public abstract class APartitionAlgorithm {
         return this.graphPartition;
     }
 
+    /**
+     * Method that every partition algorithm must implement.
+     * This method divides graph and returns its partition.
+     * @return  partition of divided graph.
+     */
     protected abstract GraphPartition createGraphPartition();
 
     /**
-     * Gets graph partition.
+     * Gets graph partition for given graph if present.
+     * @param graph graph whose partition it should get.
      * @return instance representing graph division (partition).
-     * @param graph
      */
     public final GraphPartition getGraphPartition(Graph graph){
         if (this.graph == graph) {
