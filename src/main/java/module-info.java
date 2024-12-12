@@ -9,5 +9,6 @@ module bp.roadnetworkpartitioning {
     requires com.fasterxml.jackson.core;
 
     exports bp.roadnetworkpartitioning;
+    exports bp.roadnetworkpartitioning.xmlparser;
     opens bp.roadnetworkpartitioning to javafx.fxml;
 }
