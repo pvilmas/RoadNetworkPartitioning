@@ -28,4 +28,14 @@ class XMLParserTest{
         assertNotNull(result.attribute);
         assertEquals(2, result.attribute);
     }
+
+    @Test
+    public void parseListXMLTest() throws IOException {
+        final String XML = "<TestNode><node/><node/><node/></TestNode>";
+        XmlMapper xmlMapper = new XmlMapper();
+        TestNode result = xmlMapper.readValue(XML, TestNode.class);
+        assertNotNull(result);
+        assertNotNull(result.node);
+        assertEquals(3, result.node.size());
+    }
 }
