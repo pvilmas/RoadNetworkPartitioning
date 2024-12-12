@@ -42,7 +42,7 @@ public class AlgorithmsLoader {
                         ALGORITHMS.put(alg.getName(), alg);
                     }
                 } catch (AbstractMethodError | Exception e) {
-                    e.printStackTrace();
+                    System.err.println("Could not load algorithm: " + clazz.getSimpleName());
                 }
             }
         }
