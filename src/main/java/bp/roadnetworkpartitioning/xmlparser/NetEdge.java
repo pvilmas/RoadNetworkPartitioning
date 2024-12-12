@@ -21,8 +21,11 @@ public class NetEdge {
     public String type;
     @JacksonXmlProperty(isAttribute = true)
     public String shape;
+    @JacksonXmlProperty(isAttribute = true)
+    public String spreadType;
 
     // Children
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<NetLane> lane;
+    public NetEdgeParam param;
 }

@@ -7,6 +7,8 @@ public class NetLane {
     @JacksonXmlProperty(isAttribute = true)
     public String id;
     @JacksonXmlProperty(isAttribute = true)
+    public int index;
+    @JacksonXmlProperty(isAttribute = true)
     public String allow;
     @JacksonXmlProperty(isAttribute = true)
     public String disallow;
@@ -18,5 +20,11 @@ public class NetLane {
     public double length;
     @JacksonXmlProperty(isAttribute = true)
     public String shape;
+    @JacksonXmlProperty(isAttribute = true)
+    public String changeLeft;
+    @JacksonXmlProperty(isAttribute = true)
+    public String changeRight;
+    @JacksonXmlProperty(isAttribute = true)
+    public String acceleration;
     
 }

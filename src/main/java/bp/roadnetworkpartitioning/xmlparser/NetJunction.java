@@ -21,8 +21,11 @@ public class NetJunction {
     public String intLanes;
     @JacksonXmlProperty(isAttribute = true)
     public String shape;
+    @JacksonXmlProperty(isAttribute = true)
+    public String fringe;
 
     // Children
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<NetRequest> request;
+    public NetJunctionParam param;
 }
