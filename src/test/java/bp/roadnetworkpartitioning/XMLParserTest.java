@@ -21,7 +21,7 @@ class XMLParserTest{
 
     @Test
     public void parseAttributeXMLTest() throws IOException {
-        final String XML = "<TestNode attr=\"2\"><leaf/></TestNode>";
+        final String XML = "<TestNode attr=\"2\"/>";
         XmlMapper xmlMapper = new XmlMapper();
         TestNode result = xmlMapper.readValue(XML, TestNode.class);
         assertNotNull(result);
