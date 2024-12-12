@@ -18,4 +18,14 @@ class XMLParserTest{
         assertNotNull(result.leaf);
         assertEquals("", result.leaf);
     }
+
+    @Test
+    public void parseAttributeXMLTest() throws IOException {
+        final String XML = "<TestNode attr=\"2\"><leaf/></TestNode>";
+        XmlMapper xmlMapper = new XmlMapper();
+        TestNode result = xmlMapper.readValue(XML, TestNode.class);
+        assertNotNull(result);
+        assertNotNull(result.attribute);
+        assertEquals(2, result.attribute);
+    }
 }
