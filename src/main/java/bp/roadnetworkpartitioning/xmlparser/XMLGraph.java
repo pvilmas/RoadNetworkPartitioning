@@ -30,7 +30,8 @@ public class XMLGraph {
     
     // Children
     public NetLocation location;
-    public NetType type;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    public List<NetType> type;
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<NetEdge> edge;
     // @JacksonXmlElementWrapper(useWrapping = false)
@@ -39,15 +40,4 @@ public class XMLGraph {
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<NetJunction> junction;
 
-    // private Map<String, Vertex> junction_ids;
-    // private Map<String, Edge> edges_ids
-
-    // public Graph to_graph() {
-    //     Map<Integer, Edge> edges = new HashMap<>();
-    //     Map<Integer, Vertex> vertices = new HashMap<>();
-    //     int vertex_id = 0;
-    //     for(NetJunction junction : this.junction){
-            
-    //     }
-    // }
 }
