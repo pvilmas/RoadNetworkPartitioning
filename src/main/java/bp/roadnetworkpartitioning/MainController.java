@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import bp.roadnetworkpartitioning.xmlparser.XMLGraph;
+
 
 /**
  * Controller of main window of the app.
@@ -58,6 +60,7 @@ public class MainController {
     private ToggleGroup group;
     /** Graph to show. */
     private Graph graph = null;
+    private XMLGraph xmlGraph = null;
     /** Computed partition of the graph. */
     private GraphPartition graphPartition = null;
     /** All available algorithms. */
@@ -151,9 +154,15 @@ public class MainController {
         Task<Void> insertGraphTask = new Task<>() {
             @Override
             protected Void call() {
-                MainController.this.graph = JSONParser.readFile(selectedFile);
+                MainController.this.xmlGraph = XMLParser.readFile(selectedFile);
+                progressMessages.appendText("Reading is done, generating graph...\n");
+                try {
+                    MainController.this.graph = MainController.this.xmlGraph.to_graph();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 MainController.this.graphPartition = null;
-                progressMessages.appendText("Reading is done, visualizing graph...\n");
+                progressMessages.appendText("Generation is done, visualizing graph...\n");
                 return null;
             }
 
