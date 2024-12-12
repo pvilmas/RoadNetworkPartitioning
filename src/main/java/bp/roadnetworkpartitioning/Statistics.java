@@ -216,7 +216,7 @@ public class Statistics {
         return columnNames;
     }
 
-    private void prepareList(List attributes) {
+    private void prepareList(List<?> attributes) {
         attributes.sort(null);
         attributes.remove(0);
         attributes.remove(times.size() - 1);
