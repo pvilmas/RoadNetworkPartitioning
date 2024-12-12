@@ -10,12 +10,13 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
  * <p>This class is used for XML parsing and mapping using Jackson annotations.</p>
  */
 public class NetType{
+    // Attributes
     @JacksonXmlProperty(isAttribute = true)
-    public String type_id;
+    public String id;
     @JacksonXmlProperty(isAttribute = true)
     public int priority;
     @JacksonXmlProperty(isAttribute = true)
-    public int num_lanes;
+    public int numLanes;
     @JacksonXmlProperty(isAttribute = true)
     public double speed;
     @JacksonXmlProperty(isAttribute = true)

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
  * <p>This class is used for XML parsing and mapping using Jackson annotations.</p>
  */
 public class NetLocation {
+    // Attributes
     @JacksonXmlProperty(isAttribute = true)
     public String netOffset;
     @JacksonXmlProperty(isAttribute = true)
