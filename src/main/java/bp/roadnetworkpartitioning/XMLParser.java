@@ -2,6 +2,7 @@ package bp.roadnetworkpartitioning;
 
 import java.io.File;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import bp.roadnetworkpartitioning.xmlparser.XMLGraph;
 
@@ -35,6 +36,7 @@ public class XMLParser {
     public static boolean writeFile(String fileName, XMLGraph graph) {
         XmlMapper xmlMapper = new XmlMapper();
         try {
+            xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
             xmlMapper.writeValue(new File(fileName + EXTENSION), graph);
         } catch (Exception e) {
             e.printStackTrace();
