@@ -450,8 +450,10 @@ public class MainController {
                 for(Edge edge: vertex.getStartingEdges()){
                     if (edge == null) continue;
                     if (edge.getEndpoint() == null) continue;
+                    System.out.println("HMNITO TE DEBERÍA TIRAR UNA LÍNEA ESTA GÜEÁ");
                     Line line = new Line((vertex.getX()*zoom), (vertex.getY()*zoom),
                             (edge.getEndpoint().getX()*zoom), (edge.getEndpoint().getY()*zoom));
+                    System.out.println(line.getId());
                     if (graph.getVertices().containsValue(edge.getEndpoint())){
                         line.setStroke(color);
                     }

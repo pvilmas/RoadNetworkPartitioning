@@ -59,10 +59,9 @@ public class XMLGraph {
             vertices.put(vertex_id, vertex);
             vertex_id++;
         }
-        System.out.println(junction_ids.isEmpty());
         int edge_id = 0;
         for(NetEdge edge : this.edge){
-            if(edge.function != "internal"){
+            if(edge.function == null){
                 String id = edge.id;
                 Vertex from = junction_ids.get(edge.from);
                 Vertex to = junction_ids.get(edge.to);
@@ -77,6 +76,7 @@ public class XMLGraph {
                 edge_id++;
             }
         }
+        System.out.println(edges_ids.isEmpty());
         for(NetJunction junction : this.junction){
             List<Edge> int_edges = get_start_edges(junction);
             this.junction_ids.get(junction.id).setStartingEdges(int_edges);
