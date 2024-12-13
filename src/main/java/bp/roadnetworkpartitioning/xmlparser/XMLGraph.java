@@ -71,35 +71,16 @@ public class XMLGraph {
                     System.out.println("Edge " + edge.id + " has null from or to");
                     continue;
                 }
+                from.getStartingEdges().add(ed);
+                to.getEndingEdges().add(ed);
                 this.edges_ids.put(id, ed);
                 edges.put(edge_id, ed);
                 edge_id++;
             }
         }
-        System.out.println(edges_ids.isEmpty());
-        for(NetJunction junction : this.junction){
-            List<Edge> int_edges = get_start_edges(junction);
-            this.junction_ids.get(junction.id).setStartingEdges(int_edges);
-        }
+
         Graph graph = new Graph(vertices, edges);
         return graph;
     }
 
-    public List<Edge> get_start_edges(NetJunction junction){
-        List<Edge> start_edges = new ArrayList<>();
-        String inc_lanes = junction.incLanes;
-        String[] start_lanes = inc_lanes.split(" ");
-        // System.out.println(start_lanes[0]);
-        for(String lane : start_lanes){
-            for(NetEdge edge : this.edge){
-                for(NetLane l : edge.lane){
-                    if(l.id.equals(lane)){
-                        Edge e = this.edges_ids.get(edge.id);
-                        start_edges.add(e);
-                    }
-                }
-            }
-        }
-        return start_edges;
-    }
 }
