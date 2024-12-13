@@ -154,6 +154,41 @@ public class MainController {
         Task<Void> insertGraphTask = new Task<>() {
             @Override
             protected Void call() {
+                MainController.this.graph = JSONParser.readFile(selectedFile);
+                MainController.this.graphPartition = null;
+                progressMessages.appendText("Reading is done, visualizing graph...\n");
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                visualizeGraph();
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                progressMessages.appendText("Something went wrong...\n");
+            }
+        };
+        Thread insertGraphThread = new Thread(insertGraphTask);
+        insertGraphThread.setDaemon(true);
+        insertGraphThread.start();
+    }
+
+    /**
+     * Method called when MenuItem "Insert Graph" is clicked.
+     * This method opens a dialog for choosing a xml file with graph parameters.
+     */
+    @FXML
+    protected void onInsertGraphXMLMenuClick(){
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        progressMessages.appendText("Reading selected file...\n");
+        Task<Void> insertGraphTask = new Task<>() {
+            @Override
+            protected Void call() {
                 MainController.this.xmlGraph = XMLParser.readFile(selectedFile);
                 progressMessages.appendText("Reading is done, generating graph...\n");
                 try {
@@ -405,20 +440,25 @@ public class MainController {
      * @param color color of the graph.
      */
     private void drawGraph(Group group, Graph graph, Color color){
-        int size = 5;
-        for(Vertex vertex: graph.getVertices().values()){
-            Circle circle = new Circle((vertex.getX()*zoom), (vertex.getY()*zoom), size);
-            circle.setStroke(color);
-            circle.setFill(color);
-            group.getChildren().add(circle);
-            for(Edge edge: vertex.getStartingEdges()){
-                Line line = new Line((vertex.getX()*zoom), (vertex.getY()*zoom),
-                        (edge.getEndpoint().getX()*zoom), (edge.getEndpoint().getY()*zoom));
-                if (graph.getVertices().containsValue(edge.getEndpoint())){
-                    line.setStroke(color);
+        try {
+            int size = 5;
+            for(Vertex vertex: graph.getVertices().values()){
+                Circle circle = new Circle((vertex.getX()*zoom), (vertex.getY()*zoom), size);
+                circle.setStroke(color);
+                circle.setFill(color);
+                group.getChildren().add(circle);
+                for(Edge edge: vertex.getStartingEdges()){
+                    if (edge.getEndpoint() == null) continue;
+                    Line line = new Line((vertex.getX()*zoom), (vertex.getY()*zoom),
+                            (edge.getEndpoint().getX()*zoom), (edge.getEndpoint().getY()*zoom));
+                    if (graph.getVertices().containsValue(edge.getEndpoint())){
+                        line.setStroke(color);
+                    }
+                    group.getChildren().add(line);
                 }
-                group.getChildren().add(line);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -431,7 +471,17 @@ public class MainController {
         progressMessages.appendText("Exporting to JSON file...\n");
         JSONParser.writeJSONFile(jsonName, this.graph);
         progressMessages.appendText("Export completed.\n");
+    }
 
+    /** Exports graph to XML. */
+    @FXML
+    protected void onExportToXMLMenuClick() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String jsonName = "graph_" + dtf.format(now);
+        progressMessages.appendText("Exporting to JSON file...\n");
+        XMLParser.writeFile(jsonName, this.xmlGraph);
+        progressMessages.appendText("Export completed.\n");
     }
 
     /** Exports resulting partition to GeoJSON. */

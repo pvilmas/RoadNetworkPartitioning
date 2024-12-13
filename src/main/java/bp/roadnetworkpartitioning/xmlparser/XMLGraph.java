@@ -2,6 +2,7 @@ package bp.roadnetworkpartitioning.xmlparser;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -53,10 +54,12 @@ public class XMLGraph {
             double x = junction.x;
             double y = junction.y;
             Vertex vertex = new Vertex(vertex_id, x, y);
+            // System.out.println(vertex.getId());
             this.junction_ids.put(id, vertex);
             vertices.put(vertex_id, vertex);
             vertex_id++;
         }
+        System.out.println(junction_ids.isEmpty());
         int edge_id = 0;
         for(NetEdge edge : this.edge){
             if(edge.function != "internal"){
@@ -65,12 +68,36 @@ public class XMLGraph {
                 Vertex to = junction_ids.get(edge.to);
                 double length = edge.lane.get(0).length;
                 Edge ed = new Edge(edge_id, from, to, length);
+                System.out.println(edge.from);
+                System.out.println(edge.to);
                 this.edges_ids.put(id, ed);
                 edges.put(edge_id, ed);
                 edge_id++;
             }
         }
+        for(NetJunction junction : this.junction){
+            List<Edge> int_edges = get_start_edges(junction);
+            this.junction_ids.get(junction.id).setStartingEdges(int_edges);
+        }
         Graph graph = new Graph(vertices, edges);
         return graph;
+    }
+
+    public List<Edge> get_start_edges(NetJunction junction){
+        List<Edge> start_edges = new ArrayList<>();
+        String inc_lanes = junction.incLanes;
+        String[] start_lanes = inc_lanes.split(" ");
+        // System.out.println(start_lanes[0]);
+        for(String lane : start_lanes){
+            for(NetEdge edge : this.edge){
+                for(NetLane l : edge.lane){
+                    if(l.id.equals(lane)){
+                        Edge e = this.edges_ids.get(edge.id);
+                        start_edges.add(e);
+                    }
+                }
+            }
+        }
+        return start_edges;
     }
 }
