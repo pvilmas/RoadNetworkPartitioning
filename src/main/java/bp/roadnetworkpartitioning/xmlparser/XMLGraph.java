@@ -68,8 +68,10 @@ public class XMLGraph {
                 Vertex to = junction_ids.get(edge.to);
                 double length = edge.lane.get(0).length;
                 Edge ed = new Edge(edge_id, from, to, length);
-                System.out.println(edge.from);
-                System.out.println(edge.to);
+                if (edge.from == null || edge.to == null) {
+                    System.out.println("Edge " + edge.id + " has null from or to");
+                    continue;
+                }
                 this.edges_ids.put(id, ed);
                 edges.put(edge_id, ed);
                 edge_id++;

@@ -448,6 +448,7 @@ public class MainController {
                 circle.setFill(color);
                 group.getChildren().add(circle);
                 for(Edge edge: vertex.getStartingEdges()){
+                    if (edge == null) continue;
                     if (edge.getEndpoint() == null) continue;
                     Line line = new Line((vertex.getX()*zoom), (vertex.getY()*zoom),
                             (edge.getEndpoint().getX()*zoom), (edge.getEndpoint().getY()*zoom));
