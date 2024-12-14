@@ -54,7 +54,6 @@ public class XMLGraph {
             double x = junction.x;
             double y = junction.y;
             Vertex vertex = new Vertex(vertex_id, x, y);
-            // System.out.println(vertex.getId());
             this.junction_ids.put(id, vertex);
             vertices.put(vertex_id, vertex);
             vertex_id++;
