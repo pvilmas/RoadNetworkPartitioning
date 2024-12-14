@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import bp.roadnetworkpartitioning.xmlparser.NetLocation;
+import bp.roadnetworkpartitioning.xmlparser.NetType;
+
 /**
  * Instance of this class represents graph.
  * @author Lucie Roy
@@ -16,6 +19,17 @@ public class Graph {
     private Map<Integer, Vertex> vertices;
     /** Map with all edges of the graph. */
     private Map<Integer, Edge> edges;
+
+    /* Data to restore XML information */
+    /* XML properties */
+    public String xml_version = "";
+    public double limitTurnSpeed = 0;
+    public String xsi = "";
+    public String noNamespaceSchemaLocation = "";
+
+    /* Children */
+    public NetLocation location = null;
+    public List<NetType> types = null;
 
     /**
      * Constructor of graph.
@@ -68,6 +82,14 @@ public class Graph {
         return new Graph(vertices, edges);
     }
 
+    public void set_xml_properties(
+        String version, double limitTurnSpeed, String xsi, String noNamespaceSchemaLocation
+    ){
+        this.xml_version = version;
+        this.limitTurnSpeed = limitTurnSpeed;
+        this.xsi = xsi;
+        this. noNamespaceSchemaLocation = noNamespaceSchemaLocation;
+    }
 
 
     /**

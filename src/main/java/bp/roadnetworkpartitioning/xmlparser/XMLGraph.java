@@ -80,7 +80,7 @@ public class XMLGraph {
         }
 
         Graph graph = new Graph(vertices, edges);
+        graph.set_xml_properties(this.version, this.limitTurnSpeed, this.xsi, this.noNamespaceSchemaLocation);
         return graph;
     }
-
 }
