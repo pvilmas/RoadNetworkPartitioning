@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -18,6 +19,7 @@ import bp.roadnetworkpartitioning.Graph;
 
 @JsonRootName(value = "net")
 @JsonIgnoreProperties({ "tlLogic", "connection", "roundabout" })
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class XMLGraph {
     // Attributes
     @JacksonXmlProperty(isAttribute = true)
