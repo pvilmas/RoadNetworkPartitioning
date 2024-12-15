@@ -1,6 +1,8 @@
 package bp.roadnetworkpartitioning;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -43,5 +45,18 @@ public class XMLParser {
             return false;
         }
         return true;
+    }
+
+    public static void exportResultingPartition(XMLGraph xmlGraph, APartitionAlgorithm algorithm,
+            GraphPartition graphPartition, int i) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String fileName = algorithm.getName() + dtf.format(now) + "_" + i;
+        int j = 0;
+        for (Graph graphComponent : graphPartition.getGraphComponents()) {
+            XMLGraph xmlGraphComponent = xmlGraph.to_XmlGraph(graphComponent);
+            XMLParser.writeFile(fileName + "_" + j, xmlGraphComponent);
+            j++;
+        }
     }
 }

@@ -503,17 +503,21 @@ public class MainController {
         }
     }
 
-    // /** Exports resulting partition to XML. */
-    // @FXML
-    // protected void onExportPartitionToXMLMenuClick() {
-    //     progressMessages.appendText("Exporting partitions...\n");
+    /** Exports resulting partition to XML. */
+    @FXML
+    protected void onExportPartitionToXMLMenuClick() {
+        progressMessages.appendText("Exporting partitions...\n");
 
-    //     for (APartitionAlgorithm algorithm : algorithms.values()) {
-    //         progressMessages.appendText("Exporting to XML file...\n");
-    //         XMLParser.exportResultingPartition(xmlGraph, algorithm, algorithm.getGraphPartition(graph), 0);
-    //         progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
-    //     }
-    // }
+        for (APartitionAlgorithm algorithm : algorithms.values()) {
+            progressMessages.appendText("Exporting to XML file...\n");
+            if (algorithm.getGraphPartition(graph) == null) {
+                progressMessages.appendText("Partition of " + algorithm.getName() + " is not available.\n");
+                continue;
+            }
+            XMLParser.exportResultingPartition(xmlGraph, algorithm, algorithm.getGraphPartition(graph), 0);
+            progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
+        }
+    }
 
     /** Recalculates graph partition of all partition algorithms. */
     @FXML
