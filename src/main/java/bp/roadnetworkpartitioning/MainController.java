@@ -194,7 +194,9 @@ public class MainController {
                 try {
                     MainController.this.graph = MainController.this.xmlGraph.to_graph();
                 } catch (Exception e) {
+                    progressMessages.appendText("Error in graph generation\n");
                     e.printStackTrace();
+                    return null;
                 }
                 MainController.this.graphPartition = null;
                 progressMessages.appendText("Generation is done, visualizing graph...\n");
@@ -492,10 +494,26 @@ public class MainController {
 
         for (APartitionAlgorithm algorithm : algorithms.values()) {
             progressMessages.appendText("Exporting to JSON file...\n");
+            if (algorithm.getGraphPartition(graph) == null) {
+                progressMessages.appendText("Partition of " + algorithm.getName() + " is not available.\n");
+                continue;
+            }
             JSONParser.exportResultingPartition(algorithm, algorithm.getGraphPartition(graph), 0);
             progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
         }
     }
+
+    // /** Exports resulting partition to XML. */
+    // @FXML
+    // protected void onExportPartitionToXMLMenuClick() {
+    //     progressMessages.appendText("Exporting partitions...\n");
+
+    //     for (APartitionAlgorithm algorithm : algorithms.values()) {
+    //         progressMessages.appendText("Exporting to XML file...\n");
+    //         XMLParser.exportResultingPartition(xmlGraph, algorithm, algorithm.getGraphPartition(graph), 0);
+    //         progressMessages.appendText("Exported resulted partition of " + algorithm.getName() + "\n");
+    //     }
+    // }
 
     /** Recalculates graph partition of all partition algorithms. */
     @FXML
