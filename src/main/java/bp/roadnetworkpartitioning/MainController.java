@@ -111,14 +111,19 @@ public class MainController {
                 Task<Void> graphPartitioningTask = new Task<>() {
                     @Override
                     protected Void call() {
-                        algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
-                        progressMessages.appendText("Partitioning is done.\n");
-                        return null;
-                    }
-                };
-                Thread graphPartitioningThread = new Thread(graphPartitioningTask);
-                graphPartitioningThread.setDaemon(true);
-                graphPartitioningThread.start();
+                            try {
+                                algorithm.getValue().getGraphPartition(graph, spinnerPartCount.getValue());
+                                progressMessages.appendText("Partitioning is done.\n");
+                            } catch (Exception e1) {
+                                progressMessages.appendText("Something went wrong.\n");
+                                e1.printStackTrace();
+                            } 
+                            return null;
+                        }
+                    };
+                    Thread graphPartitioningThread = new Thread(graphPartitioningTask);
+                    graphPartitioningThread.setDaemon(true);
+                    graphPartitioningThread.start();
             });
             hBox.getChildren().addAll(radioButton, btnSetting, btnCalculate);
             hBox.setAlignment(Pos.CENTER);
