@@ -46,14 +46,14 @@
                         onAction="#onIncreaseButtonClick"/>
             </HBox>
             <HBox spacing="10" alignment="CENTER">
-                <TextField fx:id="textZoom" prefHeight="30" prefWidth="80"/>
+                <TextField fx:id="textZoom" prefHeight="30" prefWidth="80" onAction="#onZoomButtonClick"/>
                 <Button styleClass="btn, btn-warning" text="Zoom" prefHeight="30" prefWidth="30"
                         onAction="#onZoomButtonClick"/>
             </HBox>
             <VBox alignment="CENTER">
                 <spacing>5</spacing>
                 <Label text="Number of parts"/>
-                <Spinner fx:id="spinnerPartCount">
+                <Spinner fx:id="spinnerPartCount" editable="true">
                     <valueFactory>
                         <SpinnerValueFactory.IntegerSpinnerValueFactory min="2" max="1000" initialValue="2" amountToStepBy="1"/>
                     </valueFactory>
