@@ -2,6 +2,7 @@ package bp.roadnetworkpartitioning;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -33,7 +34,7 @@ public class AlgorithmsLoader {
             List<Class<?>> classes = getClasses(cl);
             for (Class<?> clazz : classes) {
                 try {
-                    if (APartitionAlgorithm.class.isAssignableFrom(clazz)) {
+                    if (APartitionAlgorithm.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers())) {
                         Constructor<?> ctor = clazz.getDeclaredConstructor();
                         ctor.setAccessible(true);
                         APartitionAlgorithm alg = (APartitionAlgorithm) ctor.newInstance();
