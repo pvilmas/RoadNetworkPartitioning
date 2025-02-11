@@ -155,35 +155,15 @@ public class MainController {
     protected void onInsertGraphJSONMenuClick(){
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
-        progressMessages.appendText("Reading selected file...\n");
-        Task<Void> insertGraphTask = new Task<>() {
-            @Override
-            protected Void call() {
-                MainController.this.graph = JSONParser.readFile(selectedFile);
-                MainController.this.graphPartition = null;
-                progressMessages.appendText("Reading is done, visualizing graph...\n");
-                return null;
-            }
-
-            @Override
-            protected void succeeded() {
-                super.succeeded();
-                visualizeGraph();
-            }
-
-            @Override
-            protected void failed() {
-                super.failed();
-                progressMessages.appendText("Something went wrong...\n");
-            }
-        };
-        Thread insertGraphThread = new Thread(insertGraphTask);
-        insertGraphThread.setDaemon(true);
-        insertGraphThread.start();
+        readJSONFile(selectedFile);
     }
-
+    
     protected void onJSONParameter(String path) {
         File selectedFile = new File(path);
+        readJSONFile(selectedFile);
+    }
+
+    private void readJSONFile(File selectedFile) {
         progressMessages.appendText("Reading selected file...\n");
         Task<Void> insertGraphTask = new Task<>() {
             @Override
@@ -219,43 +199,15 @@ public class MainController {
     protected void onInsertGraphXMLMenuClick(){
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(stage);
-        progressMessages.appendText("Reading selected file...\n");
-        Task<Void> insertGraphTask = new Task<>() {
-            @Override
-            protected Void call() {
-                MainController.this.xmlGraph = XMLParser.readFile(selectedFile);
-                progressMessages.appendText("Reading is done, generating graph...\n");
-                try {
-                    MainController.this.graph = MainController.this.xmlGraph.to_graph();
-                } catch (Exception e) {
-                    progressMessages.appendText("Error in graph generation\n");
-                    e.printStackTrace();
-                    return null;
-                }
-                MainController.this.graphPartition = null;
-                progressMessages.appendText("Generation is done, visualizing graph...\n");
-                return null;
-            }
-
-            @Override
-            protected void succeeded() {
-                super.succeeded();
-                visualizeGraph();
-            }
-
-            @Override
-            protected void failed() {
-                super.failed();
-                progressMessages.appendText("Something went wrong...\n");
-            }
-        };
-        Thread insertGraphThread = new Thread(insertGraphTask);
-        insertGraphThread.setDaemon(true);
-        insertGraphThread.start();
+        readXMLFile(selectedFile);
     }
 
     protected void onXMLParameter(String path) {
         File selectedFile = new File(path);
+        readXMLFile(selectedFile);
+    }
+
+    private void readXMLFile(File selectedFile) {
         progressMessages.appendText("Reading selected file...\n");
         Task<Void> insertGraphTask = new Task<>() {
             @Override
